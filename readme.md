@@ -30,12 +30,8 @@ This structured approach is reflected in the database design with core tables fo
 - Models
 - Elements
 - Attributes
-To get started, create your own database in the tool of your choice—whether it's Excel, Airtable, or another solution. The key is to maintain the table naming conventions as described later.
+To get started, create your own database in the tool of your choice—whether it's Excel, Airtable, or another solution. 
 
-**3. A engine to create IDS files to check the dataquality automatically.**
-We believ that there should not be any requirment that can't be checked. Therfore you can create for every defined model and project Phase an IDS.
-
-**4. A starting point for a pragmatic element plan to start working with**
 
 
 
