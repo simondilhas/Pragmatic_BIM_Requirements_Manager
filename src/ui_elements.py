@@ -187,10 +187,6 @@ def list_of_ifc_entities():
 
   return ifc_entities
 
-def no_workflow_selected():
-  st.warning('Please select a workflow at "home"!')
-  if st.button("Go Home :-)"):
-      switch_page("home")
 
 def progress_bar(progress_text):
   my_bar = st.progress(0)

@@ -40,19 +40,51 @@ We believ that there should not be any requirment that can't be checked. Therfor
 
 
 ## Installation and Setup
-1. Fork the Repository
 
-Create a fork of the project on GitHub with a unique name, such as ElementPlan_Your_Organization.
+1. **Fork the Repository**  
+   Fork the project on GitHub with a unique name, such as `ElementPlan_Your_Organization`.
 
-2. Deploy the Frontend
+2. **Run the Code Locally**
+   - Open the project folder in your programming environment.
+   - Ensure all required libraries are installed.
+   - Start the web application by running:  
+     ```bash
+     streamlit run home.py
+     ```
 
-- Quick Deployment: The easiest way to deploy the frontend is by creating an account on Streamlit and connecting it to your forked repository.
-- Scalable Deployment: For scaling, consider deploying the service on Azure or any web hosting service that supports Python execution.
-- Managed Deployment: If you prefer not to manage the deployment yourself, Abstract Ltd. offers support for hosting and scaling the service.
+3. **Deploy the Frontend**
+   - **Quick Deployment**: Create an account on Streamlit and connect it to your forked repository for easy deployment.
+   - **Scalable Deployment**: For more robust needs, consider deploying the service on Azure or any web hosting service that supports Python.
+   - **Managed Deployment**: If you prefer a hands-off approach, Abstract Ltd. offers services for hosting and scaling the application.
+
     
 
 ## Usage Instructions
-[How to use the viewer and define requirements...]
+
+To create a new version of an element plan, follow these steps:
+
+1. **Export Required CSV Files**:  
+   Export the following CSV files from your database, ensuring that all necessary columns are included:
+   - `Attributes-ExportAll.csv`
+   - `Elements-ExportAll.csv`
+   - `Models-ExportAll.csv`
+   - `Workflows-ExportAll.csv`  
+   (Refer to the "Attribute Table" section for details on the required columns.)
+
+2. **Create a New Version Folder**:  
+   In the `data\` directory, create a new folder named after the version you're working on (e.g., `data\V2.05`).
+
+3. **Place the CSV Files**:  
+   Move the exported CSV files into the newly created version folder.
+
+4. **Run the Merge Script**:  
+   Execute the script located at `utils/import_csv.py`. This will generate a merged Excel file containing all the data.
+
+5. **Generate Formatted Files for Contracts**:  
+   Run the script at `utils/create_formated_excel_export.py`. This script will create the formatted files required for download and use in contracts.
+
+
+ToDO: create a admin page to ease this workflow
 
 ## Database Configuration
 
@@ -63,10 +95,7 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 - **AttributID (str, int, float)**: A unique identifier for the attribute, e.g., `123` or  the pattern `{AttributName}_{Element_Name}` e-g. '`LongName_space`.
 - **AttributName (str)**: The name or type of the attribute, e.g., `Name`, `LongName`, `IsExternal`.
 - **SortAttribut (int, float)**: A numerical value used to sort or order the attributes.
-- **AttributDescriptionEN (text)**: A description of the attribute in English.
-- **AttributDescriptionDE (text)**: A description of the attribute in German.
-- **AttributDescriptionFR (text)**: A description of the attribute in French.
-- **AttributDescriptionIT (text)**: A description of the attribute in Italian.
+- **AttributDescription* (text)**: A description of the attribute the wildcard * stands for the two letter language Shortcut. e.g. AttributDescriptionEN for English
 - **Pset (str)**: The property set to which the attribute belongs.
 - **AllowedValuesEN (str)**: Comma-separated list of allowed values in English.
 - **AllowedValuesDE (str)**: Comma-separated list of allowed values in German.
