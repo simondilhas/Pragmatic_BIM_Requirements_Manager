@@ -1,0 +1,450 @@
+{
+    "header": {
+      "DE": "Pragmatischer Elementplan & Modellierungsdefinitionen",
+        "EN": "Pragmatic Element Plan & Modeling Definitions",
+        "FR": "Plan d'éléments pragmatique & définitions de modélisation",
+        "IT": "Piano degli elementi pragmatico & definizioni di modellazione"
+    },
+    "version_select": {
+      "DE": "Wählen sie die in Ihrem Vertrag definierte Version:",
+      "EN": "Select the version defined in your contract:",
+      "FR": "Sélectionnez la version définie dans votre contrat :",
+      "IT": "Seleziona la versione definita nel tuo contratto:"
+    },
+    "sidebar_filters": {
+      "project_phase": {
+        "DE": "Filter nach Projektphase",
+        "EN": "Filter by Project Phase",
+        "FR": "Filtrer par phase de projet",
+        "IT": "Filtra per fase di progetto"
+      },
+      "responsible": {
+        "DE": "Filter nach Verantwortlicher",
+        "EN": "Filter by Responsible",
+        "FR": "Filtrer par responsable",
+        "IT": "Filtra per responsabile"
+      },
+      "usecase": {
+        "DE": "Filter nach Usecase/Workflow",
+        "EN": "Filter by Usecase/Workflow",
+        "FR": "Filtrer par cas d'utilisation/flux de travail",
+        "IT": "Filtra per caso d'uso/flusso di lavoro"
+      },
+      "download_excel": {
+        "DE": "Excel herunterladen",
+        "EN": "Download Excel",
+        "FR": "Télécharger Excel",
+        "IT": "Scarica Excel"
+      },
+      "download_ids": {
+        "DE": "IDS herunterladen",
+        "EN": "Download IDS",
+        "FR": "Télécharger IDS",
+        "IT": "Scarica IDS"
+      }
+    },
+      "column_names": {
+          "WorkflowID": {
+              "DE": "WorkflowID",
+              "EN": "Workflow ID",
+              "FR": "ID Flux de travail",
+              "IT": "ID Flusso di lavoro"
+          },
+          "WorkflowNameEN": {
+              "DE": "Workflow Name",
+              "EN": "Workflow Name",
+              "FR": "Nom du flux de travail",
+              "IT": "Nome del flusso di lavoro"
+          },
+          "WorkflowNameDE": {
+              "DE": "Workflow Name",
+              "EN": "Workflow Name",
+              "FR": "Nom du flux de travail",
+              "IT": "Nome del flusso di lavoro"
+          },
+          "WorkflowNameFR": {
+              "DE": "Workflow Name",
+              "EN": "Workflow Name",
+              "FR": "Nom du flux de travail",
+              "IT": "Nome del flusso di lavoro"
+          },
+          "WorkflowNameIT": {
+              "DE": "Workflow Name",
+              "EN": "Workflow Name",
+              "FR": "Nom du flux de travail",
+              "IT": "Nome del flusso di lavoro"
+          },
+          "WorkflowSubheaderEN": {
+              "DE": "Workflow Unterüberschrift",
+              "EN": "Workflow Subheader",
+              "FR": "Sous-titre du flux de travail",
+              "IT": "Sottotitolo del flusso di lavoro"
+          },
+          "WorkflowSubheaderDE": {
+              "DE": "Workflow Unterüberschrift",
+              "EN": "Workflow Subheader",
+              "FR": "Sous-titre du flux de travail",
+              "IT": "Sottotitolo del flusso di lavoro"
+          },
+          "WorkflowSubheaderIT": {
+              "DE": "Workflow Unterüberschrift",
+              "EN": "Workflow Subheader",
+              "FR": "Sous-titre du flux de travail",
+              "IT": "Sottotitolo del flusso di lavoro"
+          },
+          "WorkflowSubheaderFR": {
+              "DE": "Workflow Unterüberschrift",
+              "EN": "Workflow Subheader",
+              "FR": "Sous-titre du flux de travail",
+              "IT": "Sottotitolo del flusso di lavoro"
+          },
+          "WorkflowDescriptionEN": {
+              "DE": "Workflow Beschreibung",
+              "EN": "Workflow Description",
+              "FR": "Description du flux de travail",
+              "IT": "Descrizione del flusso di lavoro"
+          },
+          "WorkflowDescriptionDE": {
+              "DE": "Workflow Beschreibung",
+              "EN": "Workflow Description",
+              "FR": "Description du flux de travail",
+              "IT": "Descrizione del flusso di lavoro"
+          },
+          "WorkflowDescriptionFR": {
+              "DE": "Workflow Beschreibung",
+              "EN": "Workflow Description",
+              "FR": "Description du flux de travail",
+              "IT": "Descrizione del flusso di lavoro"
+          },
+          "WorkflowDescriptionIT": {
+              "DE": "Workflow Beschreibung",
+              "EN": "Workflow Description",
+              "FR": "Description du flux de travail",
+              "IT": "Descrizione del flusso di lavoro"
+          },
+          "Status": {
+              "DE": "Status",
+              "EN": "Status",
+              "FR": "Statut",
+              "IT": "Stato"
+          },
+          "ModelID": {
+          "DE": "ModelID",
+          "EN": "Model ID",
+          "FR": "ID Modèle",
+          "IT": "ID Modello"
+      },
+      "ModelNameEN": {
+          "DE": "Modellname",
+          "EN": "Model Name",
+          "FR": "Nom du modèle",
+          "IT": "Nome del modello"
+      },
+      "ModelNameFR": {
+          "DE": "Modellname",
+          "EN": "Model Name",
+          "FR": "Nom du modèle",
+          "IT": "Nome del modello"
+      },
+      "ModelNameIT": {
+          "DE": "Modellname",
+          "EN": "Model Name",
+          "FR": "Nom du modèle",
+          "IT": "Nome del modello"
+      },
+      "ModelNameDE": {
+          "DE": "Modellname",
+          "EN": "Model Name",
+          "FR": "Nom du modèle",
+          "IT": "Nome del modello"
+      },
+      "ModelDescriptionEN": {
+          "DE": "Modellbeschreibung",
+          "EN": "Model Description",
+          "FR": "Description du modèle",
+          "IT": "Descrizione del modello"
+      },
+      "ModelDescriptionDE": {
+          "DE": "Modellbeschreibung",
+          "EN": "Model Description",
+          "FR": "Description du modèle",
+          "IT": "Descrizione del modello"
+      },
+      "ModelDescriptionFR": {
+          "DE": "Modellbeschreibung",
+          "EN": "Model Description",
+          "FR": "Description du modèle",
+          "IT": "Descrizione del modello"
+      },
+      "ModelDescriptionIT": {
+          "DE": "Modellbeschreibung",
+          "EN": "Model Description",
+          "FR": "Description du modèle",
+          "IT": "Descrizione del modello"
+      },
+      "FileNameEN": {
+          "DE": "Dateiname",
+          "EN": "File Name",
+          "FR": "Nom du fichier",
+          "IT": "Nome del file"
+      },
+      "FileNameDE": {
+          "DE": "Dateiname",
+          "EN": "File Name",
+          "FR": "Nom du fichier",
+          "IT": "Nome del file"
+      },
+      "FileNameFR": {
+          "DE": "Dateiname",
+          "EN": "File Name",
+          "FR": "Nom du fichier",
+          "IT": "Nome del file"
+      },
+      "FileNameIT": {
+          "DE": "Dateiname",
+          "EN": "File Name",
+          "FR": "Nom du fichier",
+          "IT": "Nome del file"
+      },
+      "SortModels": {
+          "DE": "Sortiere Modelle",
+          "EN": "Sort Models",
+          "FR": "Trier les modèles",
+          "IT": "Ordina modelli"
+      },
+      "ElementID": {
+          "DE": "ElementID",
+          "EN": "Element ID",
+          "FR": "ID Élément",
+          "IT": "ID Elemento"
+      },
+      "ElementNameEN": {
+          "DE": "Element Name",
+          "EN": "Element Name",
+          "FR": "Nom de l'élément",
+          "IT": "Nome elemento"
+      },
+      "SortElement": {
+          "DE": "Sortiere Element",
+          "EN": "Sort Element",
+          "FR": "Attribuer un ordre à l'élément",
+          "IT": "Ordina elemento"
+      },
+      "ElementNameDE": {
+          "DE": "Element Name",
+          "EN": "Element Name",
+          "FR": "Nom de l'élément",
+          "IT": "Nome elemento"
+      },
+      "ElementNameFR": {
+          "DE": "Element Name",
+          "EN": "Element Name",
+          "FR": "Nom de l'élément",
+          "IT": "Nome elemento"
+      },
+      "ElementNameIT": {
+          "DE": "Element Name",
+          "EN": "Element Name",
+          "FR": "Nom de l'élément",
+          "IT": "Nome elemento"
+      },
+      "IfcEntityIfc4.0": {
+          "DE": "Ifc Entität Ifc4.0",
+          "EN": "Ifc Entity Ifc4.0",
+          "FR": "Entité Ifc Ifc4.0",
+          "IT": "Entità Ifc Ifc4.0"
+      },
+      "IfcEntityIfc4.0Name": {
+          "DE": "Ifc Entitätsname Ifc4.0",
+          "EN": "Ifc Entity Name Ifc4.0",
+          "FR": "Nom de l'entité Ifc Ifc4.0",
+          "IT": "Nome dell'entità Ifc Ifc4.0"
+      },
+      "ElementDescriptionEN": {
+          "DE": "Element Beschreibung",
+          "EN": "Element Description",
+          "FR": "Description de l'élément",
+          "IT": "Descrizione dell'elemento"
+      },
+      "ElementDescriptionDE": {
+          "DE": "Element Beschreibung",
+          "EN": "Element Description",
+          "FR": "Description de l'élément",
+          "IT": "Descrizione dell'elemento"
+      },
+      "ElementDescriptionFR": {
+          "DE": "Element Beschreibung",
+          "EN": "Element Description",
+          "FR": "Description de l'élément",
+          "IT": "Descrizione dell'elemento"
+      },
+      "ElementDescriptionIT": {
+          "DE": "Element Beschreibung",
+          "EN": "Element Description",
+          "FR": "Description de l'élément",
+          "IT": "Descrizione dell'elemento"
+      },
+        "ContainedInDE": {
+        "DE": "Bezug zu",
+        "EN": "Contained In",
+        "FR": "Contenu dans",
+        "IT": "Contenuto in"
+        },
+        "ContainedInEN": {
+        "DE": "Bezug zu",
+        "EN": "Contained In",
+        "FR": "Contenu dans",
+        "IT": "Contenuto in"
+        },
+        "ContainedInFR": {
+        "DE": "Bezug zu",
+        "EN": "Contained In",
+        "FR": "Contenu dans",
+        "IT": "Contenuto in"
+        },
+        "ContainedInIT": {
+        "DE": "Bezug zu",
+        "EN": "Contained In",
+        "FR": "Contenu dans",
+        "IT": "Contenuto in"
+        },
+      "Attributes": {
+          "DE": "Attribute",
+          "EN": "Attributes",
+          "FR": "Attributs",
+          "IT": "Attributi"
+      },
+      "AttributID": {
+          "DE": "AttributID",
+          "EN": "Attribute ID",
+          "FR": "ID d'attribut",
+          "IT": "ID attributo"
+      },
+      "AttributName": {
+          "DE": "Attribut Name",
+          "EN": "Attribute Name",
+          "FR": "Nom de l'attribut",
+          "IT": "Nome attributo"
+      },
+      "SortAttribut": {
+          "DE": "Sortiere Attribut",
+          "EN": "Sort Attribute",
+          "FR": "Attribuer un ordre",
+          "IT": "Ordina attributo"
+      },
+      "AttributDescriptionEN": {
+          "DE": "Attribut Beschreibung",
+          "EN": "Attribute Description",
+          "FR": "Description de l'attribut",
+          "IT": "Descrizione dell'attributo"
+      },
+      "AttributDescriptionDE": {
+          "DE": "Attribut Beschreibung",
+          "EN": "Attribute Description",
+          "FR": "Description de l'attribut",
+          "IT": "Descrizione dell'attributo"
+      },
+      "AttributDescriptionFR": {
+          "DE": "Attribut Beschreibung",
+          "EN": "Attribute Description",
+          "FR": "Description de l'attribut",
+          "IT": "Descrizione dell'attributo"
+      },
+      "AttributDescriptionIT": {
+          "DE": "Attribut Beschreibung",
+          "EN": "Attribute Description",
+          "FR": "Description de l'attribut",
+          "IT": "Descrizione dell'attributo"
+      },
+      "Pset": {
+          "DE": "Eigenschaften Gruppe (Pset)",
+          "EN": "Property Set (Pset)",
+          "FR": "Groupe de propriétés (Pset)",
+          "IT": "Gruppo di proprietà (Pset)"
+      },
+      "AllowedValuesEN": {
+          "DE": "Zulässige Werte",
+          "EN": "Allowed Values",
+          "FR": "Valeurs autorisées",
+          "IT": "Valori consentiti"
+      },
+      "AllowedValuesDE": {
+          "DE": "Zulässige Werte",
+          "EN": "Allowed Values",
+          "FR": "Valeurs autorisées",
+          "IT": "Valori consentiti"
+      },
+      "AllowedValuesFR": {
+          "DE": "Zulässige Werte",
+          "EN": "Allowed Values",
+          "FR": "Valeurs autorisées",
+          "IT": "Valori consentiti"
+      },
+      "AllowedValuesIT": {
+          "DE": "Zulässige Werte",
+          "EN": "Allowed Values",
+          "FR": "Valeurs autorisées",
+          "IT": "Valori consentiti"
+      },
+      "RegexCheckEN": {
+          "DE": "Regex Überprüfung",
+          "EN": "Regex Check",
+          "FR": "Vérification Regex",
+          "IT": "Controllo Regex"
+      },
+      "RegexCheckDE": {
+          "DE": "Regex Überprüfung",
+          "EN": "Regex Check",
+          "FR": "Vérification Regex",
+          "IT": "Controllo Regex"
+      },
+      "RegexCheckFR": {
+          "DE": "Regex Überprüfung",
+          "EN": "Regex Check",
+          "FR": "Vérification Regex",
+          "IT": "Controllo Regex"
+      },
+      "RegexCheckIT": {
+          "DE": "Regex Überprüfung",
+          "EN": "Regex Check",
+          "FR": "Vérification Regex",
+          "IT": "Controllo Regex"
+      },
+      "DataTyp": {
+          "DE": "Daten Typ",
+          "EN": "Data Type",
+          "FR": "Type de données",
+          "IT": "Tipo di dati"
+      },
+      "Unit": {
+          "DE": "Einheit",
+          "EN": "Unit",
+          "FR": "Unité",
+          "IT": "Unità"
+      },
+      "IFC2x3": {
+          "DE": "IFC2x3",
+          "EN": "IFC2x3",
+          "FR": "IFC2x3",
+          "IT": "IFC2x3"
+      },
+      "IFC4": {
+          "DE": "IFC4",
+          "EN": "IFC4",
+          "FR": "IFC4",
+          "IT": "IFC4"
+      },
+      "IFC4.3": {
+          "DE": "IFC4.3",
+          "EN": "IFC4.3",
+          "FR": "IFC4.3",
+          "IT": "IFC4.3"
+      },
+      "Applicability": {
+          "DE": "Anwendbarkeit",
+          "EN": "Applicability",
+          "FR": "Applicabilité",
+          "IT": "Applicabilità"
+      }
+    }
+}

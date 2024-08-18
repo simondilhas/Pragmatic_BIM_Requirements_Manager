@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
+from plotly import graph_objects as go
 import json
 from pathlib import Path
 import uuid
@@ -32,46 +32,42 @@ def get_versions(data_folder: Path) -> list:
     return [f.name for f in data_folder.iterdir() 
             if f.is_dir() and f.name != '__pycache__']
 
-def display_plotly_table(data):
+def get_column_names(translations, language_suffix):
+    return {
+        'AttributName': translations['column_names']['AttributName'][language_suffix],
+        f'AttributDescription{language_suffix}': translations['column_names'][f'AttributDescription{language_suffix}'][language_suffix],
+        'Pset': translations['column_names']['Pset'][language_suffix],
+        'DataTyp': translations['column_names']['DataTyp'][language_suffix],
+        'Unit': translations['column_names']['Unit'][language_suffix],
+        f'AllowedValues{language_suffix}': translations['column_names'][f'AllowedValues{language_suffix}'][language_suffix]
+    }
+
+def display_plotly_table(data, translations, language_suffix):
+    column_names = get_column_names(translations, language_suffix)
+    
     fig = go.Figure(data=[go.Table(
         header=dict(
-            values=list(data.columns),
+            values=list(column_names.values()),
             align='left',
-            fill_color='paleturquoise',
+            fill_color='lightgrey',
             font=dict(size=12)
         ),
         cells=dict(
-            values=[data[col] for col in data.columns],
+            values=[data[col] for col in column_names.keys()],
             align='left',
-            fill_color='lavender',
+            fill_color='white',
             font=dict(size=11),
-            height=30
-        )
+            height=None,  # Allow dynamic height
+            wrapping='true'
+        ),
+        columnwidth=[150, 300, 100, 100, 80, 200]  # Specify pixel widths for each column
     )])
 
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
         height=150,
-        width=800
+        width=930  # Sum of all column widths
     )
-
-    # Set column widths
-    column_widths = {
-        'Attribute Name': '15%',
-        'Attribute Description': '30%',
-        'Pset': '15%',
-        'Data Type': '10%',
-        'Unit': '10%',
-        'Allowed Values': '20%'
-    }
-
-    for i, col in enumerate(data.columns):
-        fig.update_layout({
-            f'xaxis{i+1}': dict(
-                domain=[sum(float(w[:-1])/100 for w in list(column_widths.values())[:i]),
-                        sum(float(w[:-1])/100 for w in list(column_widths.values())[:i+1])]
-            )
-        })
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -85,8 +81,13 @@ def main():
         st.error("No version folders found in the data directory.")
         return
 
-    selected_version = st.sidebar.selectbox("Select Version", versions)
-    language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN', 'FR', 'ES'])
+    translations = load_translations(data_folder / 'translations.json')
+
+    selected_version = st.sidebar.selectbox(
+        translations['version_select']['EN'],
+        versions
+    )
+    language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN', 'FR', 'IT'])
     
     try:
         data = load_data(data_folder / selected_version, selected_version)
@@ -102,7 +103,7 @@ def main():
 
     data_filtered = filter_columns_by_language(data, language_suffix)
     
-    st.title("Element Data Display")
+    st.title(translations['header'][language_suffix])
 
     unique_model_names = data[f'ModelName{language_suffix}'].unique()
 
@@ -119,17 +120,24 @@ def main():
                 
                 st.header(row[element_name_col])
                 st.write(row[element_description_col])
+
+                # Replace <br> with actual line breaks for better display
+                #attribute_description = row[attribute_description_col].replace('<br>', '\n') if pd.notna(row[attribute_description_col]) else ''
+                #allowed_values = row[allowed_values_col].replace('<br>', '\n') if pd.notna(row[allowed_values_col]) else ''
                 
                 table_data = pd.DataFrame({
-                    'Attribute Name': [row[attribute_name_col]],
-                    'Attribute Description': [row[attribute_description_col]],
+                    'AttributName': [row[attribute_name_col]],
+                    f'AttributDescription{language_suffix}': [row[attribute_description_col]],
                     'Pset': [row['Pset']],
-                    'Data Type': [row['DataTyp']],
+                    'DataTyp': [row['DataTyp']],
                     'Unit': [row['Unit']],
-                    'Allowed Values': [row[allowed_values_col]]
+                    f'AllowedValues{language_suffix}': [row[allowed_values_col]]
                 })
                 
-                display_plotly_table(table_data)
+                display_plotly_table(table_data, translations, language_suffix)
 
-if __name__ == "__main__":
-    main()
+    st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
+    st.sidebar.button(translations['sidebar_filters']['download_ids'][language_suffix])
+
+
+main()

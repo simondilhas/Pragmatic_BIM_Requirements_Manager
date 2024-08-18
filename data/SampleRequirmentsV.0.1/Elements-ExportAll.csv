@@ -1,20 +1,20 @@
 ﻿ElementID,ElementNameEN,SortElement,ElementNameDE,ElementNameFR,ElementNameIT,IfcEntityIfc4.0Name,ElementDescriptionEN,ElementDescriptionDE,ElementDescriptionFR,ElementDescriptionIT,ContainedInEN,ContainedInDE,ContainedInFR,ContainedInIT
-Project,Project,"1,0",Projekt,,,IfcProject,"IfcProject is the main container for a digital building project. It stores essential project information like:
+Project,Project,"1,0",Projekt,,,IfcProject,"IfcProject is the main container for a digital building project. It stores essential project information like: <br>
 
-- Project name and description
-- Measurement units
-- Location details
-- Project stages
-- Basic project-wide settings
+- Project name and description<br>
+- Measurement units<br>
+- Location details<br>
+- Project stages<br>
+- Basic project-wide settings<br>
+<br>
+It acts as the central point for organizing all building information, helping team members access and understand the project easily.","IfcProject ist der Hauptcontainer für ein digitales Bauprojekt. Es speichert wesentliche Projektinformationen wie:<br>
 
-It acts as the central point for organizing all building information, helping team members access and understand the project easily.","IfcProject ist der Hauptcontainer für ein digitales Bauprojekt. Es speichert wesentliche Projektinformationen wie:
-
-- Projektname und -beschreibung
-- Masseinheiten
-- Standortdetails
-- Projektphasen
-- Grundlegende projektweite  Einstellungen
-
+- Projektname und -beschreibung<br>
+- Masseinheiten<br>
+- Standortdetails<br>
+- Projektphasen<br>
+- Grundlegende projektweite  Einstellungen<br>
+<br>
 Es dient als zentraler Punkt für die Organisation aller Bauinformationen und hilft Teammitgliedern, das Projekt leicht zu verstehen und darauf zuzugreifen.",,,,,,
 Planning Perimeter,Planning Perimeter,"2,0",Planungsperimeter,,,IfcSite,"A planning perimeter is represented as a single ""IfcSite"", even if it consists of multiple legal plots.","Ein Planungsperimeter wird als eine ""IfcSite"" dargestellt, auch wenn er aus mehreren baurechtlichen Grundstücken besteht.",,,Project,Projekt,,
 Building,Building,"3,0",Gebäude,,,IfcBuilding,,,,,Planning Perimeter,Planungsperimeter,,
