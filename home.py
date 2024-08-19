@@ -92,8 +92,6 @@ def main():
 
     st.divider()
 
-    st.divider()
-
     st.subheader("Get Involved")
     st.markdown("""
     We welcome contributions from everyone—whether you're a seasoned developer, new to open-source, or have domain knowledge. 
