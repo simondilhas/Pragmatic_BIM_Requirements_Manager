@@ -52,6 +52,16 @@ def get_column_names(translations, language_suffix):
 def display_plotly_table(data, translations, language_suffix):
     column_names = get_column_names(translations, language_suffix)
     
+    # CHANGE: Calculate the height based on the number of rows
+    row_height = 30  # Approximate height of each row in pixels
+    header_height = 40  # Height of the header row
+    num_rows = len(data)
+    table_height = (num_rows * row_height) + header_height
+    
+    # CHANGE: Set a minimum height to ensure very small tables are still visible
+    min_height = 150
+    table_height = max(table_height, min_height)
+
     fig = go.Figure(data=[go.Table(
         header=dict(
             values=list(column_names.values()),
@@ -64,14 +74,15 @@ def display_plotly_table(data, translations, language_suffix):
             align='left',
             fill_color='white',
             font=dict(size=11),
-            height=None  # Allow dynamic height
+            height=row_height  # Set the height of each cell
         ),
         columnwidth=[150, 300, 100, 100, 80, 200]  # Specify pixel widths for each column
     )])
 
+    # CHANGE: Use the calculated height
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
-        autosize=True,
+        height=table_height,
         width=930  # Sum of all column widths
     )
 
