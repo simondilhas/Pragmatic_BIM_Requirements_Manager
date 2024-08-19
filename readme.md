@@ -103,26 +103,59 @@ To get started, create your own database in the tool of your choice—whether it
 
 
 ## Installation and Setup
+To create a new version of the project, follow these steps:
 
-1. **Fork the Repository**  
-   Fork the project on GitHub with a unique name, such as `ElementPlan_Your_Organization`.
+### 1. Fork the Repository
+Create a private fork of the project on GitHub:
+- Go to the [original repository](https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager)
+- Create a new private repository (e.g., `Private_Pragmatic_BIM_Requirements`)
+- Clone the original repository and push to your private one
 
-2. **Run the Code Locally**
-   - Open the project folder in your programming environment.
-   - Ensure all required libraries are installed.
-   - Start the web application by running:  
-     ```bash
-     streamlit run home.py
-     ```
+Detailed instructions for creating a private fork:
+```bash
+# Clone the original repository as a bare repository
+git clone --bare https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager.git
 
-3. **Deploy the Frontend**
-   - **Quick Deployment**: Create an account on Streamlit and connect it to your forked repository for easy deployment.
-   - **Scalable Deployment**: For more robust needs, consider deploying the service on Azure or any web hosting service that supports Python.
-   - **Managed Deployment**: If you prefer a hands-off approach, Abstract Ltd. offers services for hosting and scaling the application.
+# Navigate into the cloned repository
+cd Pragmatic_BIM_Requirements_Manager.git
+
+# Mirror-push to your new private repository
+git push --mirror https://github.com/YOUR_USERNAME/Private_Pragmatic_BIM_Requirements.git
+
+# Remove the temporary local repository
+cd ..
+rm -rf Pragmatic_BIM_Requirements_Manager.git
+
+# Clone your new private repository
+git clone https://github.com/YOUR_USERNAME/Private_Pragmatic_BIM_Requirements.git
+
+# Navigate into your new repository
+cd Private_Pragmatic_BIM_Requirements
+
+# Add the original repository as a remote to fetch updates
+git remote add upstream https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager.git
+```
+
+### 2. Clone and Run Locally
+```bash
+pip install -r requirements.txt
+streamlit run home.py
+```
+### 3. Deployment Options
+ - Quick: Use Streamlit Share (https://streamlit.io/sharing) for easy cloud deployment
+ - Scalable: Deploy on cloud platforms like Azure, AWS, or GCP
+ - Managed: Contact Abstract Ltd. for hosted solutions
+
+### 4. Stay Updated
+ Regularly sync with the original repository:
+```bash
+git checkout main
+git fetch upstream
+git merge upstream/main
+git push origin main
+```
 
 ## Usage Instructions
-
-To create a new version of an element plan, follow these steps:
 
 1. **Export Required CSV Files**:  
    Export the following CSV files from your database, ensuring that all necessary columns are included:
