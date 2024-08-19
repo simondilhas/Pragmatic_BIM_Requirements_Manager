@@ -51,6 +51,7 @@ def get_column_names(translations, language_suffix):
         f'AllowedValues{language_suffix}': translations['column_names'][f'AllowedValues{language_suffix}'][language_suffix]
     }
 
+#Not used experiment
 def display_plotly_table(data, translations, language_suffix):
     column_names = get_column_names(translations, language_suffix)
     
@@ -85,6 +86,7 @@ def display_plotly_table(data, translations, language_suffix):
 
     st.plotly_chart(fig, use_container_width=True, config={'responsive': True})
 
+#Not used experiment
 def display_html_table(data, translations, language_suffix):
     column_names = get_column_names(translations, language_suffix)
     
@@ -140,6 +142,7 @@ def display_html_table(data, translations, language_suffix):
     st.markdown(html, unsafe_allow_html=True)
 
 def custom_text(text, font_size="0.7rem"):
+    #ugly code! Is there a better solution
     def to_rem(size):
         if isinstance(size, (int, float)):
             return f"{size}rem"
@@ -206,6 +209,7 @@ def custom_text(text, font_size="0.7rem"):
         return f'<p style="{base_style}">{text}</p>'
 
 def display_streamlit_columns(data, translations, language_suffix):
+    #ugly code! Is there a better solution
     column_names = get_column_names(translations, language_suffix)
 
     col_width = [2, 4, 2, 1, 1, 3]
@@ -306,13 +310,12 @@ def main():
                         st.write(element_description)
                     st.write("")
                     
-                    # Filter out rows where AttributName is NaN or empty
+
                     valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
                     
                     if valid_attributes.empty:
                         st.write("No attributes found for this element.")
                     else:
-                        # Prepare a DataFrame for all valid attributes of this element
                         attribute_data = pd.DataFrame({
                             'AttributName': valid_attributes['AttributName'],
                             f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
@@ -326,7 +329,6 @@ def main():
                         #display_html_table(attribute_data, translations, language_suffix)
                         display_streamlit_columns(attribute_data, translations, language_suffix)
                         
-                        #st.divider()
 
     st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
 
