@@ -4,9 +4,7 @@ import os
 from plotly import graph_objects as go
 import json
 from pathlib import Path
-import uuid
-import markdown
-import html
+
 
 @st.cache_data
 def get_project_path(folder_name: str) -> Path:
