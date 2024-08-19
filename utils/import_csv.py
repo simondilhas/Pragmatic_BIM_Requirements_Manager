@@ -111,7 +111,16 @@ def main():
                              .merge(dataframes['models_df'], on='ModelID', how='left')\
                              .merge(dataframes['workflows_df'], on='WorkflowID', how='left')
     
+
+    columns_to_check = ['SortModels', 'SortElements', 'SortAttributes']
+    available_columns = [col for col in columns_to_check if col in result_df.columns]
+    sorted_df = result_df.sort_values(by=available_columns, ascending=[True] * len(available_columns))
+    sorted_df = sorted_df.drop_duplicates().reset_index(drop=True)
+
+
     print(result_df)
+
+
     
     # Export the result to Excel
     export_excel(result_df, data_dir, VERSION)
