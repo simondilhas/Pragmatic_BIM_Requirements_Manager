@@ -1,11 +1,26 @@
-# Pragmatic Element Plan
+# Pragmatic BIM Requirements Manager:
+Streamlining BIM Data Management
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [The Challenge](#the-challenge)
+3. [Our Solution](#our-solution)
+   - [Key Features](#key-features)
+4. [Expanded Use Cases: How This Tool Empowers Client Organizations](#expanded-use-cases-how-this-tool-empowers-client-organizations)
+5. [Mapping Columns](#mapping-columns)
+6. [Contributing](#contributing)
+   - [For Developers](#for-developers)
+   - [For Non-Programmers](#for-non-programmers)
+7. [FAQ](#faq)
+8. [Roadmap](#roadmap)
+9. [License](#license)
+10. [Acknowledgements](#acknowledgements)
 
 ## Introduction
-# BIM Requirements Manager: Streamlining BIM Data Management
-
 ### The Challenge
 
-Building Information Modeling (BIM) is crucial in modern construction, yet managing BIM requirements remains complex:
+Building Information Modeling (BIM) is crucial in modern design and construction, yet managing BIM requirements ane benefiting form BIM Data remains complex:
 
 1. Client BIM requirements are dispersed across multiple, disconnected documents.
 2. Requirement inconsistencies impede the development of automated BIM data workflows.
@@ -84,6 +99,7 @@ This structured approach is reflected in the database design with core tables fo
 
 
 To get started, create your own database in the tool of your choice—whether it's Excel, Airtable, or another solution.
+*Mapping is not necessary for the definition process
 
 
 ## Installation and Setup
@@ -187,7 +203,7 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 - **CalculationLogic (text)**: A textual description or formula that outlines the logic used to calculate or process the attributes within the workflow. This helps the programmer to set up the actual workflow. e.g. Sum of all Area_Space if they are HNF
 
 ## Contributing
-We welcome contributions from the community! If you're a programmer looking to contribute, here are some ways you can get involved:
+We welcome contributions from everyone—whether you’re a seasoned developer, new to open-source or have domain knowledge. Your input is invaluable in making this project better for everyone.
 
 1. Code Review and Testing
 - Code Review: Help us improve the quality of our codebase by reviewing pull requests. Look for bugs, suggest optimizations, and ensure consistency with our coding standards.
@@ -215,7 +231,16 @@ ToDo: Add FAQ
 
 
 ## License
-This project is licenced under GNU LESSER GENERAL PUBLIC LICENSE, for Details see LICENCE.txt
+This project is licensed under the GNU Lesser General Public License (LGPL).
+
+What This Means for Users:
+
+- Freedom to Use: You are free to use this software for personal, academic, or commercial purposes without any restrictions.
+- Modification and Distribution: You can modify the source code and distribute your modified versions, provided that you also distribute the modifications under the same LGPL license.
+- Integration with Proprietary Software: Unlike the full GNU General Public License (GPL), the LGPL allows you to link this library with proprietary software without requiring that the proprietary software itself be open-sourced.
+- Contribution Back: If you improve or modify the library, we encourage (but do not require) you to contribute your changes back to the community, so everyone can benefit from your enhancements.
+
+For full details, please see the LICENSE.txt file included in the repository.
 
 ## Acknowledgements
 I would like to extend my heartfelt appreciation to everyone who contributed to the success of this project:
