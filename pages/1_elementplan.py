@@ -81,6 +81,11 @@ def main():
     
     st.sidebar.title("Data Display Options")
     
+    st.write(f"Current working directory: {os.getcwd()}")
+    st.write(f"Contents of current directory: {os.listdir('.')}")
+    st.write(f"Contents of data directory: {os.listdir(get_project_path('data'))}")
+
+    
     data_folder = get_project_path('data')
     versions = get_versions(data_folder)
     
@@ -143,7 +148,6 @@ def main():
                         f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
                     })
                     
-                    # Display all attributes for this element in a single table
                     display_plotly_table(attribute_data, translations, language_suffix)
 
     st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
