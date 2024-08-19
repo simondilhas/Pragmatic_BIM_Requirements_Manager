@@ -11,7 +11,7 @@ from check_imports_data_structure import (
     check_required_columns,
 )
 
-VERSION = 'SampleRequirmentsV.0.1'
+VERSION = 'SampleV.01'
 
 def get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
