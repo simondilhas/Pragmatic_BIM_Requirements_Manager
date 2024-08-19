@@ -1,12 +1,19 @@
 import streamlit as st
 import pandas as pd
+import os
 from plotly import graph_objects as go
 import json
 from pathlib import Path
 import uuid
 
+@st.cache_data
 def get_project_path(folder_name: str) -> Path:
-    return Path(__file__).parent.parent / folder_name
+    if os.getenv('STREAMLIT_CLOUD'):
+        # Use a path relative to the root of the repository
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
+    else:
+        # For local development, use the current method
+        return Path(__file__).parent.parent / folder_name
 
 def load_data(version_path: Path, version: str) -> pd.DataFrame:
     file_path = version_path / f"elementplan_{version}_raw_data.xlsx"
@@ -71,6 +78,7 @@ def display_plotly_table(data, translations, language_suffix):
     st.plotly_chart(fig, use_container_width=True)
 
 def main():
+    
     st.sidebar.title("Data Display Options")
     
     data_folder = get_project_path('data')
