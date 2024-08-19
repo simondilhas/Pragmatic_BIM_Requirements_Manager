@@ -19,7 +19,7 @@ def get_data_path(folder_name: str) -> Path:
         return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
     else:
         # For local development, use the current method
-        return Path(__file__).parent.parent / folder_name
+        return Path(__file__).parent.parent / 'data' / folder_name
 
 def load_dataframes(data_dir: Path) -> Dict[str, pd.DataFrame]:
     file_names = {

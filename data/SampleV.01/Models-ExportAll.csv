@@ -15,7 +15,7 @@ Innenräume und deren Beziehungen zueinander
 Integration von Gebäudesystemen
 
 Dieses Modell dient als umfassender 3D-Bauplan und unterstützt bei Entwurf, Analyse und Bauplanung.
-Hinweis: Obwohl es möglich ist, Räume in einem separaten Modell darzustellen, wird dieser Ansatz nicht empfohlen. Die Integration von Räumen und Gebäudeelementen in einem einzigen Modell vereinfacht die Navigation und behält klare Beziehungen zwischen Räumen und ihren umgebenden Strukturen bei.",,,,,,,"1,0"
+Hinweis: Obwohl es möglich ist, Räume in einem separaten Modell darzustellen, wird dieser Ansatz nicht empfohlen. Die Integration von Räumen und Gebäudeelementen in einem einzigen Modell vereinfacht die Navigation und behält klare Beziehungen zwischen Räumen und ihren umgebenden Strukturen bei.",,,ARC,ARC,ARC,ARC,"1,0"
 Architectural Floor Volume Model,Architectural Floor Volume Model,,,Architektonisches Geschossvolumen Modell,"A specialized digital representation focusing on the volumetric properties of building floors. It includes:
 
 - Gross floor areas and volumes
@@ -32,4 +32,4 @@ Note: While the model primarily deals with gross spaces, these can be further di
 - Allgemeine räumliche Organisation jeder Ebene
 
 Dieses Modell dient der effizienten Raumplanung, Flächenberechnung und Gebäudeanalyse.
-Hinweis: Während das Modell primär Bruttoflächen behandelt, können diese bei Bedarf weiter in spezifische Bereiche und Zonen unterteilt werden (z.B. einzelne Wohnungen, Bereiche für unterschiedliche Nutzungen). Diese Unterteilung ermöglicht ein detaillierteres Raummanagement, während die Gesamtstruktur des Geschossvolumenmodells beibehalten wird.",,,,,,,"2,0"
+Hinweis: Während das Modell primär Bruttoflächen behandelt, können diese bei Bedarf weiter in spezifische Bereiche und Zonen unterteilt werden (z.B. einzelne Wohnungen, Bereiche für unterschiedliche Nutzungen). Diese Unterteilung ermöglicht ein detaillierteres Raummanagement, während die Gesamtstruktur des Geschossvolumenmodells beibehalten wird.",,,ARC_Volumes,ARC_Volumen,ARC_Volumen,ARC_Volumen,"2,0"
