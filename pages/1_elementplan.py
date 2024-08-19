@@ -152,7 +152,7 @@ def main():
                         })
                         
                         display_plotly_table(attribute_data, translations, language_suffix)
-                        #st.divider()
+                        st.divider()
 
     st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
 
