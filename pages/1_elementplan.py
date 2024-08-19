@@ -71,7 +71,7 @@ def display_plotly_table(data, translations, language_suffix):
 
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
-        height=150,
+        autosize=True,
         width=930  # Sum of all column widths
     )
 
