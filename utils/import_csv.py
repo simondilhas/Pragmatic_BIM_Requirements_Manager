@@ -10,15 +10,6 @@ from check_imports_data_structure import (
     required_attributes_columns,
     check_required_columns,
 )
-import os
-
-from check_imports_data_structure import (
-    required_workflows_columns,
-    required_models_columns,
-    required_elements_columns,
-    required_attributes_columns,
-    check_required_columns,
-)
 
 VERSION = 'SampleRequirmentsV.0.1'
 
