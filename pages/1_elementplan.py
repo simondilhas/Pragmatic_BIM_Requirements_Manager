@@ -271,6 +271,45 @@ def display_download_button_for_language(version: str, language: str,  data_fold
         st.sidebar.write(file_path)
         st.sidebar.write(file_name)
 
+def filter_by_project_phase(data: pd.DataFrame, language_suffix: str) -> pd.DataFrame:
+    """
+    Filter the dataframe by selected project phases.
+    
+    Args:
+    data (pd.DataFrame): The input dataframe to filter.
+    language_suffix (str): The language suffix for column names.
+    
+    Returns:
+    pd.DataFrame: The filtered dataframe.
+    """
+    # Split the comma-separated phases and get unique values
+    all_phases = set()
+    for phases in data[f'ProjectPhase{language_suffix}'].dropna():
+        all_phases.update(phase.strip() for phase in phases.split(','))
+    all_phases = sorted(list(all_phases))
+      
+    selected_phases = st.sidebar.multiselect(
+        "Filter by Project Phase",  # Empty label to avoid repetition
+        options=all_phases,
+        default=[],  # Start with an empty selection
+        key="project_phase_filter",
+        placeholder="Filter by selecting"
+    )
+    
+    if not selected_phases:
+        return data  # Return all data if no phases are selected
+    
+    # Create a mask for rows that contain any of the selected phases
+    mask = data[f'ProjectPhase{language_suffix}'].fillna('').apply(
+        lambda x: any(phase in [p.strip() for p in x.split(',')] for phase in selected_phases)
+    )
+    filtered_data = data[mask]
+    
+    if filtered_data.empty:
+        st.warning(f"No data found for the selected phase(s): {', '.join(selected_phases)}")
+    
+    return filtered_data
+
 def main():
     
     st.sidebar.title("Data Display Options")
@@ -289,8 +328,6 @@ def main():
         versions
     )
     language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN']) #TODO #9 auto language selector based on input
-
-    display_download_button_for_language(selected_version, language_suffix, data_folder)
     
     try:
         data = load_data(data_folder / selected_version, selected_version)
@@ -305,13 +342,20 @@ def main():
         return
 
     data_filtered = filter_columns_by_language(data, language_suffix)
+    data_filtered = filter_by_project_phase(data_filtered, language_suffix)
+
+    display_download_button_for_language(selected_version, language_suffix, data_folder)  
+    
+    if data_filtered.empty:
+        st.info("No data to display based on the current filter settings.")
+        return  # Exit the main function early if there's no data to display
     
     st.title(translations['header'][language_suffix])
 
-    unique_model_names = data[f'ModelName{language_suffix}'].unique()
+    unique_model_names = data_filtered[f'ModelName{language_suffix}'].unique()
 
     for model_name in unique_model_names:
-        model_data = data[data[f'ModelName{language_suffix}'] == model_name]
+        model_data = data_filtered[data_filtered[f'ModelName{language_suffix}'] == model_name]
         
         with st.expander(f"Model: {model_name}"):
             unique_elements = model_data[f'ElementName{language_suffix}'].unique()
@@ -321,7 +365,6 @@ def main():
                     element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
                     
                     st.header(f"{element_name} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
-                    #st.write(f"IfcEntity: {element_data['IfcEntityIfc4.0Name'].iloc[0]}")
                     st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
                     
                     element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
@@ -329,7 +372,6 @@ def main():
                         st.write(element_description)
                     st.write("")
                     
-
                     valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
                     
                     if valid_attributes.empty:
@@ -344,10 +386,6 @@ def main():
                             f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
                         })
                         
-                        #display_plotly_table(attribute_data, translations, language_suffix)
-                        #display_html_table(attribute_data, translations, language_suffix)
                         display_streamlit_columns(attribute_data, translations, language_suffix)
-                        
-
 
 main()
