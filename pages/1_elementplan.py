@@ -64,26 +64,24 @@ def display_plotly_table(data, translations, language_suffix):
             align='left',
             fill_color='white',
             font=dict(size=11),
-            height=None  # Allow dynamic height
+            height=30  # Set a fixed height for each cell
         ),
         columnwidth=[150, 300, 100, 100, 80, 200]  # Specify pixel widths for each column
     )])
 
-    # CHANGE: Use auto-sizing and remove fixed height
+    # Calculate dynamic height based on the number of rows
+    num_rows = len(data)
+    header_height = 40
+    row_height = 50
+    total_height = header_height + (num_rows * row_height)
+
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
-        autosize=True,
+        height=total_height,
         width=930  # Sum of all column widths
     )
 
-    # CHANGE: Calculate a dynamic height based on the number of rows
-    num_rows = len(data)
-    min_height = 150
-    height_per_row = 30  # Estimated average height per row
-    dynamic_height = max(min_height, num_rows * height_per_row + 50)  # +50 for header and some padding
-
-    # CHANGE: Use Streamlit's custom component with dynamic height
-    st.plotly_chart(fig, use_container_width=True, config={'responsive': True}, height=dynamic_height)
+    st.plotly_chart(fig, use_container_width=True, config={'responsive': True})
 
 def main():
     
@@ -129,29 +127,32 @@ def main():
             unique_elements = model_data[f'ElementName{language_suffix}'].unique()
             
             for element_name in unique_elements:
-                element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
-                
-                st.header(element_name)
-                st.text(element_data['IfcEntityIfc4.0Name'].iloc[0])
-                st.write(element_data[f'ElementDescription{language_suffix}'].iloc[0])
-                
-                # Filter out rows where AttributName is NaN or empty
-                valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
-                
-                if valid_attributes.empty:
-                    st.write("No attributes found for this element.")
-                else:
-                    # Prepare a DataFrame for all valid attributes of this element
-                    attribute_data = pd.DataFrame({
-                        'AttributName': valid_attributes['AttributName'],
-                        f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
-                        'Pset': valid_attributes['Pset'],
-                        'DataTyp': valid_attributes['DataTyp'],
-                        'Unit': valid_attributes['Unit'],
-                        f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
-                    })
+                #col1 = st.columns(1)[0]
+                with st.container():
+                    element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
                     
-                    display_plotly_table(attribute_data, translations, language_suffix)
+                    st.header(element_name)
+                    st.text(element_data['IfcEntityIfc4.0Name'].iloc[0])
+                    st.write(element_data[f'ElementDescription{language_suffix}'].iloc[0])
+                    
+                    # Filter out rows where AttributName is NaN or empty
+                    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
+                    
+                    if valid_attributes.empty:
+                        st.write("No attributes found for this element.")
+                    else:
+                        # Prepare a DataFrame for all valid attributes of this element
+                        attribute_data = pd.DataFrame({
+                            'AttributName': valid_attributes['AttributName'],
+                            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
+                            'Pset': valid_attributes['Pset'],
+                            'DataTyp': valid_attributes['DataTyp'],
+                            'Unit': valid_attributes['Unit'],
+                            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+                        })
+                        
+                        display_plotly_table(attribute_data, translations, language_suffix)
+                        #st.divider()
 
     st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
 
