@@ -52,16 +52,6 @@ def get_column_names(translations, language_suffix):
 def display_plotly_table(data, translations, language_suffix):
     column_names = get_column_names(translations, language_suffix)
     
-    # CHANGE: Calculate the height based on the number of rows
-    row_height = 30  # Approximate height of each row in pixels
-    header_height = 40  # Height of the header row
-    num_rows = len(data)
-    table_height = (num_rows * row_height) + header_height
-    
-    # CHANGE: Set a minimum height to ensure very small tables are still visible
-    min_height = 150
-    table_height = max(table_height, min_height)
-
     fig = go.Figure(data=[go.Table(
         header=dict(
             values=list(column_names.values()),
@@ -74,19 +64,26 @@ def display_plotly_table(data, translations, language_suffix):
             align='left',
             fill_color='white',
             font=dict(size=11),
-            height=row_height  # Set the height of each cell
+            height=None  # Allow dynamic height
         ),
         columnwidth=[150, 300, 100, 100, 80, 200]  # Specify pixel widths for each column
     )])
 
-    # CHANGE: Use the calculated height
+    # CHANGE: Use auto-sizing and remove fixed height
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
-        height=table_height,
+        autosize=True,
         width=930  # Sum of all column widths
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    # CHANGE: Calculate a dynamic height based on the number of rows
+    num_rows = len(data)
+    min_height = 150
+    height_per_row = 30  # Estimated average height per row
+    dynamic_height = max(min_height, num_rows * height_per_row + 50)  # +50 for header and some padding
+
+    # CHANGE: Use Streamlit's custom component with dynamic height
+    st.plotly_chart(fig, use_container_width=True, config={'responsive': True}, height=dynamic_height)
 
 def main():
     
