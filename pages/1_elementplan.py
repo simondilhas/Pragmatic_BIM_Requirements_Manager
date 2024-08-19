@@ -17,10 +17,7 @@ def get_project_path(folder_name: str) -> Path:
 
 def load_data(version_path: Path, version: str) -> pd.DataFrame:
     file_path = version_path / f"Elementplan_{version}_raw_data.xlsx"
-    st.write(f"Attempting to load file: {file_path}")
     if not file_path.exists():
-        st.error(f"File not found: {file_path}")
-        st.write(f"Files in directory: {list(file_path.parent.glob('*'))}")
         raise FileNotFoundError(f"File not found: {file_path}")
     return pd.read_excel(file_path)
 
@@ -83,12 +80,7 @@ def display_plotly_table(data, translations, language_suffix):
 def main():
     
     st.sidebar.title("Data Display Options")
-    
-    st.write(f"Current working directory: {os.getcwd()}")
-    st.write(f"Contents of current directory: {os.listdir('.')}")
-    st.write(f"Contents of data directory: {os.listdir(get_project_path('data'))}")
-
-    
+       
     data_folder = get_project_path('data')
     versions = get_versions(data_folder)
     
