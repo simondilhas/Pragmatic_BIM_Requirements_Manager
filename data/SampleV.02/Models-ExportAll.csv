@@ -1,0 +1,35 @@
+﻿ModelID,ModelNameEN,ModelNameFR,ModelNameIT,ModelNameDE,ModelDescriptionEN,ModelDescriptionDE,ModelDescriptionFR,ModelDescriptionIT,FileNameEN,FileNameDE,FileNameFR,FileNameIT,SortModels
+Architectural Building Element and Space Model,Architectural Building Element and Space Model,,,Architektonisches Bauelement und Raummodell,"A digital representation of a building's physical components and spatial layout. It includes:
+
+- Structural elements (walls, floors, roofs)
+- Architectural features (doors, windows)
+- Interior spaces and their relationships
+- Building systems integration
+
+This model serves as a comprehensive 3D blueprint, aiding in design, analysis, and construction planning.
+Note: While it's possible to separate spaces into a distinct model, this approach is not recommended. Keeping spaces integrated with building elements in a single model simplifies navigation and maintains clear relationships between spaces and their surrounding structures.","Eine digitale Darstellung der physischen Komponenten und räumlichen Anordnung eines Gebäudes. Es umfasst:
+
+Strukturelle Elemente (Wände, Böden, Dächer)
+Architektonische Merkmale (Türen, Fenster)
+Innenräume und deren Beziehungen zueinander
+Integration von Gebäudesystemen
+
+Dieses Modell dient als umfassender 3D-Bauplan und unterstützt bei Entwurf, Analyse und Bauplanung.
+Hinweis: Obwohl es möglich ist, Räume in einem separaten Modell darzustellen, wird dieser Ansatz nicht empfohlen. Die Integration von Räumen und Gebäudeelementen in einem einzigen Modell vereinfacht die Navigation und behält klare Beziehungen zwischen Räumen und ihren umgebenden Strukturen bei.",,,ARC,ARC,ARC,ARC,"1,0"
+Architectural Floor Volume Model,Architectural Floor Volume Model,,,Architektonisches Geschossvolumen Modell,"A specialized digital representation focusing on the volumetric properties of building floors. It includes:
+
+- Gross floor areas and volumes
+- Floor outlines and boundaries
+- Vertical relationships between floors
+- Overall spatial organization of each level
+
+This model serves for efficient space planning, area calculations, and building analysis.
+Note: While the model primarily deals with gross spaces, these can be further divided into specific areas and zones as needed (e.g., individual flats, areas for different uses). This division allows for more detailed space management while maintaining the overall structure of the floor volume model.","Eine spezialisierte digitale Darstellung, die sich auf die volumetrischen Eigenschaften von Gebäudegeschossen konzentriert. Es umfasst:
+
+- Bruttogeschossflächen und -volumen
+- Geschossumrisse und -grenzen
+- Vertikale Beziehungen zwischen den Etagen
+- Allgemeine räumliche Organisation jeder Ebene
+
+Dieses Modell dient der effizienten Raumplanung, Flächenberechnung und Gebäudeanalyse.
+Hinweis: Während das Modell primär Bruttoflächen behandelt, können diese bei Bedarf weiter in spezifische Bereiche und Zonen unterteilt werden (z.B. einzelne Wohnungen, Bereiche für unterschiedliche Nutzungen). Diese Unterteilung ermöglicht ein detaillierteres Raummanagement, während die Gesamtstruktur des Geschossvolumenmodells beibehalten wird.",,,ARC_Volumes,ARC_Volumen,ARC_Volumen,ARC_Volumen,"2,0"

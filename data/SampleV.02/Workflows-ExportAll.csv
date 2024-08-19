@@ -1,0 +1,73 @@
+﻿WorkflowID,WorkflowNameEN,WorkflowNameDE,WorkflowNameFR,WorkflowNameIT,WorkflowSubheaderEN,WorkflowSubheaderDE,WorkflowSubheaderIT,WorkflowSubheaderFR,WorkflowDescriptionEN,WorkflowDescriptionDE,WorkflowDescriptionFR,WorkflowDescriptionIT,Status
+RIM,Room Data Manager,,,,"Collaborate, manage and visualize roombooks pragmatically.",,,,"**The challenge:**<br>
+            Room information is often managed:
+            - Within the software of individual trades (architect, HVAC, etc.), leading to inconsistencies and redundant data entries.
+            - In Excel files that are difficult to verify.
+            - In expensive room book solutions that are overkill for smaller and less complex projects.
+            <br>
+            **The solution:**<br>
+            1. Set up a collaborative workflow with a shared Excel file. This can be done using platforms like Trimble Connect, Teams, or any other solution that allowrequirementss parallel access to a file. You'll get the detailed Workflow requirments on the next page.
+            2. Upload an IFC Model with at least the IfcSpaces. The link between Excel and the model is made through either the Name or LongName attribute. This means: <br> In both Excel and IFC, the same value needs to be found in one of these two columns (usually ""Name"" for the unique room number and ""LongName"" for the descriptive type name).
+            3. View the enriched data in 2D or 3D, check the data, and export the graphs for reports (save as pictures).
+            4. Download the enriched IFC for documentation, handover, or in-depth analysis.
+            Need support or adaptation? Contact Simon Dilhas at simon.dilhas@abstract.build","**The challenge:**<br>
+            Room information is often managed:
+            - Within the software of individual trades (architect, HVAC, etc.), leading to inconsistencies and redundant data entries.
+            - In Excel files that are difficult to verify.
+            - In expensive room book solutions that are overkill for smaller and less complex projects.
+            <br>
+            **The solution:**<br>
+            1. Set up a collaborative workflow with a shared Excel file. This can be done using platforms like Trimble Connect, Teams, or any other solution that allowrequirementss parallel access to a file. You'll get the detailed Workflow requirments on the next page.
+            2. Upload an IFC Model with at least the IfcSpaces. The link between Excel and the model is made through either the Name or LongName attribute. This means: <br> In both Excel and IFC, the same value needs to be found in one of these two columns (usually ""Name"" for the unique room number and ""LongName"" for the descriptive type name).
+            3. View the enriched data in 2D or 3D, check the data, and export the graphs for reports (save as pictures).
+            4. Download the enriched IFC for documentation, handover, or in-depth analysis.
+            Need support or adaptation? Contact Simon Dilhas at simon.dilhas@abstract.build",,,Beta
+ABC,AbstractBIM Model Conversion for Simulations,,,,Simplify and normalize models for Building Performance Simulations and Cost Calculations,,,,"**The challenge:**<br>
+Simulation models demand structure and simplicity, while architectural designs favor rapid iteration. Early-stage simulations and calculations have the greatest impact. Minimal input requires a valid IFC with IfcSpaces; Windows and Doors will be abstracted if present.
+<br>
+**The solution:**<br>
+1. Establish and communicate minimal model requirements early.
+2. Upload and verify model integrity:
+   - Confirm inclusion of all Spaces
+   - Validate External Property settings and Room Names
+   - (Optional: check Windows and Doors)
+   - Apply corrections as needed (in-app or preferred system)
+3. Abstract the model:
+   - Utilize abstractBIM.com (temporary solution)
+   - Export as IFC, Excel, or gbXML
+   - (Automation planned in future Pragmatic Workflows update)
+4. Implement abstracted model in workflows","**The challenge:**<br>
+Simulation models demand structure and simplicity, while architectural designs favor rapid iteration. Early-stage simulations and calculations have the greatest impact. Minimal input requires a valid IFC with IfcSpaces; Windows and Doors will be abstracted if present.
+<br>
+**The solution:**<br>
+1. Establish and communicate minimal model requirements early.
+2. Upload and verify model integrity:
+   - Confirm inclusion of all Spaces
+   - Validate External Property settings and Room Names
+   - (Optional: check Windows and Doors)
+   - Apply corrections as needed (in-app or preferred system)
+3. Abstract the model:
+   - Utilize abstractBIM.com (temporary solution)
+   - Export as IFC, Excel, or gbXML
+   - (Automation planned in future Pragmatic Workflows update)
+4. Implement abstracted model in workflows",,,WIP
+ITE,IFC Table Extractor,,,,"Convert IFC files to tables, extract all attributes and properties",,,,"**The Challenge:<**br>
+IFC data complexity hinders accessibility. Quantity Surveyors and Facility Managers excel at spreadsheets but find IFC daunting.
+<br>
+
+**The Solution:**<br>
+1. Upload your IFC file<br>
+2. Opt for quantity calculations (optional)<br>
+3. Receive Excel files for each IFC Entity","**The Challenge:<**br>
+IFC data complexity hinders accessibility. Quantity Surveyors and Facility Managers excel at spreadsheets but find IFC daunting.
+<br>
+
+**The Solution:**<br>
+1. Upload your IFC file<br>
+2. Opt for quantity calculations (optional)<br>
+3. Receive Excel files for each IFC Entity",,,WIP
+MM,Model Merger,,,,,,,,,,,,Idea
+CQ,Calculate Quantities,,,,,,,,,,,,Idea
+SC,Simple Competition,,,,,,,,,,,,Idea
+ZM,Zone Merger,,,,Merge Spaces by defined IFC Zone,,,,,,,,Idea
+ISE,IFC Schema Explorer,,,,"Quickly find the right Entity and Property, even in Swissgerman",,,,,,,,

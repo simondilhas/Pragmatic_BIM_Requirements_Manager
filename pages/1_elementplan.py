@@ -1,27 +1,44 @@
 import streamlit as st
 import pandas as pd
 import os
-from plotly import graph_objects as go
-import json
 from pathlib import Path
+from typing import List, Dict, Tuple
+import json
 
+# Constants
+DATA_FOLDER = 'data'
+TRANSLATIONS_FILE = 'translations.json'
+EXCEL_FILE_PATTERN = "Elementplan_{version}_raw_data.xlsx"
+LANGUAGE_OPTIONS = ['DE', 'EN']
+
+# Type aliases
+DataFrame = pd.DataFrame
+PathLike = Path | str
 
 @st.cache_data
 def get_project_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
-        # Use a path relative to the root of the repository
         return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
     else:
-        # For local development, use the current method
         return Path(__file__).parent.parent / folder_name
 
-def load_data(version_path: Path, version: str) -> pd.DataFrame:
-    file_path = version_path / f"Elementplan_{version}_raw_data.xlsx"
+@st.cache_data
+def load_data(version_path: PathLike, version: str) -> DataFrame:
+    file_path = Path(version_path) / EXCEL_FILE_PATTERN.format(version=version)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
     return pd.read_excel(file_path)
 
-def filter_columns_by_language(df, language_suffix):
+@st.cache_data
+def load_translations(json_path: PathLike) -> Dict:
+    with open(json_path, 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+def get_versions(data_folder: PathLike) -> List[str]:
+    return [f.name for f in Path(data_folder).iterdir() 
+            if f.is_dir() and f.name != '__pycache__']
+
+def filter_columns_by_language(df: DataFrame, language_suffix: str) -> DataFrame:
     common_columns = [
         'AttributID', 'AttributName', 'SortAttribut', 'Pset', 'DataTyp', 'Unit',
         'IFC2x3', 'IFC4', 'IFC4.3', 'Applicability', 'ElementID', 'ModelID',
@@ -31,117 +48,50 @@ def filter_columns_by_language(df, language_suffix):
     columns_to_keep = common_columns + language_specific_columns
     return df[columns_to_keep]
 
-def load_translations(json_path: Path) -> dict:
-    with open(json_path, 'r', encoding='utf-8') as file:
-        return json.load(file)
-
-def get_versions(data_folder: Path) -> list:
-    return [f.name for f in data_folder.iterdir() 
-            if f.is_dir() and f.name != '__pycache__']
-
-def get_column_names(translations, language_suffix):
-    return {
-        'AttributName': translations['column_names']['AttributName'][language_suffix],
-        f'AttributDescription{language_suffix}': translations['column_names'][f'AttributDescription{language_suffix}'][language_suffix],
-        'Pset': translations['column_names']['Pset'][language_suffix],
-        'DataTyp': translations['column_names']['DataTyp'][language_suffix],
-        'Unit': translations['column_names']['Unit'][language_suffix],
-        f'AllowedValues{language_suffix}': translations['column_names'][f'AllowedValues{language_suffix}'][language_suffix]
-    }
-
-#Not used experiment
-def display_plotly_table(data, translations, language_suffix):
-    column_names = get_column_names(translations, language_suffix)
-    
-    fig = go.Figure(data=[go.Table(
-        header=dict(
-            values=list(column_names.values()),
-            align='left',
-            fill_color='lightgrey',
-            font=dict(size=12)
-        ),
-        cells=dict(
-            values=[data[col] for col in column_names.keys()],
-            align='left',
-            fill_color='white',
-            font=dict(size=11),
-            height=30  # Set a fixed height for each cell
-        ),
-        columnwidth=[150, 300, 100, 100, 80, 200]  # Specify pixel widths for each column
-    )])
-
-    # Calculate dynamic height based on the number of rows
-    num_rows = len(data)
-    header_height = 40
-    row_height = 50
-    total_height = header_height + (num_rows * row_height)
-
-    fig.update_layout(
-        margin=dict(l=0, r=0, t=0, b=0),
-        height=total_height,
-        width=930  # Sum of all column widths
+def filter_by_project_phase(data: DataFrame, language_suffix: str) -> DataFrame:
+    all_phases = set()
+    for phases in data[f'ProjectPhase{language_suffix}'].dropna():
+        all_phases.update(phase.strip() for phase in phases.split(','))
+    all_phases = sorted(list(all_phases))
+      
+    selected_phases = st.sidebar.multiselect(
+        "Filter by Project Phase",
+        options=all_phases,
+        default=[],
+        key="project_phase_filter",
+        placeholder="Filter by selecting"
     )
+    
+    if not selected_phases:
+        return data
 
-    st.plotly_chart(fig, use_container_width=True, config={'responsive': True})
+    mask = data[f'ProjectPhase{language_suffix}'].fillna('').apply(
+        lambda x: any(phase in [p.strip() for p in x.split(',')] for phase in selected_phases)
+    )
+    filtered_data = data[mask]
+    
+    if filtered_data.empty:
+        st.warning(f"No data found for the selected phase(s): {', '.join(selected_phases)}")
+    
+    return filtered_data
 
-#Not used experiment
-def display_html_table(data, translations, language_suffix):
-    column_names = get_column_names(translations, language_suffix)
-    
-    html = f"""
-    <style>
-        .styled-table {{
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 0.9em;
-            font-family: sans-serif;
-            min-width: 400px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        }}
-        .styled-table thead tr {{
-            background-color: #009879;
-            color: #ffffff;
-            text-align: left;
-        }}
-        .styled-table th,
-        .styled-table td {{
-            padding: 12px 15px;
-        }}
-        .styled-table tbody tr {{
-            border-bottom: 1px solid #dddddd;
-        }}
-        .styled-table tbody tr:nth-of-type(even) {{
-            background-color: #f3f3f3;
-        }}
-        .styled-table tbody tr:last-of-type {{
-            border-bottom: 2px solid #009879;
-        }}
-    </style>
-    <table class="styled-table">
-        <thead>
-            <tr>
-                {"".join(f"<th>{col}</th>" for col in column_names.values())}
-            </tr>
-        </thead>
-        <tbody>
-    """
-    
-    for _, row in data.iterrows():
-        html += "<tr>"
-        for col in column_names.keys():
-            html += f"<td>{row[col]}</td>"
-        html += "</tr>"
-    
-    html += """
-        </tbody>
-    </table>
-    """
-    
-    st.markdown(html, unsafe_allow_html=True)
+def display_download_button(version: str, language: str, data_folder: PathLike):
+    file_name = f"Elementplan_{language}_{version}.xlsx" 
+    file_path = Path(data_folder) / version / file_name
 
-def custom_text(text, font_size="0.7rem"):
-    #ugly code! Is there a better solution
-    def to_rem(size):
+    if file_path.exists():
+        with open(file_path, "rb") as file:
+            st.sidebar.download_button(
+                label=f"Download {file_name}",
+                data=file,
+                file_name=file_name,
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+    else:
+        st.sidebar.write(f"No file available for {language} in version {version}")
+
+def custom_text(text: str, font_size: str = "0.7rem") -> str:
+    def to_rem(size: str) -> str:
         if isinstance(size, (int, float)):
             return f"{size}rem"
         elif isinstance(size, str):
@@ -160,11 +110,7 @@ def custom_text(text, font_size="0.7rem"):
             return "1rem"
     
     font_size_rem = to_rem(font_size)
-    
-    # Base style for all text
     base_style = f"font-size: {font_size_rem}; line-height: 1.5;"
-    
-    # Additional styles for lists
     ul_style = f"list-style-type: disc; padding-left: 1.5em; margin: 0.5em 0;"
     ol_style = f"padding-left: 1.5em; margin: 0.5em 0;"
     li_style = f"{base_style} margin: 0.25em 0;"
@@ -206,128 +152,71 @@ def custom_text(text, font_size="0.7rem"):
     else:
         return f'<p style="{base_style}">{text}</p>'
 
-def display_streamlit_columns(data, translations, language_suffix):
-    #ugly code! Is there a better solution
-    column_names = get_column_names(translations, language_suffix)
+def display_streamlit_columns(data: DataFrame, translations: Dict, language_suffix: str):
+    column_names = {
+        'AttributName': translations['column_names']['AttributName'][language_suffix],
+        f'AttributDescription{language_suffix}': translations['column_names'][f'AttributDescription{language_suffix}'][language_suffix],
+        'Pset': translations['column_names']['Pset'][language_suffix],
+        'DataTyp': translations['column_names']['DataTyp'][language_suffix],
+        'Unit': translations['column_names']['Unit'][language_suffix],
+        f'AllowedValues{language_suffix}': translations['column_names'][f'AllowedValues{language_suffix}'][language_suffix]
+    }
 
     col_width = [2, 4, 2, 1, 1, 3]
     
-    # Create columns
-    col1, col2, col3, col4, col5, col6 = st.columns(col_width)
+    cols = st.columns(col_width)
     
-    # Display column headers
-    col1.markdown(custom_text(f"<strong>{column_names['AttributName']}</strong>"), unsafe_allow_html=True)
-    col2.markdown(custom_text(f"<strong>{column_names[f'AttributDescription{language_suffix}']}</strong>"), unsafe_allow_html=True)
-    col3.markdown(custom_text(f"<strong>{column_names['Pset']}</strong>"), unsafe_allow_html=True)
-    col4.markdown(custom_text(f"<strong>{column_names['DataTyp']}</strong>"), unsafe_allow_html=True)
-    col5.markdown(custom_text(f"<strong>{column_names['Unit']}</strong>"), unsafe_allow_html=True)
-    col6.markdown(custom_text(f"<strong>{column_names[f'AllowedValues{language_suffix}']}</strong>"), unsafe_allow_html=True)
+    for col, (key, value) in zip(cols, column_names.items()):
+        col.markdown(custom_text(f"<strong>{value}</strong>"), unsafe_allow_html=True)
     
-    # Display data rows
     for _, row in data.iterrows():
-        # Create new columns for each row
-        col1, col2, col3, col4, col5, col6 = st.columns(col_width)
+        cols = st.columns(col_width)
         
-        # AttributName
-        if not pd.isna(row['AttributName']) and row['AttributName'] != '':
-            col1.markdown(custom_text(str(row['AttributName'])), unsafe_allow_html=True)
-        
-        # AttributDescription
-        if not pd.isna(row[f'AttributDescription{language_suffix}']) and row[f'AttributDescription{language_suffix}'] != '':
-            col2.markdown(custom_text(str(row[f'AttributDescription{language_suffix}'])), unsafe_allow_html=True)
-        
-        # Pset
-        if not pd.isna(row['Pset']) and row['Pset'] != '':
-            col3.markdown(custom_text(str(row['Pset'])), unsafe_allow_html=True)
-        
-        # DataTyp
-        if not pd.isna(row['DataTyp']) and row['DataTyp'] != '':
-            col4.markdown(custom_text(str(row['DataTyp'])), unsafe_allow_html=True)
-        
-        # Unit
-        if not pd.isna(row['Unit']) and row['Unit'] != '':
-            col5.markdown(custom_text(str(row['Unit'])), unsafe_allow_html=True)
-        
-        # AllowedValues
-        if not pd.isna(row[f'AllowedValues{language_suffix}']) and row[f'AllowedValues{language_suffix}'] != '':
-            col6.markdown(custom_text(str(row[f'AllowedValues{language_suffix}'])), unsafe_allow_html=True)
+        for col, key in zip(cols, column_names.keys()):
+            if not pd.isna(row[key]) and row[key] != '':
+                col.markdown(custom_text(str(row[key])), unsafe_allow_html=True)
 
-def display_download_button_for_language(version: str, language: str,  data_folder: str):
+def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+    st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
+    st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
     
-    file_name = f"Elementplan_{language}_{version}.xlsx" 
-
-    file_path = data_folder / version / file_name
-
-    if file_path.exists():
-        with open(file_path, "rb") as file:
-            st.sidebar.download_button(
-                label=f"Download {file_name}",
-                data=file,
-                file_name=file_name,
-                mime='application/pdf'  # Adjust MIME type if the file is not a PDF
-            )
+    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
+    if not pd.isna(element_description) and element_description != '':
+        st.write(element_description)
+    st.write("")
+    
+    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
+    
+    if valid_attributes.empty:
+        st.write("No attributes found for this element.")
     else:
-        st.sidebar.write(f"No file available for {language} in version {version}")
-        st.sidebar.write(file_path)
-        st.sidebar.write(file_name)
-
-def filter_by_project_phase(data: pd.DataFrame, language_suffix: str) -> pd.DataFrame:
-    """
-    Filter the dataframe by selected project phases.
-    
-    Args:
-    data (pd.DataFrame): The input dataframe to filter.
-    language_suffix (str): The language suffix for column names.
-    
-    Returns:
-    pd.DataFrame: The filtered dataframe.
-    """
-    # Split the comma-separated phases and get unique values
-    all_phases = set()
-    for phases in data[f'ProjectPhase{language_suffix}'].dropna():
-        all_phases.update(phase.strip() for phase in phases.split(','))
-    all_phases = sorted(list(all_phases))
-      
-    selected_phases = st.sidebar.multiselect(
-        "Filter by Project Phase",  # Empty label to avoid repetition
-        options=all_phases,
-        default=[],  # Start with an empty selection
-        key="project_phase_filter",
-        placeholder="Filter by selecting"
-    )
-    
-    if not selected_phases:
-        return data  # Return all data if no phases are selected
-    
-    # Create a mask for rows that contain any of the selected phases
-    mask = data[f'ProjectPhase{language_suffix}'].fillna('').apply(
-        lambda x: any(phase in [p.strip() for p in x.split(',')] for phase in selected_phases)
-    )
-    filtered_data = data[mask]
-    
-    if filtered_data.empty:
-        st.warning(f"No data found for the selected phase(s): {', '.join(selected_phases)}")
-    
-    return filtered_data
+        attribute_data = pd.DataFrame({
+            'AttributName': valid_attributes['AttributName'],
+            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
+            'Pset': valid_attributes['Pset'],
+            'DataTyp': valid_attributes['DataTyp'],
+            'Unit': valid_attributes['Unit'],
+            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+        })
+        
+        display_streamlit_columns(attribute_data, translations, language_suffix)
 
 def main():
-    
-    st.sidebar.title("Data Display Options")
-       
-    data_folder = get_project_path('data')
+      
+    data_folder = get_project_path(DATA_FOLDER)
     versions = get_versions(data_folder)
     
     if not versions:
         st.error("No version folders found in the data directory.")
         return
 
-    translations = load_translations(data_folder / 'translations.json')
+    translations = load_translations(data_folder / TRANSLATIONS_FILE)
 
     selected_version = st.sidebar.selectbox(
         translations['version_select']['EN'],
         versions
     )
-    language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN']) #TODO #9 auto language selector based on input
+    language_suffix = st.sidebar.selectbox("Select Language", LANGUAGE_OPTIONS)
     
     try:
         data = load_data(data_folder / selected_version, selected_version)
@@ -344,48 +233,22 @@ def main():
     data_filtered = filter_columns_by_language(data, language_suffix)
     data_filtered = filter_by_project_phase(data_filtered, language_suffix)
 
-    display_download_button_for_language(selected_version, language_suffix, data_folder)  
+    display_download_button(selected_version, language_suffix, data_folder)  
     
     if data_filtered.empty:
         st.info("No data to display based on the current filter settings.")
-        return  # Exit the main function early if there's no data to display
-    
+        return
+
     st.title(translations['header'][language_suffix])
 
-    unique_model_names = data_filtered[f'ModelName{language_suffix}'].unique()
-
-    for model_name in unique_model_names:
+    for model_name in data_filtered[f'ModelName{language_suffix}'].unique():
         model_data = data_filtered[data_filtered[f'ModelName{language_suffix}'] == model_name]
         
         with st.expander(f"Model: {model_name}"):
-            unique_elements = model_data[f'ElementName{language_suffix}'].unique()
-            
-            for element_name in unique_elements:
+            for element_name in model_data[f'ElementName{language_suffix}'].unique():
                 with st.container():
                     element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
-                    
-                    st.header(f"{element_name} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
-                    st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
-                    
-                    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
-                    if not pd.isna(element_description) and element_description != '':
-                        st.write(element_description)
-                    st.write("")
-                    
-                    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
-                    
-                    if valid_attributes.empty:
-                        st.write("No attributes found for this element.")
-                    else:
-                        attribute_data = pd.DataFrame({
-                            'AttributName': valid_attributes['AttributName'],
-                            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
-                            'Pset': valid_attributes['Pset'],
-                            'DataTyp': valid_attributes['DataTyp'],
-                            'Unit': valid_attributes['Unit'],
-                            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
-                        })
-                        
-                        display_streamlit_columns(attribute_data, translations, language_suffix)
+                    display_element_data(element_data, language_suffix, translations)
+
 
 main()
