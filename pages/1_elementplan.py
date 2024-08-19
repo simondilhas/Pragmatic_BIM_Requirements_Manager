@@ -17,7 +17,10 @@ def get_project_path(folder_name: str) -> Path:
 
 def load_data(version_path: Path, version: str) -> pd.DataFrame:
     file_path = version_path / f"elementplan_{version}_raw_data.xlsx"
+    st.write(f"Attempting to load file: {file_path}")
     if not file_path.exists():
+        st.error(f"File not found: {file_path}")
+        st.write(f"Files in directory: {list(file_path.parent.glob('*'))}")
         raise FileNotFoundError(f"File not found: {file_path}")
     return pd.read_excel(file_path)
 
