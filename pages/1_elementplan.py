@@ -252,6 +252,25 @@ def display_streamlit_columns(data, translations, language_suffix):
         if not pd.isna(row[f'AllowedValues{language_suffix}']) and row[f'AllowedValues{language_suffix}'] != '':
             col6.markdown(custom_text(str(row[f'AllowedValues{language_suffix}'])), unsafe_allow_html=True)
 
+def display_download_button_for_language(version: str, language: str,  data_folder: str):
+    
+    file_name = f"Elementplan_{language}_{version}.xlsx" 
+
+    file_path = data_folder / version / file_name
+
+    if file_path.exists():
+        with open(file_path, "rb") as file:
+            st.sidebar.download_button(
+                label=f"Download {file_name}",
+                data=file,
+                file_name=file_name,
+                mime='application/pdf'  # Adjust MIME type if the file is not a PDF
+            )
+    else:
+        st.sidebar.write(f"No file available for {language} in version {version}")
+        st.sidebar.write(file_path)
+        st.sidebar.write(file_name)
+
 def main():
     
     st.sidebar.title("Data Display Options")
@@ -269,7 +288,9 @@ def main():
         translations['version_select']['EN'],
         versions
     )
-    language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN', 'FR', 'IT'])
+    language_suffix = st.sidebar.selectbox("Select Language", ['DE', 'EN']) #TODO #9 auto language selector based on input
+
+    display_download_button_for_language(selected_version, language_suffix, data_folder)
     
     try:
         data = load_data(data_folder / selected_version, selected_version)
@@ -327,8 +348,6 @@ def main():
                         #display_html_table(attribute_data, translations, language_suffix)
                         display_streamlit_columns(attribute_data, translations, language_suffix)
                         
-
-    st.sidebar.button(translations['sidebar_filters']['download_excel'][language_suffix])
 
 
 main()

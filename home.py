@@ -102,7 +102,7 @@ def main():
     [Learn How to Contribute](https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager#contributing)
     """)
 
-    footer()
+   
 
 if __name__ == "__main__":
     main()

@@ -18,7 +18,36 @@ column_order = [
     'DataTyp',
     'AllowedValues*',
     'ContainedIn*',
+    '11', #Change if the Phases are named differently 
+    '21', #TODO #8 find better logic that works for all cases
+    '22',
+    '31',
+    '32',
+    '33',
+    '41',
+    '51',
+    '52',
+    '53',
+    '61',
+    '62'
 ]
+
+def rename_phase_columns(df):
+    phase_dict = {}
+    
+    for col in df.columns:
+        if col.startswith('Phase_'):
+            # Extract the number part (everything before the first space after 'Phase_')
+            phase_number = col.split()[0].replace('Phase_', '')
+            # Update the dictionary with the new column name
+            if phase_number.isdigit():
+                phase_dict[col] = phase_number
+            else:
+                phase_dict[col] = phase_number
+    
+    # Rename the columns in the DataFrame
+    df.rename(columns=phase_dict, inplace=True)
+    return df
 
 
 
@@ -53,18 +82,48 @@ def explode_phases_to_matrix(df, column):
                 df.at[index, f'Phase_{phase}'] = 'X'
     return df
 
+def extract_phase_definitions(df, column):
+    all_phases = set()
+    for phases in df[column].str.split(','):
+        all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
+    
+    all_phases = sorted(all_phases)
+    return all_phases
+
+def explode_phases_to_matrix(df, column):
+    
+    all_phases = extract_phase_definitions(df, 'ProjectPhaseEN')
+    
+    for phase in all_phases:
+        df[f'Phase_{phase}'] = ''
+
+    # Fill the new columns with 'X' where appropriate
+    for index, row in df.iterrows():
+        phases = row[column].split(',') if isinstance(row[column], str) else []
+        for phase in phases:
+            phase = phase.strip()
+            if phase in all_phases:
+                df.at[index, f'Phase_{phase}'] = 'X'
+    return df
+
+
 def export_with_custom_widths(df, column_widths, language):
+    data_path = get_data_path()
+    
     if f'FileName{language}' in df.columns:
         unique_filenames = df[f'FileName{language}'].dropna().unique()
 
-        with pd.ExcelWriter(f'Elementplan_{language}_{VERSION}.xlsx', engine='xlsxwriter') as writer:
+        # Construct the file path using get_data_path()
+        output_file_path = data_path / f'Elementplan_{language}_{VERSION}.xlsx'
+
+        with pd.ExcelWriter(output_file_path, engine='xlsxwriter') as writer:
             workbook = writer.book
 
             default_format = workbook.add_format({
                 'text_wrap': True,
                 'valign': 'top',
             })
-            default_column_width = 20
+            default_column_width = 8
 
             grey_text_format = workbook.add_format({'font_color': '#d3d3d3'})
 
@@ -83,25 +142,14 @@ def export_with_custom_widths(df, column_widths, language):
 
             for filename in unique_filenames:
                 filtered_df = df[df[f'FileName{language}'] == filename]
-                print(filename)
                 filtered_df['Sort'] = range(1, len(filtered_df) + 1)
 
                 filtered_df.to_excel(writer, sheet_name=filename[:31], index=False, startrow=0)  # Start writing data from row 1
 
                 worksheet = writer.sheets[filename[:31]]
 
-                                # Add the new rows at the top
-                #worksheet.write('A1', 'Elementplan BBL')
-                #worksheet.write('A2', 'Version:')
-                #worksheet.write('B2', version)
-                #worksheet.write('A3', 'Datum:')
-                #worksheet.write('B3', datetime.now().strftime('%Y-%m-%d'))  # Current date
-                #worksheet.write('A4', "")
-                # Row 3 is left empty
-
-
                 for col_num, col_name in enumerate(filtered_df.columns):
-                    width = column_widths.get(col_name, default_column_width)
+                    width = column_widths[col_num] if col_num < len(column_widths) else default_column_width
                     
                     if 11 <= col_num <= 22 or col_name == 'Sort':
                         worksheet.set_column(col_num, col_num, width, centered_format)
@@ -149,13 +197,9 @@ def export_with_custom_widths(df, column_widths, language):
                         'format': grey_text_format
                     })
 
-        output_file_by_filename = f'Elementplan_{language}_{VERSION}.xlsx'
+        return output_file_path
     else:
-        output_file_by_filename = "FileName column not found in the DataFrame"
-
-    return output_file_by_filename
-
-
+        return "FileName column not found in the DataFrame"
 
 def create_filtered_df(df, language):
     filtered_columns = [
@@ -163,14 +207,16 @@ def create_filtered_df(df, language):
     ]
     return df[filtered_columns]
 
+
+
 def main():
     data_dir = get_data_path()
-    print(data_dir)
     excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
     df = pd.read_excel(excel_file_path)
     
-    df = explode_phases_to_matrix(df, 'ProjectPhaseEN') #TODO #7 pick any column with ProjectPhase that is not empty
-    column_widths = {col: 20 for col in df.columns}
+    df = explode_phases_to_matrix(df, 'ProjectPhaseEN') 
+    df = rename_phase_columns(df)  # Assumes this function exists
+    column_widths = [15, 20, 20, 55, 20, 35, 45, 20, 15, 20, 45, 25, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)
