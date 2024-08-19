@@ -1,54 +1,25 @@
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List
+import os
+
+from check_imports_data_structure import (
+    required_workflows_columns,
+    required_models_columns,
+    required_elements_columns,
+    required_attributes_columns,
+    check_required_columns,
+)
 
 VERSION = 'SampleRequirmentsV.0.1'
 
-required_workflows_columns = [
-    "WorkflowID",
-    "WorkflowName*",
-    "WorkflowSubheader*",
-    "WorkflowDescription*",
-    "Status",
-]
-
-required_models_columns = [
-    "ModelID",
-    "ModelName*",
-    "ModelDescription*",
-    "FileName*",
-    "SortModels",
-]
-
-required_elements_columns = [
-    "ElementID",
-    "ElementName*",
-    "SortElement",
-    "IfcEntityIfc4.0Name",
-    "ElementDescription*",
-]
-
-required_attributes_columns = [
-    "AttributID",
-    "AttributName",
-    "SortAttribut",
-    "AttributDescription*",
-    "Pset",
-    "AllowedValues*",
-    "RegexCheck*",
-    "DataTyp",
-    "Unit",
-    "IFC2x3",
-    "IFC4",
-    "IFC4.3",
-    "Applicability",
-    "ElementID",
-    "ModelID",
-    "WorkflowID"
-]
-
-def get_data_path(version: str) -> Path:
-    return Path(__file__).parent.parent / 'data' / version
+def get_project_path(folder_name: str) -> Path:
+    if os.getenv('STREAMLIT_CLOUD'):
+        # Use a path relative to the root of the repository
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
+    else:
+        # For local development, use the current method
+        return Path(__file__).parent.parent / folder_name
 
 def load_dataframes(data_dir: Path) -> Dict[str, pd.DataFrame]:
     file_names = {
@@ -60,19 +31,6 @@ def load_dataframes(data_dir: Path) -> Dict[str, pd.DataFrame]:
     
     return {f"{key}_df": pd.read_csv(data_dir / file_name) 
             for key, file_name in file_names.items()}
-
-def check_required_columns(df: pd.DataFrame, required_columns: List[str], df_name: str) -> None:
-    missing_columns = []
-    for column in required_columns:
-        if '*' in column:
-            base_column = column[:-1]
-            if not any(col.startswith(base_column) for col in df.columns):
-                missing_columns.append(column)
-        elif column not in df.columns:
-            missing_columns.append(column)
-    
-    if missing_columns:
-        raise ValueError(f"Missing required columns in {df_name}: {', '.join(missing_columns)}")
 
 def process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribut']
