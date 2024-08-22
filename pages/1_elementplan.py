@@ -297,20 +297,22 @@ def main():
 
     st.info(translations['choice'][language_suffix])
 
+    model_data_sorted = sort_dataframe(data_filtered)
+
     # First, convert the SortModels column to proper floats
-    data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
+    #data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
 
     #Double sort is not very elegant
-    sorted_file_names = data_filtered.sort_values('SortModels_float')[f'FileName{language_suffix}'].unique()
+    sorted_file_names = model_data_sorted.sort_values('SortModels')[f'FileName{language_suffix}'].unique()
     model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
 
     for tab, file_name in zip(model_tabs, data_filtered[f'FileName{language_suffix}'].unique()):
         with tab:
-            model_data = data_filtered[data_filtered[f'FileName{language_suffix}'] == file_name]
+            model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
 
-            model_data_sorted = sort_dataframe(model_data)
+            
 
-            header_content = model_data_sorted[f'ModelName{language_suffix}'].unique()
+            header_content = model_df[f'ModelName{language_suffix}'].unique()
             if len(header_content) == 1:
                 st.header(header_content[0])  # Display single value without brackets
             else:
@@ -319,10 +321,10 @@ def main():
             #TO Contiune sort by modeldata by Model and Element
             
             
-            for element_name in model_data_sorted[f'ElementName{language_suffix}'].unique():
+            for element_name in model_df[f'ElementName{language_suffix}'].unique():
                 with st.container():
                     
-                    element_data = model_data_sorted[model_data[f'ElementName{language_suffix}'] == element_name]
+                    element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
                     display_element_data(element_data, language_suffix, translations)
 
 
