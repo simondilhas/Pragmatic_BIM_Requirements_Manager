@@ -2,6 +2,8 @@ import pandas as pd
 from pathlib import Path
 import os
 
+from src.sort import sort_dataframe
+
 VERSION = 'V16.6'
 #languages = ['DE']
 
@@ -223,21 +225,6 @@ def create_filtered_df(df, language):
 #    )
 #    return df_sorted
 
-def convert_to_numeric(x):
-    if pd.api.types.is_numeric_dtype(x):
-        return x
-    return pd.to_numeric(x.str.replace(',', '.'), errors='coerce')
-
-def sort_dataframe(df):
-    # Convert sorting columns to numeric
-    for col in ['SortModels', 'SortElement', 'SortAttribut']:
-        df[col] = convert_to_numeric(df[col])
-
-    # Sort by SortModels, then SortElement, then SortAttribut
-    df_sorted = df.sort_values(
-        by=['SortModels', 'SortElement', 'SortAttribut']
-    )
-    return df_sorted
 
 def main():
     data_dir = get_data_path()

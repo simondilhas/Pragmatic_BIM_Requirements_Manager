@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 import json
 
+from src.sort import sort_dataframe
+
 # Constants
 DATA_FOLDER = 'data'
 TRANSLATIONS_FILE = 'translations.json'
@@ -177,60 +179,6 @@ def display_streamlit_columns(data: DataFrame, translations: Dict, language_suff
                 col.markdown(custom_text(str(row[key])), unsafe_allow_html=True)
 
 
-def x_display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
-    #original
-    
-    st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
-    st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
-    
-    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
-    if not pd.isna(element_description) and element_description != '':
-        st.write(element_description)
-    st.write("")
-    
-    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
-    
-    if valid_attributes.empty:
-        st.write("No attributes found for this element.")
-    else:
-        attribute_data = pd.DataFrame({
-            'AttributName': valid_attributes['AttributName'],
-            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
-            'Pset': valid_attributes['Pset'],
-            'DataTyp': valid_attributes['DataTyp'],
-            'Unit': valid_attributes['Unit'],
-            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
-        })
-        
-        display_streamlit_columns(attribute_data, translations, language_suffix)
-
-def x_display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
-    #from BBL
-    
-    st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
-    st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
-    
-    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
-    if not pd.isna(element_description) and element_description != '':
-        st.write(element_description)
-    st.write("")
-    
-    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
-    
-    if valid_attributes.empty:
-        st.write("No attributes found for this element.")
-    else:
-        attribute_data = pd.DataFrame({
-            'AttributName': valid_attributes['AttributName'],
-            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
-            'Pset': valid_attributes['Pset'],
-            'DataTyp': valid_attributes['DataTyp'],
-            'Unit': valid_attributes['Unit'],
-            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
-        })
-        
-        display_streamlit_columns(attribute_data, translations, language_suffix)
-
 def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
     #Alte version BBL
     if element_data.empty:
@@ -346,43 +294,35 @@ def main():
     if data_filtered.empty:
         st.info("No data to display based on the current filter settings.")
         return
-#
-    #st.title(translations['header'][language_suffix])
-#
-    #for model_name in data_filtered[f'ModelName{language_suffix}'].unique():
-    #    model_data = data_filtered[data_filtered[f'ModelName{language_suffix}'] == model_name]
-    #    
-    #    with st.expander(f"Model: {model_name}"):
-    #        for element_name in model_data[f'ElementName{language_suffix}'].unique():
-    #            with st.container():
-    #                element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
-    #                display_element_data(element_data, language_suffix, translations)
 
     st.info(translations['choice'][language_suffix])
 
     # First, convert the SortModels column to proper floats
     data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
 
-    # Now sort using the new float column
+    #Double sort is not very elegant
     sorted_file_names = data_filtered.sort_values('SortModels_float')[f'FileName{language_suffix}'].unique()
-
-    # Create tabs using the sorted file names
     model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
 
     for tab, file_name in zip(model_tabs, data_filtered[f'FileName{language_suffix}'].unique()):
         with tab:
             model_data = data_filtered[data_filtered[f'FileName{language_suffix}'] == file_name]
-            header_content = model_data[f'ModelName{language_suffix}'].unique()
+
+            model_data_sorted = sort_dataframe(model_data)
+
+            header_content = model_data_sorted[f'ModelName{language_suffix}'].unique()
             if len(header_content) == 1:
                 st.header(header_content[0])  # Display single value without brackets
             else:
                 st.header(', '.join(header_content))
+
+            #TO Contiune sort by modeldata by Model and Element
             
-            for element_name in model_data[f'ElementName{language_suffix}'].unique():
+            
+            for element_name in model_data_sorted[f'ElementName{language_suffix}'].unique():
                 with st.container():
                     
-                    element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
-                    element_data.to_excel('test_only_one_model_expected.xlsx')
+                    element_data = model_data_sorted[model_data[f'ElementName{language_suffix}'] == element_name]
                     display_element_data(element_data, language_suffix, translations)
 
 
