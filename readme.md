@@ -9,13 +9,15 @@ Streamlining BIM Data Management
    - [Key Features](#key-features)
 4. [Expanded Use Cases: How This Tool Empowers Client Organizations](#expanded-use-cases-how-this-tool-empowers-client-organizations)
 5. [Mapping Columns](#mapping-columns)
-6. [Contributing](#contributing)
+6. [Installation and Setup](#installation-and-setup)
+7. [Architectural Decision Records](#architectural-decision-records)
+8. [Contributing](#contributing)
    - [For Developers](#for-developers)
    - [For Non-Programmers](#for-non-programmers)
-7. [FAQ](#faq)
-8. [Roadmap](#roadmap)
-9. [License](#license)
-10. [Acknowledgements](#acknowledgements)
+9. [FAQ](#faq)
+10. [Roadmap](#roadmap)
+11. [License](#license)
+12. [Acknowledgements](#acknowledgements)
 
 ## Introduction
 ### The Challenge
@@ -272,6 +274,9 @@ If you are not a Programmer:
 - Create and share sample workflows that can be included in the documentation or as part of the project examples. This aids users in understanding the practical applications of the project.
 2. General Suggestions and Feedback
 - Use the project and provide feedback. Your experiences and insights can help us make the project better for everyone.
+
+## Architectural Decision Records
+The main architectural decisions are documented in `adr\`. Please consider these and consult when making major changes.
 
 ## FAQ
 ToDo: Add FAQ
