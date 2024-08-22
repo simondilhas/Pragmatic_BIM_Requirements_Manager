@@ -5,6 +5,12 @@
         "FR": "Plan d'éléments pragmatique & définitions de modélisation",
         "IT": "Piano degli elementi pragmatico & definizioni di modellazione"
     },
+    "choice": {
+      "DE": "Modellauswahl: (Nach rechts scrollen, um alle Einträge anzuzeigen.) ",
+        "EN": "Model selection: (Scroll right to view all entries.)",
+        "FR": "Sélection du modèle : (Faites défiler vers la droite pour voir toutes les entrées.)",
+        "IT": "Selezione del modello: (Scorrere a destra per visualizzare tutte le voci.)"
+    },
     "version_select": {
       "DE": "Wählen sie die in Ihrem Vertrag definierte Version:",
       "EN": "Select the version defined in your contract:",

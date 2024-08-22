@@ -106,12 +106,17 @@ To get started, create your own database in the tool of your choice—whether it
 To create a new version of the project, follow these steps:
 
 ### 1. Fork the Repository
-Create a private fork of the project on GitHub:
+Create a fork of the project on GitHub:
+
+**Public:**
 - Go to the [original repository](https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager)
-- Create a new private repository (e.g., `Private_Pragmatic_BIM_Requirements`)
 - Clone the original repository and push to your private one
 
+**Privat:**
 Detailed instructions for creating a private fork:
+- Create a new private repository (e.g., `Private_Pragmatic_BIM_Requirements`)
+- Go to your terminal and execute the codes (the capital letters need to be replaced with your data)
+
 ```bash
 # Clone the original repository as a bare repository
 git clone --bare https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager.git
@@ -120,17 +125,20 @@ git clone --bare https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manag
 cd Pragmatic_BIM_Requirements_Manager.git
 
 # Mirror-push to your new private repository
-git push --mirror https://github.com/YOUR_USERNAME/Private_Pragmatic_BIM_Requirements.git
+git push --mirror https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
 
 # Remove the temporary local repository
 cd ..
+mac:
 rm -rf Pragmatic_BIM_Requirements_Manager.git
+windows:
+Remove-Item -Recurse -Force Pragmatic_BIM_Requirements_Manager.git
 
 # Clone your new private repository
-git clone https://github.com/YOUR_USERNAME/Private_Pragmatic_BIM_Requirements.git
+git clone https://github.com/YOUR_USERNAME/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
 
 # Navigate into your new repository
-cd Private_Pragmatic_BIM_Requirements
+cd YOUR_REPOSITORY_NAME
 
 # Add the original repository as a remote to fetch updates
 git remote add upstream https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager.git
@@ -153,6 +161,17 @@ git checkout main
 git fetch upstream
 git merge upstream/main
 git push origin main
+```
+
+or to do it simpler
+- Go to your new project
+- execute once:
+```bash
+git config --global alias.sync '!git checkout main && git fetch upstream && git merge upstream/main && git push origin main'
+```
+- when you just have to run to fetch the updates and merge with your instance
+```bash
+git sync
 ```
 
 ## Usage Instructions

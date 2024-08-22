@@ -207,7 +207,17 @@ def create_filtered_df(df, language):
     ]
     return df[filtered_columns]
 
-
+#TODO make the sorting logic more robust to deal with str, int, float
+#def sort_dataframe(df):
+#    # Convert sorting columns to numeric
+#    for col in ['SortModels', 'SortElement', 'SortAttribut']:
+#        df[col] = convert_to_numeric(df[col])
+#    
+#    # Sort by SortModels, then SortElement, then SortAttribut
+#    df_sorted = df.sort_values(
+#        by=['SortModels', 'SortElement', 'SortAttribut']
+#    )
+#    return df_sorted
 
 def main():
     data_dir = get_data_path()
@@ -215,6 +225,7 @@ def main():
     df = pd.read_excel(excel_file_path)
     
     df = explode_phases_to_matrix(df, 'ProjectPhaseEN') 
+    #df_sorted = sort_dataframe(df)
     df = rename_phase_columns(df)  # Assumes this function exists
     column_widths = [15, 20, 20, 55, 20, 35, 45, 20, 15, 20, 45, 25, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
 

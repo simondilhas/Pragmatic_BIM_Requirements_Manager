@@ -177,6 +177,10 @@ def display_streamlit_columns(data: DataFrame, translations: Dict, language_suff
                 col.markdown(custom_text(str(row[key])), unsafe_allow_html=True)
 
 def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+    
+
+
+
     st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
     st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
     
@@ -238,15 +242,41 @@ def main():
     if data_filtered.empty:
         st.info("No data to display based on the current filter settings.")
         return
+#
+    #st.title(translations['header'][language_suffix])
+#
+    #for model_name in data_filtered[f'ModelName{language_suffix}'].unique():
+    #    model_data = data_filtered[data_filtered[f'ModelName{language_suffix}'] == model_name]
+    #    
+    #    with st.expander(f"Model: {model_name}"):
+    #        for element_name in model_data[f'ElementName{language_suffix}'].unique():
+    #            with st.container():
+    #                element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
+    #                display_element_data(element_data, language_suffix, translations)
 
-    st.title(translations['header'][language_suffix])
+    st.info(translations['choice'][language_suffix])
 
-    for model_name in data_filtered[f'ModelName{language_suffix}'].unique():
-        model_data = data_filtered[data_filtered[f'ModelName{language_suffix}'] == model_name]
-        
-        with st.expander(f"Model: {model_name}"):
+    # First, convert the SortModels column to proper floats
+    data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
+
+    # Now sort using the new float column
+    sorted_file_names = data_filtered.sort_values('SortModels_float')[f'FileName{language_suffix}'].unique()
+
+    # Create tabs using the sorted file names
+    model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
+
+    for tab, file_name in zip(model_tabs, data_filtered[f'FileName{language_suffix}'].unique()):
+        with tab:
+            model_data = data_filtered[data_filtered[f'FileName{language_suffix}'] == file_name]
+            header_content = model_data[f'ModelName{language_suffix}'].unique()
+            if len(header_content) == 1:
+                st.header(header_content[0])  # Display single value without brackets
+            else:
+                st.header(', '.join(header_content))
+            
             for element_name in model_data[f'ElementName{language_suffix}'].unique():
                 with st.container():
+                    
                     element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
                     display_element_data(element_data, language_suffix, translations)
 
