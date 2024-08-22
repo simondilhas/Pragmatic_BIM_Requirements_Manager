@@ -2,8 +2,8 @@ import pandas as pd
 from pathlib import Path
 import os
 
-VERSION = 'SampleV.01'
-languages = ['DE', 'EN', 'FR', 'IT']
+VERSION = 'V16.6'
+#languages = ['DE']
 
 column_order = [
     'FileName*',
@@ -31,6 +31,10 @@ column_order = [
     '61',
     '62'
 ]
+
+def get_available_languages(df):
+        language_columns = [col for col in df.columns if col.startswith('ElementName')]
+        return [col.replace('ElementName', '') for col in language_columns]
 
 def rename_phase_columns(df):
     phase_dict = {}
@@ -66,9 +70,9 @@ def extract_phase_definitions(df, column):
     all_phases = sorted(all_phases)
     return all_phases
 
-def explode_phases_to_matrix(df, column):
+def x_explode_phases_to_matrix(df, column, lang):
     
-    all_phases = extract_phase_definitions(df, 'ProjectPhaseEN')
+    all_phases = extract_phase_definitions(df, lang)
     
     for phase in all_phases:
         df[f'Phase_{phase}'] = ''
@@ -90,9 +94,9 @@ def extract_phase_definitions(df, column):
     all_phases = sorted(all_phases)
     return all_phases
 
-def explode_phases_to_matrix(df, column):
+def explode_phases_to_matrix(df, column, lang):
     
-    all_phases = extract_phase_definitions(df, 'ProjectPhaseEN')
+    all_phases = extract_phase_definitions(df, column)
     
     for phase in all_phases:
         df[f'Phase_{phase}'] = ''
@@ -219,15 +223,44 @@ def create_filtered_df(df, language):
 #    )
 #    return df_sorted
 
+def convert_to_numeric(x):
+    if pd.api.types.is_numeric_dtype(x):
+        return x
+    return pd.to_numeric(x.str.replace(',', '.'), errors='coerce')
+
+def sort_dataframe(df):
+    # Convert sorting columns to numeric
+    for col in ['SortModels', 'SortElement', 'SortAttribut']:
+        df[col] = convert_to_numeric(df[col])
+
+    # Sort by SortModels, then SortElement, then SortAttribut
+    df_sorted = df.sort_values(
+        by=['SortModels', 'SortElement', 'SortAttribut']
+    )
+    return df_sorted
+
 def main():
     data_dir = get_data_path()
     excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
     df = pd.read_excel(excel_file_path)
+
+    languages = get_available_languages(df)
+    print('YYY')
+    print(languages)
+    first_lang = languages[0]
+    print('XXX')
+    print(first_lang)
+    column_lang = f'ProjectPhase{first_lang}'
+    print('AAA')
+    print(column_lang)
     
-    df = explode_phases_to_matrix(df, 'ProjectPhaseEN') 
-    #df_sorted = sort_dataframe(df)
-    df = rename_phase_columns(df)  # Assumes this function exists
+    
+    df = explode_phases_to_matrix(df, column_lang, first_lang)
+    df_sorted = sort_dataframe(df)
+    df = rename_phase_columns(df_sorted)  # Assumes this function exists
     column_widths = [15, 20, 20, 55, 20, 35, 45, 20, 15, 20, 45, 25, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+
+    
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)

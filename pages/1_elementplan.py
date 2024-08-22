@@ -176,11 +176,10 @@ def display_streamlit_columns(data: DataFrame, translations: Dict, language_suff
             if not pd.isna(row[key]) and row[key] != '':
                 col.markdown(custom_text(str(row[key])), unsafe_allow_html=True)
 
-def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+
+def x_display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+    #original
     
-
-
-
     st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
     st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
     
@@ -205,6 +204,106 @@ def display_element_data(element_data: DataFrame, language_suffix: str, translat
         
         display_streamlit_columns(attribute_data, translations, language_suffix)
 
+def x_display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+    #from BBL
+    
+    st.header(f"{element_data[f'ElementName{language_suffix}'].iloc[0]} ({element_data['IfcEntityIfc4.0Name'].iloc[0]})")
+    st.write(f"IfcRel: {element_data[f'ContainedIn{language_suffix}'].iloc[0]}")
+    
+    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
+    if not pd.isna(element_description) and element_description != '':
+        st.write(element_description)
+    st.write("")
+    
+    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
+    
+    if valid_attributes.empty:
+        st.write("No attributes found for this element.")
+    else:
+        attribute_data = pd.DataFrame({
+            'AttributName': valid_attributes['AttributName'],
+            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
+            'Pset': valid_attributes['Pset'],
+            'DataTyp': valid_attributes['DataTyp'],
+            'Unit': valid_attributes['Unit'],
+            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+        })
+        
+        display_streamlit_columns(attribute_data, translations, language_suffix)
+
+def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
+    #Alte version BBL
+    if element_data.empty:
+        st.warning("No data available for this element.")
+        return
+
+    element_name = element_data[f'ElementName{language_suffix}'].iloc[0] if not element_data[f'ElementName{language_suffix}'].empty else "Unknown Element"
+    ifc_entity = element_data['IfcEntityIfc4.0Name'].iloc[0] if not element_data['IfcEntityIfc4.0Name'].empty else ""
+
+    header_text = element_name
+    if ifc_entity:
+        header_text += f" ({ifc_entity})"
+    st.header(header_text)
+
+    contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+    st.write(f"IfcRel: {contained_in}")
+
+    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
+    if not pd.isna(element_description) and element_description != '':
+        st.write(element_description)
+    st.write("")
+    
+    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
+    
+    if valid_attributes.empty:
+        st.write("No attributes found for this element.")
+    else:
+        attribute_data = pd.DataFrame({
+            'AttributName': valid_attributes['AttributName'],
+            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
+            'Pset': valid_attributes['Pset'],
+            'DataTyp': valid_attributes['DataTyp'],
+            'Unit': valid_attributes['Unit'],
+            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+        })
+        
+        display_streamlit_columns(attribute_data, translations, language_suffix)
+
+def get_available_languages(df):
+        
+        language_columns = [col for col in df.columns if col.startswith('ElementName')]
+        return [col.replace('ElementName', '') for col in language_columns]
+
+
+def get_language_options(data):
+    # Language code to full name mapping
+    language_names = {
+        '': 'English',
+        'DE': 'Deutsch',
+        'FR': 'Français',
+        'IT': 'Italiano',
+        # Add more languages as needed
+    }
+
+    available_languages = get_available_languages(data)
+    language_options = [lang for lang in available_languages if lang in language_names]
+    language_display_names = [language_names.get(lang, lang) for lang in language_options]
+
+    return language_options, language_display_names
+
+def select_language(data):
+    language_options, language_display_names = get_language_options(data)
+
+    selected_language_name = st.sidebar.selectbox(
+        "Select Language",
+        language_display_names,
+        index=language_options.index('') if '' in language_options else 0
+    )
+
+    language_suffix = language_options[language_display_names.index(selected_language_name)]
+
+    return language_suffix
+
 def main():
       
     data_folder = get_project_path(DATA_FOLDER)
@@ -216,11 +315,14 @@ def main():
 
     translations = load_translations(data_folder / TRANSLATIONS_FILE)
 
+    
     selected_version = st.sidebar.selectbox(
         translations['version_select']['EN'],
         versions
     )
-    language_suffix = st.sidebar.selectbox("Select Language", LANGUAGE_OPTIONS)
+
+
+    #language_suffix = st.sidebar.selectbox("Select Language", LANGUAGE_OPTIONS)
     
     try:
         data = load_data(data_folder / selected_version, selected_version)
@@ -233,6 +335,8 @@ def main():
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
         return
+    
+    language_suffix = select_language(data)
 
     data_filtered = filter_columns_by_language(data, language_suffix)
     data_filtered = filter_by_project_phase(data_filtered, language_suffix)
@@ -278,6 +382,7 @@ def main():
                 with st.container():
                     
                     element_data = model_data[model_data[f'ElementName{language_suffix}'] == element_name]
+                    element_data.to_excel('test_only_one_model_expected.xlsx')
                     display_element_data(element_data, language_suffix, translations)
 
 

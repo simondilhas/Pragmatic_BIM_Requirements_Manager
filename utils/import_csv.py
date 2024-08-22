@@ -11,6 +11,7 @@ from check_imports_data_structure import (
     check_required_columns,
 )
 
+#VERSION = 'V16.6'
 VERSION = 'SampleV.01'
 
 def get_data_path(folder_name: str) -> Path:
@@ -36,7 +37,8 @@ def process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribut']
     check_required_columns(df, required_columns, 'attributes_df')
 
-    columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
+    columns_to_explode = ['ElementID', 'ModelID']
+    #columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
     
     df_exploded = df.copy()
     for column in columns_to_explode:
