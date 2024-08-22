@@ -1,8 +1,10 @@
 import pandas as pd
 from pathlib import Path
 import os
+import sys
+print(f'Systpath: {sys.path}')
 
-from src.sort import sort_dataframe
+from sort import sort_dataframe
 
 VERSION = 'V16.6'
 #languages = ['DE']

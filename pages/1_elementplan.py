@@ -77,8 +77,11 @@ def filter_by_project_phase(data: DataFrame, language_suffix: str) -> DataFrame:
     
     return filtered_data
 
-def display_download_button(version: str, language: str, data_folder: PathLike):
-    file_name = f"Elementplan_{language}_{version}.xlsx" 
+def display_download_button(version: str, language: str, data_folder: PathLike, file_type_name: str):
+    """
+    file_type_name is either Elementplan, Libal_Config
+    """
+    file_name = f"{file_type_name}_{language}_{version}.xlsx" 
     file_path = Path(data_folder) / version / file_name
 
     if file_path.exists():
@@ -289,7 +292,8 @@ def main():
     data_filtered = filter_columns_by_language(data, language_suffix)
     data_filtered = filter_by_project_phase(data_filtered, language_suffix)
 
-    display_download_button(selected_version, language_suffix, data_folder)  
+    display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
+    display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')  
     
     if data_filtered.empty:
         st.info("No data to display based on the current filter settings.")
