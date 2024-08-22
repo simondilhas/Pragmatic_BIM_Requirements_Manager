@@ -222,7 +222,7 @@ def main():
     df = explode_phases_to_matrix(df, column_lang, first_lang)
     df_sorted = sort_dataframe(df)
     df = rename_phase_columns(df_sorted)
-    column_widths = [20, 20, 55, 20, 35, 45, 20, 15, 20, 45, 25, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+    column_widths = [20, 20, 20, 20, 35, 45, 20, 20, 20, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
 
     export_file_type_name = 'Libal_Config'
 
