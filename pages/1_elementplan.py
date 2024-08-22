@@ -303,10 +303,13 @@ def main():
     #data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
 
     #Double sort is not very elegant
-    sorted_file_names = model_data_sorted.sort_values('SortModels')[f'FileName{language_suffix}'].unique()
-    model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
+    #sorted_file_names = model_data_sorted.sort_values('SortModels')[f'FileName{language_suffix}'].unique()
+    #model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
 
-    for tab, file_name in zip(model_tabs, data_filtered[f'FileName{language_suffix}'].unique()):
+    tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
+    tabs = st.tabs(tab_labels)
+
+    for tab, file_name in zip(tabs, tab_labels):
         with tab:
             model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
 
