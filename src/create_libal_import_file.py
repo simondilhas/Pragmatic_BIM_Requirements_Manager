@@ -5,7 +5,7 @@ import os
 from sort import sort_dataframe
 
 #VERSION = 'V16.6'
-VERSION = 'SampleV.01'
+#VERSION = 'SampleV.01'
 #languages = ['DE','EN','FR','IT'] 
 
 column_order = [
@@ -55,11 +55,13 @@ def rename_phase_columns(df):
 
 
 
-def get_data_path() -> Path:
+def get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
-        return Path('/mount/src/pragmatic_bim_requirements_manager') / 'data' / VERSION
+        # Use a path relative to the root of the repository
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
     else:
-        return Path(__file__).parent.parent / 'data' / VERSION
+        # For local development, use the current method
+        return Path(__file__).parent.parent / 'data' / folder_name
 
 
 def extract_phase_definitions(df, column):
@@ -111,8 +113,8 @@ def explode_phases_to_matrix(df, column, lang):
     return df
 
 
-def libal_config_export(df, column_widths, language, export_file_type_name):
-    data_path = get_data_path()
+def libal_config_export(df, column_widths, language, export_file_type_name, VERSION):
+    data_path = get_data_path(VERSION)
     
     # Construct the file path using get_data_path()
     output_file_path = data_path / f'{export_file_type_name}_{language}_{VERSION}.xlsx'
@@ -206,7 +208,12 @@ def create_filtered_df(df, language):
     return df[filtered_columns]
 
 def main():
-    data_dir = get_data_path()
+    VERSION = os.environ.get('VERSION')
+    if not VERSION:
+        raise ValueError("VERSION environment variable is not set")
+    
+    
+    data_dir = get_data_path(VERSION)
     
     excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
 
@@ -228,7 +235,7 @@ def main():
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)
-        output_file_path = libal_config_export(filtered_df, column_widths, language, export_file_type_name)
+        output_file_path = libal_config_export(filtered_df, column_widths, language, export_file_type_name, VERSION)
         print(output_file_path)
 
 if __name__ == "__main__":

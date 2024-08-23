@@ -6,9 +6,6 @@ print(f'Systpath: {sys.path}')
 
 from sort import sort_dataframe
 
-VERSION = 'SampleV.01'
-#languages = ['DE']
-
 column_order = [
     'FileName*',
     'ModelName*',
@@ -58,12 +55,13 @@ def rename_phase_columns(df):
     return df
 
 
-
-def get_data_path() -> Path:
+def get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
-        return Path('/mount/src/pragmatic_bim_requirements_manager') / 'data' / VERSION
+        # Use a path relative to the root of the repository
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
     else:
-        return Path(__file__).parent.parent / 'data' / VERSION
+        # For local development, use the current method
+        return Path(__file__).parent.parent / 'data' / folder_name
 
 
 def extract_phase_definitions(df, column):
@@ -115,8 +113,8 @@ def explode_phases_to_matrix(df, column, lang):
     return df
 
 
-def export_with_custom_widths(df, column_widths, language):
-    data_path = get_data_path()
+def export_with_custom_widths(df, column_widths, language, VERSION):
+    data_path = get_data_path(VERSION)
     
     if f'FileName{language}' in df.columns:
         unique_filenames = df[f'FileName{language}'].dropna().unique()
@@ -215,21 +213,13 @@ def create_filtered_df(df, language):
     ]
     return df[filtered_columns]
 
-#TODO make the sorting logic more robust to deal with str, int, float
-#def sort_dataframe(df):
-#    # Convert sorting columns to numeric
-#    for col in ['SortModels', 'SortElement', 'SortAttribute']:
-#        df[col] = convert_to_numeric(df[col])
-#    
-#    # Sort by SortModels, then SortElement, then SortAttribute
-#    df_sorted = df.sort_values(
-#        by=['SortModels', 'SortElement', 'SortAttribute']
-#    )
-#    return df_sorted
-
 
 def main():
-    data_dir = get_data_path()
+    VERSION = os.environ.get('VERSION')
+    if not VERSION:
+        raise ValueError("VERSION environment variable is not set")
+
+    data_dir = get_data_path(VERSION)
     excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
     df = pd.read_excel(excel_file_path)
 
@@ -253,7 +243,7 @@ def main():
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)
-        output_file_path = export_with_custom_widths(filtered_df, column_widths, language) #test
+        output_file_path = export_with_custom_widths(filtered_df, column_widths, language, VERSION) #test
         print(output_file_path)
 
 if __name__ == "__main__":

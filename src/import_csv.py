@@ -11,9 +11,6 @@ from check_imports_data_structure import (
     check_required_columns,
 )
 
-#VERSION = 'V16.6'
-VERSION = 'SampleV.01'
-
 def get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
         # Use a path relative to the root of the repository
@@ -58,7 +55,11 @@ def export_excel(df: pd.DataFrame, data_dir: Path, version: str):
 
 def main():
 
+    VERSION = os.environ.get('VERSION')
+    if not VERSION:
+        raise ValueError("VERSION environment variable is not set")
 
+ 
     data_dir = get_data_path(VERSION)
     dataframes = load_dataframes(data_dir)
     

@@ -4,10 +4,16 @@ import os
 
 #TODO: #5 Finish code and incorprate it into admin tools/page
 
-v1 = 'V16.05'
-v2 = 'V16.05'
+v1 = 'SampleV.01'
+v2 = 'SampleV.02'
 data_dir_v1 = os.path.join('..', 'data', v1)
 data_dir_v2 = os.path.join('..', 'data', v2)
+
+def get_data_path() -> Path:
+    if os.getenv('STREAMLIT_CLOUD'):
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / 'data' / VERSION
+    else:
+        return Path(__file__).parent.parent / 'data' / VERSION
 
 
 
