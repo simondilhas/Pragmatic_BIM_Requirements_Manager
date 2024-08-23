@@ -29,5 +29,5 @@ def execute_scripts(version):
     print("All scripts executed successfully.")
 
 if __name__ == "__main__":
-    VERSION = 'SampleV.01'
+    VERSION = 'abstractBIM_V1'
     execute_scripts(VERSION)

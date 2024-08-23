@@ -11,7 +11,6 @@ from src.sort import sort_dataframe
 DATA_FOLDER = 'data'
 TRANSLATIONS_FILE = 'translations.json'
 EXCEL_FILE_PATTERN = "Elementplan_{version}_raw_data.xlsx"
-LANGUAGE_OPTIONS = ['DE', 'EN']
 
 # Type aliases
 DataFrame = pd.DataFrame
@@ -229,7 +228,7 @@ def get_available_languages(df):
 def get_language_options(data):
     # Language code to full name mapping
     language_names = {
-        '': 'English',
+        'EN': 'English',
         'DE': 'Deutsch',
         'FR': 'Français',
         'IT': 'Italiano',

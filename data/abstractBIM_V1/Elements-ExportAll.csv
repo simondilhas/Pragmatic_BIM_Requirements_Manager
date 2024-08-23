@@ -1,0 +1,44 @@
+﻿ElementID,ElementNameEN,SortElement,ElementNameDE,IfcEntityIfc4.0Name,ElementDescriptionEN,ElementDescriptionDE,ContainedInEN,ContainedInDE
+Project,Project,"1,0",Projekt,IfcProject,"IfcProject is the main container for a digital building project. It stores essential project information like: 
+
+- Project name and description
+- Measurement units
+- Location details
+- Project stages
+- Basic project-wide settings
+
+It acts as the central point for organizing all building information, helping team members access and understand the project easily.","IfcProject ist der Hauptcontainer für ein digitales Bauprojekt. Es speichert wesentliche Projektinformationen wie:
+
+- Projektname und -beschreibung
+- Masseinheiten
+- Standortdetails
+- Projektphasen
+- Grundlegende projektweite  Einstellungen
+
+Es dient als zentraler Punkt für die Organisation aller Bauinformationen und hilft Teammitgliedern, das Projekt leicht zu verstehen und darauf zuzugreifen.",,
+Planning Perimeter,Planning Perimeter,"2,0",Planungsperimeter,IfcSite,"A planning perimeter is represented as a single ""IfcSite"", even if it consists of multiple legal plots.","Ein Planungsperimeter wird als eine ""IfcSite"" dargestellt, auch wenn er aus mehreren baurechtlichen Grundstücken besteht.",Project,Projekt
+Building,Building,"3,0",Gebäude,IfcBuilding,AbstractBIM supports single-buildings in files only,AbstractBIM unterstützt ausschliesslich ein Gebäude pro Datei.,Planning Perimeter,Planungsperimeter
+Storey / Floor,Storey / Floor,"4,0",Geschoss,IfcBuildingStorey,"Recommendation: 
+- Create a separate Building Storey for the foundation
+- Coordinate and harmonize the names of the floors early in the process.","Empfehlung:
+- Erstellen Sie ein separates Geschoss (Building Storey) für das Fundament.
+- Koordinieren und harmonisieren Sie die Bezeichnungen der Geschosse frühzeitig im Prozess.",Building,Gebäude
+Useable Space,Useable Space,"5,0",Nutzbarer Raum,IfcSpace,"Model each usable space as one volume per story without any overlaps (Model Gross Floor Areas/Volumes in a separate model).
+
+- Ideal: From structural slab top to next structural slab bottom
+- Alternative: From usable floor top to structural slab bottom
+- Horizontal extent: From interior wall to interior wall, to capture the entire usable volume
+-  Fill every ""Void"" in the building. e.g. Shafts, Elevators, ","Modellieren Sie jeden nutzbaren Raum als ein Volumen pro Geschoss ohne Überschneidungen:
+
+- Optimal: Von Oberkante Rohdecke bis Unterkante der nächsten Rohdecke
+- Alternative: Von Oberkante Nutzfläche bis Unterkante Rohdecke
+- Horizontale Ausdehnung: Von Innenwand zu Innenwand, um das gesamte nutzbare Volumen zu erfassen
+- Jeden ""Leerraum"" im Gebäude auch mit einem IfcSpace ausfüllen",Storey / Floor,Geschoss
+Void in double height rooms,Void in double height rooms,"6,0",Luftraum,IfcSpace,"Model ""Void"" above usable space:
+- One volume per story
+- Ensure contact with space below/above","Modellieren Sie den ""Void"" über dem nutzbaren Raum:
+-  Ein Volumen pro Geschoss
+-  Stellen Sie Kontakt zum Raum darunter/darüber sicher",Storey / Floor,Geschoss
+Window,Window,"8,0",Fenster,IfcWindow,Model Windows as IfcWindow.,Modellieren Sie Fenster als IfcWindow.,Storey / Floor,Geschoss
+Doors,Doors,"9,0",Türen,IfcDoor,Model Doors as IfcDoor.,Modellieren Sie Türen als IfcDoor.,Storey / Floor,Geschoss
+Exterior Spaces / Balconies,Exterior Spaces / Balconies,"7,0",Aussenräume / Balkone,IfcSpace,"AbstractBIM creates exterior slabs beneath exterior spaces, usable for balconies or canopies.",AbstractBIM erstellt Aussendecken unter Aussenbereichen. Nutzen Sie dies für Balkone oder Vordächer.,Storey / Floor,Geschoss
