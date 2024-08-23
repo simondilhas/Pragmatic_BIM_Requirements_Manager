@@ -192,12 +192,8 @@ git sync
 3. **Place the CSV Files**:  
    Move the exported CSV files into the newly created version folder.
 
-4. **Run the Merge Script**:  
-   Execute the script located at `src/import_csv.py`. This will generate a merged Excel file containing all the data.
-
-5. **Generate Formatted Files for Contracts**:  
-   Run the script at `src/create_formated_excel_export.py`. This script will create the formatted files required for download and use in contracts.
-
+4. **Run the Batch Processing Script to process the csv files**:  
+   Execute the script located at `src/batch_processing_import.py`. This will generate a merged Excel file containing all the data aswell as different output formats.
 
 ToDO: create a admin page to ease this workflow
 
