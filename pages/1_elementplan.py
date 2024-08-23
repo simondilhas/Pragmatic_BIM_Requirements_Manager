@@ -148,14 +148,14 @@ def custom_text(text: str, font_size: str = "0.7rem") -> str:
                     processed_lines.append('</ul>' if list_type == 'ul' else '</ol>')
                     in_list = False
                     list_type = None
-                processed_lines.append(f'<p style="{base_style}">{line}</p>')
+                processed_lines.append(f'<span style="{base_style}">{line}</span><br>')
         
         if in_list:
             processed_lines.append('</ul>' if list_type == 'ul' else '</ol>')
         
         return ''.join(processed_lines)
     else:
-        return f'<p style="{base_style}">{text}</p>'
+        return f'<span style="{base_style}">{text.replace(chr(10), "<br>")}</span>'
 
 def display_streamlit_columns(data: DataFrame, translations: Dict, language_suffix: str):
     column_names = {
