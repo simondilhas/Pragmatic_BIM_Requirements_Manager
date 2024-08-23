@@ -7,11 +7,11 @@ def _convert_to_numeric(x):
 
 def sort_dataframe(df):
     # Convert sorting columns to numeric
-    for col in ['SortModels', 'SortElement', 'SortAttribut']:
+    for col in ['SortModels', 'SortElement', 'SortAttribute']:
         df[col] = _convert_to_numeric(df[col])
 
-    # Sort by SortModels, then SortElement, then SortAttribut
+    # Sort by SortModels, then SortElement, then SortAttribute
     df_sorted = df.sort_values(
-        by=['SortModels', 'SortElement', 'SortAttribut']
+        by=['SortModels', 'SortElement', 'SortAttribute']
     )
     return df_sorted

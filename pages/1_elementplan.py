@@ -42,7 +42,7 @@ def get_versions(data_folder: PathLike) -> List[str]:
 
 def filter_columns_by_language(df: DataFrame, language_suffix: str) -> DataFrame:
     common_columns = [
-        'AttributID', 'AttributName', 'SortAttribut', 'Pset', 'DataTyp', 'Unit',
+        'AttributeID', 'AttributeName', 'SortAttribute', 'Pset', 'DataTyp', 'Unit',
         'IFC2x3', 'IFC4', 'IFC4.3', 'Applicability', 'ElementID', 'ModelID',
         'WorkflowID', 'SortElement', 'IfcEntityIfc4.0Name', 'SortModels', 'Status'
     ]
@@ -159,8 +159,8 @@ def custom_text(text: str, font_size: str = "0.7rem") -> str:
 
 def display_streamlit_columns(data: DataFrame, translations: Dict, language_suffix: str):
     column_names = {
-        'AttributName': translations['column_names']['AttributName'][language_suffix],
-        f'AttributDescription{language_suffix}': translations['column_names'][f'AttributDescription{language_suffix}'][language_suffix],
+        'AttributeName': translations['column_names']['AttributeName'][language_suffix],
+        f'AttributeDescription{language_suffix}': translations['column_names'][f'AttributeDescription{language_suffix}'][language_suffix],
         'Pset': translations['column_names']['Pset'][language_suffix],
         'DataTyp': translations['column_names']['DataTyp'][language_suffix],
         'Unit': translations['column_names']['Unit'][language_suffix],
@@ -204,14 +204,14 @@ def display_element_data(element_data: DataFrame, language_suffix: str, translat
         st.write(element_description)
     st.write("")
     
-    valid_attributes = element_data[element_data['AttributName'].notna() & (element_data['AttributName'] != '')]
+    valid_attributes = element_data[element_data['AttributeName'].notna() & (element_data['AttributeName'] != '')]
     
     if valid_attributes.empty:
         st.write("No attributes found for this element.")
     else:
         attribute_data = pd.DataFrame({
-            'AttributName': valid_attributes['AttributName'],
-            f'AttributDescription{language_suffix}': valid_attributes[f'AttributDescription{language_suffix}'],
+            'AttributeName': valid_attributes['AttributeName'],
+            f'AttributeDescription{language_suffix}': valid_attributes[f'AttributeDescription{language_suffix}'],
             'Pset': valid_attributes['Pset'],
             'DataTyp': valid_attributes['DataTyp'],
             'Unit': valid_attributes['Unit'],

@@ -4,7 +4,7 @@ import os
 
 from sort import sort_dataframe
 
-VERSION = 'V16.6'
+#VERSION = 'V16.6'
 VERSION = 'SampleV.01'
 #languages = ['DE','EN','FR','IT'] 
 
@@ -12,9 +12,9 @@ column_order = [
     'ElementName*',
     'IfcEntityIfc4.0Name',
     'Pset',
-    'AttributName',
-    'AttributName',
-    'AttributDescription*',
+    'AttributeName',
+    'AttributeName',
+    'AttributeDescription*',
     'DataTyp',
     'ModelName*',
     'Unit',

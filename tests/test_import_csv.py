@@ -52,7 +52,7 @@ class TestDataProcessing(unittest.TestCase):
             check_required_columns(df, ['Column1', 'Column3'], 'test_df')
 
     def test_process_attributes_df(self):
-        data = StringIO('''ElementID,ModelID,WorkflowID,SortAttribut
+        data = StringIO('''ElementID,ModelID,WorkflowID,SortAttribute
     1,A,X,2
     2,"B,C","Y,Z",1
     3,1,2,3
@@ -62,7 +62,7 @@ class TestDataProcessing(unittest.TestCase):
 
         # The result should have 6 rows due to exploding "B,C" and "Y,Z"
         self.assertEqual(result.shape, (6, 4))
-        self.assertEqual(result['SortAttribut'].tolist(), [1.0, 1.0, 1.0, 1.0, 2.0, 3.0])
+        self.assertEqual(result['SortAttribute'].tolist(), [1.0, 1.0, 1.0, 1.0, 2.0, 3.0])
         self.assertTrue(all(isinstance(x, str) for x in result['ElementID']))
         self.assertTrue(all(isinstance(x, str) for x in result['ModelID']))
         self.assertTrue(all(isinstance(x, str) for x in result['WorkflowID']))
@@ -73,7 +73,7 @@ class TestDataProcessing(unittest.TestCase):
         self.assertIn('Y', result['WorkflowID'].tolist())
         self.assertIn('Z', result['WorkflowID'].tolist())
         
-        # Check if the rows are in the correct order after sorting by SortAttribut
+        # Check if the rows are in the correct order after sorting by SortAttribute
         self.assertEqual(result['ElementID'].tolist(), ['2', '2', '2', '2', '1', '3'])
         self.assertEqual(result['ModelID'].tolist(), ['B', 'B', 'C', 'C', 'A', '1'])
         self.assertEqual(result['WorkflowID'].tolist(), ['Y', 'Z', 'Y', 'Z', 'X', '2'])

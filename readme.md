@@ -203,7 +203,7 @@ ToDO: create a admin page to ease this workflow
 
 ## Database Configuration / Required Columns Descriptions
 
-You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but ensure it follows this structure. Note: To add more languages, simply append a new column with the appropriate language code, such as AttributDescriptionEN.
+You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but ensure it follows this structure. Note: To add more languages, simply append a new column with the appropriate language code, such as AttributeDescription.
 
 #### Workflows Columns
 
@@ -231,10 +231,10 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 
 #### Attributes Columns
 
-- **AttributID (str, int)**: A unique identifier for the attribute, e.g., `123` or a pattern like `{AttributName}_{ElementName}`, e.g., `LongName_space`.
-- **AttributName (str)**: The name or type of the attribute, e.g., `Name`, `LongName`, `IsExternal`.
-- **SortAttribut (int, float)**: A numerical value used to sort or order the attributes.
-- **AttributDescription* (text)**: A description of the attribute in the specified language, e.g., `AttributDescriptionEN` for English.
+- **AttributeID (str, int)**: A unique identifier for the attribute, e.g., `123` or a pattern like `{AttributeName}_{ElementName}`, e.g., `LongName_space`.
+- **AttributeName (str)**: The name or type of the attribute, e.g., `Name`, `LongName`, `IsExternal`.
+- **SortAttribute (int, float)**: A numerical value used to sort or order the attributes.
+- **AttributeDescription* (text)**: A description of the attribute in the specified language, e.g., `AttributeDescription` for English.
 - **Pset (str)**: The property set to which the attribute belongs.
 - **AllowedValues* (str)**: Comma-separated list of allowed values in the specified language, e.g., `AllowedValuesEN` for English.
 - **RegexCheck* (str)**: Regular expression used to validate the attribute in the specified language, e.g., `RegexCheckEN` for English.

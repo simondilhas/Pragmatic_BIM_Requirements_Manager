@@ -34,7 +34,7 @@ def load_dataframes(data_dir: Path) -> Dict[str, pd.DataFrame]:
             for key, file_name in file_names.items()}
 
 def process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
-    required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribut']
+    required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribute']
     check_required_columns(df, required_columns, 'attributes_df')
 
     columns_to_explode = ['ElementID', 'ModelID']
@@ -48,8 +48,8 @@ def process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
             df_exploded = df_exploded.assign(**{column: df_exploded[column].str.split(',')}).explode(column)
         df_exploded[column] = df_exploded[column].str.strip()
     
-    df_exploded['SortAttribut'] = pd.to_numeric(df_exploded['SortAttribut'], errors='coerce')
-    return df_exploded.sort_values('SortAttribut', na_position='last').reset_index(drop=True)
+    df_exploded['SortAttribute'] = pd.to_numeric(df_exploded['SortAttribute'], errors='coerce')
+    return df_exploded.sort_values('SortAttribute', na_position='last').reset_index(drop=True)
 
 def export_excel(df: pd.DataFrame, data_dir: Path, version: str):
     file = data_dir / f"Elementplan_{version}_raw_data.xlsx"

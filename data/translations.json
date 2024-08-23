@@ -320,43 +320,43 @@
           "FR": "Attributs",
           "IT": "Attributi"
       },
-      "AttributID": {
-          "DE": "AttributID",
+      "AttributeID": {
+          "DE": "AttributeID",
           "EN": "Attribute ID",
           "FR": "ID d'attribut",
           "IT": "ID attributo"
       },
-      "AttributName": {
+      "AttributeName": {
           "DE": "Attribut Name",
           "EN": "Attribute Name",
           "FR": "Nom de l'attribut",
           "IT": "Nome attributo"
       },
-      "SortAttribut": {
+      "SortAttribute": {
           "DE": "Sortiere Attribut",
           "EN": "Sort Attribute",
           "FR": "Attribuer un ordre",
           "IT": "Ordina attributo"
       },
-      "AttributDescriptionEN": {
+      "AttributeDescription": {
           "DE": "Attribut Beschreibung",
           "EN": "Attribute Description",
           "FR": "Description de l'attribut",
           "IT": "Descrizione dell'attributo"
       },
-      "AttributDescriptionDE": {
+      "AttributeDescriptionDE": {
           "DE": "Attribut Beschreibung",
           "EN": "Attribute Description",
           "FR": "Description de l'attribut",
           "IT": "Descrizione dell'attributo"
       },
-      "AttributDescriptionFR": {
+      "AttributeDescriptionFR": {
           "DE": "Attribut Beschreibung",
           "EN": "Attribute Description",
           "FR": "Description de l'attribut",
           "IT": "Descrizione dell'attributo"
       },
-      "AttributDescriptionIT": {
+      "AttributeDescriptionIT": {
           "DE": "Attribut Beschreibung",
           "EN": "Attribute Description",
           "FR": "Description de l'attribut",

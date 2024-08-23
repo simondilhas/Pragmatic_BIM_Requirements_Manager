@@ -6,7 +6,7 @@ print(f'Systpath: {sys.path}')
 
 from sort import sort_dataframe
 
-VERSION = 'V16.6'
+VERSION = 'SampleV.01'
 #languages = ['DE']
 
 column_order = [
@@ -16,8 +16,8 @@ column_order = [
     'ElementDescription*',
     'IfcEntityIfc4.0Name',
     'Pset',
-    'AttributDescription*',
-    'AttributName',
+    'AttributeDescription*',
+    'AttributeName',
     'Unit',
     'DataTyp',
     'AllowedValues*',
@@ -218,12 +218,12 @@ def create_filtered_df(df, language):
 #TODO make the sorting logic more robust to deal with str, int, float
 #def sort_dataframe(df):
 #    # Convert sorting columns to numeric
-#    for col in ['SortModels', 'SortElement', 'SortAttribut']:
+#    for col in ['SortModels', 'SortElement', 'SortAttribute']:
 #        df[col] = convert_to_numeric(df[col])
 #    
-#    # Sort by SortModels, then SortElement, then SortAttribut
+#    # Sort by SortModels, then SortElement, then SortAttribute
 #    df_sorted = df.sort_values(
-#        by=['SortModels', 'SortElement', 'SortAttribut']
+#        by=['SortModels', 'SortElement', 'SortAttribute']
 #    )
 #    return df_sorted
 

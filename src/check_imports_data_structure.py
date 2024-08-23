@@ -27,10 +27,10 @@ required_elements_columns = [
 ]
 
 required_attributes_columns = [
-    "AttributID",
-    "AttributName",
-    "SortAttribut",
-    "AttributDescription*",
+    "AttributeID",
+    "AttributeName",
+    "SortAttribute",
+    "AttributeDescription*",
     "Pset",
     "AllowedValues*",
     "RegexCheck*",
