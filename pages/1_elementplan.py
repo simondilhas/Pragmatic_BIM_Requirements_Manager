@@ -7,14 +7,14 @@ import json
 
 from src.sort import sort_dataframe
 
+# Type aliases
+DataFrame = pd.DataFrame
+PathLike = Path | str
+
 # Constants
 DATA_FOLDER = 'data'
 TRANSLATIONS_FILE = 'translations.json'
 EXCEL_FILE_PATTERN = "Elementplan_{version}_raw_data.xlsx"
-
-# Type aliases
-DataFrame = pd.DataFrame
-PathLike = Path | str
 
 @st.cache_data
 def get_project_path(folder_name: str) -> Path:
@@ -24,49 +24,54 @@ def get_project_path(folder_name: str) -> Path:
         return Path(__file__).parent.parent / folder_name
 
 @st.cache_data
-def load_data(version_path: PathLike, version: str) -> DataFrame:
-    file_path = Path(version_path) / EXCEL_FILE_PATTERN.format(version=version)
+def load_data(version_path: Path, version: str) -> pd.DataFrame:
+    file_path = version_path / EXCEL_FILE_PATTERN.format(version=version)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
     return pd.read_excel(file_path)
 
 @st.cache_data
-def load_translations(json_path: PathLike) -> Dict:
+def load_translations(json_path: Path) -> Dict:
     with open(json_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
-def get_versions(data_folder: PathLike) -> List[str]:
-    return [f.name for f in Path(data_folder).iterdir() 
+def get_versions(data_folder: Path) -> List[str]:
+    return [f.name for f in data_folder.iterdir() 
             if f.is_dir() and f.name != '__pycache__']
 
-def filter_columns_by_language(df: DataFrame, language_suffix: str) -> DataFrame:
+def filter_columns_by_language(df: pd.DataFrame, language_suffix: str) -> pd.DataFrame:
     common_columns = [
         'AttributeID', 'AttributeName', 'SortAttribute', 'Pset', 'DataTyp', 'Unit',
         'IFC2x3', 'IFC4', 'IFC4.3', 'Applicability', 'ElementID', 'ModelID',
         'WorkflowID', 'SortElement', 'IfcEntityIfc4.0Name', 'SortModels', 'Status'
     ]
-    language_specific_columns = [col for col in df.columns if col.endswith(f'{language_suffix}')]
+    language_specific_columns = [col for col in df.columns if col.endswith(language_suffix)]
     columns_to_keep = common_columns + language_specific_columns
     return df[columns_to_keep]
 
-def filter_by_project_phase(data: DataFrame, language_suffix: str) -> DataFrame:
+def filter_by_project_phase(data: pd.DataFrame, language_suffix: str, translations: Dict) -> pd.DataFrame:
+    project_phase_column = f'ProjectPhase{language_suffix}'
+    if project_phase_column not in data.columns:
+        st.warning(f"Project phase information not available for {language_suffix}")
+        return data
+
     all_phases = set()
-    for phases in data[f'ProjectPhase{language_suffix}'].dropna():
+    for phases in data[project_phase_column].dropna():
         all_phases.update(phase.strip() for phase in phases.split(','))
     all_phases = sorted(list(all_phases))
       
     selected_phases = st.sidebar.multiselect(
-        "Filter by Project Phase",
+        translations['sidebar_filters']['project_phase'][language_suffix],
         options=all_phases,
         default=[],
         key="project_phase_filter",
-        placeholder="Filter by selecting"
+        placeholder=translations['sidebar_filters']['project_phase'][language_suffix]
     )
     
     if not selected_phases:
         return data
 
-    mask = data[f'ProjectPhase{language_suffix}'].fillna('').apply(
+    mask = data[project_phase_column].fillna('').apply(
         lambda x: any(phase in [p.strip() for p in x.split(',')] for phase in selected_phases)
     )
     filtered_data = data[mask]
@@ -77,9 +82,7 @@ def filter_by_project_phase(data: DataFrame, language_suffix: str) -> DataFrame:
     return filtered_data
 
 def display_download_button(version: str, language: str, data_folder: PathLike, file_type_name: str):
-    """
-    file_type_name is either Elementplan, Libal_Config
-    """
+   
     file_name = f"{file_type_name}_{language}_{version}.xlsx" 
     file_path = Path(data_folder) / version / file_name
 
@@ -156,33 +159,34 @@ def custom_text(text: str, font_size: str = "0.7rem") -> str:
     else:
         return f'<span style="{base_style}">{text.replace(chr(10), "<br>")}</span>'
 
-def display_streamlit_columns(data: DataFrame, translations: Dict, language_suffix: str):
+def display_streamlit_columns(data: pd.DataFrame, translations: Dict, language_suffix: str):
     column_names = {
         'AttributeName': translations['column_names']['AttributeName'][language_suffix],
-        f'AttributeDescription{language_suffix}': translations['column_names'][f'AttributeDescription{language_suffix}'][language_suffix],
+        f'AttributeDescription{language_suffix}': translations['column_names']['AttributeDescription'][language_suffix],
         'Pset': translations['column_names']['Pset'][language_suffix],
         'DataTyp': translations['column_names']['DataTyp'][language_suffix],
         'Unit': translations['column_names']['Unit'][language_suffix],
-        f'AllowedValues{language_suffix}': translations['column_names'][f'AllowedValues{language_suffix}'][language_suffix]
+        f'AllowedValues{language_suffix}': translations['column_names']['AllowedValues'][language_suffix]
     }
 
     col_width = [2, 4, 2, 1, 1, 3]
     
     cols = st.columns(col_width)
     
-    for col, (key, value) in zip(cols, column_names.items()):
+    for col, value in zip(cols, column_names.values()):
         col.markdown(custom_text(f"<strong>{value}</strong>"), unsafe_allow_html=True)
     
     for _, row in data.iterrows():
         cols = st.columns(col_width)
         
-        for col, key in zip(cols, column_names.keys()):
-            if not pd.isna(row[key]) and row[key] != '':
-                col.markdown(custom_text(str(row[key])), unsafe_allow_html=True)
+        for col, (df_key, _) in zip(cols, column_names.items()):
+            if df_key in data.columns:
+                if not pd.isna(row[df_key]) and row[df_key] != '':
+                    col.markdown(custom_text(str(row[df_key])), unsafe_allow_html=True)
+            else:
+                st.write(f"Column {df_key} not found in DataFrame")
 
-
-def display_element_data(element_data: DataFrame, language_suffix: str, translations: Dict):
-    #Alte version BBL
+def display_element_data(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
     if element_data.empty:
         st.warning("No data available for this element.")
         return
@@ -219,11 +223,9 @@ def display_element_data(element_data: DataFrame, language_suffix: str, translat
         
         display_streamlit_columns(attribute_data, translations, language_suffix)
 
-def get_available_languages(df):
-        
-        language_columns = [col for col in df.columns if col.startswith('ElementName')]
-        return [col.replace('ElementName', '') for col in language_columns]
-
+def get_available_languages(df: pd.DataFrame) -> List[str]:
+    language_columns = [col for col in df.columns if col.startswith('ElementName')]
+    return [col.replace('ElementName', '') for col in language_columns]
 
 def get_language_options(data):
     # Language code to full name mapping
@@ -255,7 +257,6 @@ def select_language(data):
     return language_suffix
 
 def main():
-      
     data_folder = get_project_path(DATA_FOLDER)
     versions = get_versions(data_folder)
     
@@ -265,15 +266,11 @@ def main():
 
     translations = load_translations(data_folder / TRANSLATIONS_FILE)
 
-    
     selected_version = st.sidebar.selectbox(
         translations['version_select']['EN'],
         versions
     )
 
-
-    #language_suffix = st.sidebar.selectbox("Select Language", LANGUAGE_OPTIONS)
-    
     try:
         data = load_data(data_folder / selected_version, selected_version)
     except FileNotFoundError as e:
@@ -289,10 +286,10 @@ def main():
     language_suffix = select_language(data)
 
     data_filtered = filter_columns_by_language(data, language_suffix)
-    data_filtered = filter_by_project_phase(data_filtered, language_suffix)
+    data_filtered = filter_by_project_phase(data_filtered, language_suffix, translations)
 
     display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
-    display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')  
+    display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
     
     if data_filtered.empty:
         st.info("No data to display based on the current filter settings.")
@@ -300,14 +297,8 @@ def main():
 
     st.info(translations['choice'][language_suffix])
 
+    # Assuming sort_dataframe function is defined elsewhere
     model_data_sorted = sort_dataframe(data_filtered)
-
-    # First, convert the SortModels column to proper floats
-    #data_filtered['SortModels_float'] = data_filtered['SortModels'].str.replace(',', '.').astype(float)
-
-    #Double sort is not very elegant
-    #sorted_file_names = model_data_sorted.sort_values('SortModels')[f'FileName{language_suffix}'].unique()
-    #model_tabs = st.tabs([f"{file_name}" for file_name in sorted_file_names])
 
     tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
     tabs = st.tabs(tab_labels)
@@ -316,20 +307,14 @@ def main():
         with tab:
             model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
 
-            
-
             header_content = model_df[f'ModelName{language_suffix}'].unique()
             if len(header_content) == 1:
-                st.header(header_content[0])  # Display single value without brackets
+                st.header(header_content[0])
             else:
                 st.header(', '.join(header_content))
-
-            #TO Contiune sort by modeldata by Model and Element
-            
             
             for element_name in model_df[f'ElementName{language_suffix}'].unique():
                 with st.container():
-                    
                     element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
                     display_element_data(element_data, language_suffix, translations)
 
