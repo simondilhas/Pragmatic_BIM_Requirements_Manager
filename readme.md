@@ -178,7 +178,20 @@ git sync
 
 ## Usage Instructions
 
-1. **Export Required CSV Files**:  
+1. Set up the database in the tool of your choice. Options include:
+   - Airtable (recommended)
+   - Excel
+   - Other database management systems
+
+2. Populate the database:
+   1. Define the workflow: Outline the purpose and intended use of your data
+   2. Create the container - the file - the IFC Model you expect your data in
+   3. Add necessray logical elements(e.g., walls, floors, rooms)
+   4. Define necessary attributes: List required attributes for each logical element (at least one per element, otherwiese the code won't process them at the moment)
+   5. Connect tables: Link all tables bottom-up, starting from the attribute level
+   6. Specify data usage (if needed): Detail how to use the data in the mapping table
+
+3. **Export Required CSV Files**:  
    Export the following CSV files from your database, ensuring that all necessary columns are included:
    - `Attributes-ExportAll.csv`
    - `Elements-ExportAll.csv`
@@ -186,13 +199,13 @@ git sync
    - `Workflows-ExportAll.csv`  
    (Refer to the "Attribute Table" section for details on the required columns.)
 
-2. **Create a New Version Folder**:  
+4. **Create a New Version Folder**:  
    In the `data\` directory, create a new folder named after the version you're working on (e.g., `data\V2.05`).
 
-3. **Place the CSV Files**:  
+5. **Place the CSV Files**:  
    Move the exported CSV files into the newly created version folder.
 
-4. **Run the Batch Processing Script to process the csv files**:  
+6. **Run the Batch Processing Script to process the csv files**:  
    Execute the script located at `src/batch_processing_import.py`. This will generate a merged Excel file containing all the data aswell as different output formats.
 
 ToDO: create a admin page to ease this workflow
