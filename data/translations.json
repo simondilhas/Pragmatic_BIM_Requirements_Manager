@@ -51,7 +51,7 @@
     },
       "column_names": {
           "WorkflowID": {
-              "DE": "WorkflowID",
+              "DE": "Workflow ID",
               "EN": "Workflow ID",
               "FR": "ID Flux de travail",
               "IT": "ID Flusso di lavoro"
@@ -81,25 +81,25 @@
               "IT": "Stato"
           },
           "ModelID": {
-          "DE": "ModelID",
+          "DE": "Model ID",
           "EN": "Model ID",
           "FR": "ID Modèle",
           "IT": "ID Modello"
       },
       "ModelName": {
-          "DE": "Modellname",
+          "DE": "Modell Name",
           "EN": "Model Name",
           "FR": "Nom du modèle",
           "IT": "Nome del modello"
       },
       "ModelDescription": {
-          "DE": "Modellbeschreibung",
+          "DE": "Modell Beschreibung",
           "EN": "Model Description",
           "FR": "Description du modèle",
           "IT": "Descrizione del modello"
       },
       "FileName": {
-          "DE": "Dateiname",
+          "DE": "Datei Name",
           "EN": "File Name",
           "FR": "Nom du fichier",
           "IT": "Nome del file"
@@ -111,7 +111,7 @@
           "IT": "Ordina modelli"
       },
       "ElementID": {
-          "DE": "ElementID",
+          "DE": "Element ID",
           "EN": "Element ID",
           "FR": "ID Élément",
           "IT": "ID Elemento"
@@ -129,16 +129,16 @@
           "IT": "Ordina elemento"
       },
       "IfcEntityIfc4.0": {
-          "DE": "Ifc Entität Ifc4.0",
-          "EN": "Ifc Entity Ifc4.0",
-          "FR": "Entité Ifc Ifc4.0",
-          "IT": "Entità Ifc Ifc4.0"
+          "DE": "Ifc4.0 Entität",
+          "EN": "Ifc4.0 Entity",
+          "FR": "Entité Ifc4.0",
+          "IT": "Entità Ifc4.0"
       },
       "IfcEntityIfc4.0Name": {
-          "DE": "Ifc Entitätsname Ifc4.0",
-          "EN": "Ifc Entity Name Ifc4.0",
-          "FR": "Nom de l'entité Ifc Ifc4.0",
-          "IT": "Nome dell'entità Ifc Ifc4.0"
+          "DE": "Ifc4.0 Entität",
+          "EN": "Ifc4.0 Entity",
+          "FR": "Entité Ifc4.0",
+          "IT": "Entità Ifc4.0"
       },
       "ElementDescription": {
           "DE": "Element Beschreibung",
@@ -159,7 +159,7 @@
           "IT": "Attributi"
       },
       "AttributeID": {
-          "DE": "AttributeID",
+          "DE": "Attribute ID",
           "EN": "Attribute ID",
           "FR": "ID d'attribut",
           "IT": "ID attributo"

@@ -2,9 +2,9 @@ import pandas as pd
 from pathlib import Path
 import os
 import sys
-print(f'Systpath: {sys.path}')
-
-from sort import sort_dataframe
+from src.sort import sort_dataframe
+import json
+import re
 
 column_order = [
     'FileName*',
@@ -72,21 +72,6 @@ def extract_phase_definitions(df, column):
     all_phases = sorted(all_phases)
     return all_phases
 
-def x_explode_phases_to_matrix(df, column, lang):
-    
-    all_phases = extract_phase_definitions(df, lang)
-    
-    for phase in all_phases:
-        df[f'Phase_{phase}'] = ''
-
-    # Fill the new columns with 'X' where appropriate
-    for index, row in df.iterrows():
-        phases = row[column].split(',') if isinstance(row[column], str) else []
-        for phase in phases:
-            phase = phase.strip()
-            if phase in all_phases:
-                df.at[index, f'Phase_{phase}'] = 'X'
-    return df
 
 def extract_phase_definitions(df, column):
     all_phases = set()
@@ -110,6 +95,39 @@ def explode_phases_to_matrix(df, column, lang):
             phase = phase.strip()
             if phase in all_phases:
                 df.at[index, f'Phase_{phase}'] = 'X'
+    return df
+
+def translate_column_names(df, language):
+    print("Start Translating")
+    # Load the translations
+    data_path = get_data_path('translations.json')
+    with open(data_path, 'r', encoding='utf-8') as f:
+        translations = json.load(f)
+    
+    # Get the column translations for the specified language
+    column_translations = translations['column_names']
+    
+    # Function to remove language postfix
+    def remove_language_postfix(column_name):
+        return re.sub(r'(DE|EN|FR|IT)$', '', column_name)
+    
+    # Create a mapping of original column names to translated names
+    translation_map = {}
+    for col in df.columns:
+        # Remove language postfix
+        base_name = remove_language_postfix(col)
+        
+        # Look for a translation
+        if base_name in column_translations and language in column_translations[base_name]:
+            translation_map[col] = column_translations[base_name][language]
+        else:
+            # If no translation found, keep the base name without language postfix
+            translation_map[col] = base_name
+    
+    # Rename the columns in the DataFrame
+    df.rename(columns=translation_map, inplace=True)
+    print(df.columns)
+    
     return df
 
 
@@ -149,9 +167,12 @@ def export_with_custom_widths(df, column_widths, language, VERSION):
             for filename in unique_filenames:
                 filtered_df = df[df[f'FileName{language}'] == filename]
                 filtered_df['Sort'] = range(1, len(filtered_df) + 1)
+                
+                filtered_df = translate_column_names(filtered_df, language)
+
 
                 filtered_df.to_excel(writer, sheet_name=filename[:31], index=False, startrow=0)  # Start writing data from row 1
-
+                
                 worksheet = writer.sheets[filename[:31]]
 
                 for col_num, col_name in enumerate(filtered_df.columns):
@@ -214,7 +235,7 @@ def create_filtered_df(df, language):
     return df[filtered_columns]
 
 
-def main():
+def create_formated_excel_export():
     VERSION = os.environ.get('VERSION')
     if not VERSION:
         raise ValueError("VERSION environment variable is not set")
@@ -243,8 +264,7 @@ def main():
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)
+        #filtered_df = translate_column_names(filtered_df, language)
         output_file_path = export_with_custom_widths(filtered_df, column_widths, language, VERSION) #test
         print(output_file_path)
 
-if __name__ == "__main__":
-    main()

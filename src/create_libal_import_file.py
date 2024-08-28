@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 import os
 
-from sort import sort_dataframe
+from src.sort import sort_dataframe
 
 #VERSION = 'V16.6'
 #VERSION = 'SampleV.01'
@@ -207,7 +207,7 @@ def create_filtered_df(df, language):
     ]
     return df[filtered_columns]
 
-def main():
+def create_libal_import_file():
     VERSION = os.environ.get('VERSION')
     if not VERSION:
         raise ValueError("VERSION environment variable is not set")
@@ -237,6 +237,3 @@ def main():
         filtered_df = create_filtered_df(df, language)
         output_file_path = libal_config_export(filtered_df, column_widths, language, export_file_type_name, VERSION)
         print(output_file_path)
-
-if __name__ == "__main__":
-    main()

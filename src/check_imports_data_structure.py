@@ -45,7 +45,7 @@ required_attributes_columns = [
     "WorkflowID"
 ]
 
-def check_required_columns(df: pd.DataFrame, required_columns: List[str], df_name: str) -> None:
+def check_required_columns(df: pd.DataFrame, required_columns: List[str]) -> None:
     missing_columns = []
     for column in required_columns:
         if '*' in column:
@@ -56,4 +56,5 @@ def check_required_columns(df: pd.DataFrame, required_columns: List[str], df_nam
             missing_columns.append(column)
     
     if missing_columns:
-        raise ValueError(f"Missing required columns in {df_name}: {', '.join(missing_columns)}")
+        #raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
+        return (f"Missing required columns: {', '.join(missing_columns)}")

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, List
 import os
 
-from check_imports_data_structure import (
+from src.check_imports_data_structure import (
     required_workflows_columns,
     required_models_columns,
     required_elements_columns,
@@ -32,7 +32,7 @@ def load_dataframes(data_dir: Path) -> Dict[str, pd.DataFrame]:
 
 def process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribute']
-    check_required_columns(df, required_columns, 'attributes_df')
+    check_required_columns(df, required_columns)
 
     columns_to_explode = ['ElementID', 'ModelID']
     #columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
@@ -53,7 +53,7 @@ def export_excel(df: pd.DataFrame, data_dir: Path, version: str):
     df.to_excel(file, index=False)
     print(f"Excel file exported to: {file}")
 
-def main():
+def import_csv():
 
     VERSION = os.environ.get('VERSION')
     if not VERSION:
@@ -63,10 +63,10 @@ def main():
     data_dir = get_data_path(VERSION)
     dataframes = load_dataframes(data_dir)
     
-    check_required_columns(dataframes['workflows_df'], required_workflows_columns, 'workflows_df')
-    check_required_columns(dataframes['elements_df'], required_elements_columns, 'elements_df')
-    check_required_columns(dataframes['models_df'], required_models_columns, 'models_df')
-    check_required_columns(dataframes['attributes_df'], required_attributes_columns, 'attributes_df')
+    check_required_columns(dataframes['workflows_df'], required_workflows_columns)
+    check_required_columns(dataframes['elements_df'], required_elements_columns)
+    check_required_columns(dataframes['models_df'], required_models_columns)
+    check_required_columns(dataframes['attributes_df'], required_attributes_columns)
     
     attributes_df = process_attributes_df(dataframes['attributes_df'])
     
@@ -88,5 +88,3 @@ def main():
     # Export the result to Excel
     export_excel(result_df, data_dir, VERSION)
 
-if __name__ == "__main__":
-    main()
