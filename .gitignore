@@ -2,3 +2,4 @@
 plugins/
 .vscode
 experiments/
+.streamlit/secrets.toml

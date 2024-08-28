@@ -151,12 +151,39 @@ git remote add upstream https://github.com/simondilhas/Pragmatic_BIM_Requirement
 pip install -r requirements.txt
 streamlit run home.py
 ```
-### 3. Deployment Options
+
+### 4. Secure Your Branch
+
+To implement basic password protection:
+
+1. Run `src/create_hashed_pw.py`:
+   - Set your desired password in this script.
+   - **IMPORTANT:** Remove the password from the script before committing to GitHub.
+
+2. Create the file `.streamlit/secrets.toml`.
+
+3. Add the generated hash to `secrets.toml`:
+   ```toml
+   hashed_password = "YOUR_GENERATED_HASH_HERE"
+   ```
+
+4. Ensure `.streamlit/secrets.toml` is listed in your `.gitignore` file.
+
+**Security Notice:**
+
+This method provides basic protection but is not suitable for high-security applications.
+For production environments, consider implementing:
+
+- Robust user management system e.g. Azure Active Directory (Azure AD)
+- Two-factor authentication (2FA)
+- Secure session handling
+
+### 5. Deployment Options
  - Quick: Use Streamlit Share (https://streamlit.io/sharing) for easy cloud deployment
  - Scalable: Deploy on cloud platforms like Azure, AWS, or GCP
  - Managed: Contact Abstract Ltd. for hosted solutions
 
-### 4. Stay Updated
+### 6. Stay Updated
  Regularly sync with the original repository:
 ```bash
 git checkout main
