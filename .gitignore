@@ -3,3 +3,4 @@ plugins/
 .vscode
 experiments/
 .streamlit/secrets.toml
+__pycache__

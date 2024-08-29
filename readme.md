@@ -2,22 +2,30 @@
 Streamlining BIM Data Management
 
 ## Table of Contents
-
-1. [Introduction](#introduction)
-2. [The Challenge](#the-challenge)
-3. [Our Solution](#our-solution)
-   - [Key Features](#key-features)
-4. [Expanded Use Cases: How This Tool Empowers Client Organizations](#expanded-use-cases-how-this-tool-empowers-client-organizations)
-5. [Mapping Columns](#mapping-columns)
-6. [Installation and Setup](#installation-and-setup)
-7. [Architectural Decision Records](#architectural-decision-records)
-8. [Contributing](#contributing)
-   - [For Developers](#for-developers)
-   - [For Non-Programmers](#for-non-programmers)
-9. [FAQ](#faq)
-10. [Roadmap](#roadmap)
-11. [License](#license)
-12. [Acknowledgements](#acknowledgements)
+- [Introduction](#introduction)
+  - [The Challenge](#the-challenge)
+  - [Our Solution](#our-solution)
+  - [Use Cases: How This Tool Empowers Client Organizations](#use-cases-how-this-tool-empowers-client-organizations)
+- [Project Overview](#project-overview)
+- [Installation and Setup](#installation-and-setup)
+  1. [Fork the Repository](#1-fork-the-repository)
+  2. [Clone and Run Locally](#2-clone-and-run-locally)
+  3. [Secure Your Branch](#4-secure-your-branch)
+  4. [Deployment Options](#5-deployment-options)
+  5. [Stay Updated](#6-stay-updated)
+- [Usage Instructions](#usage-instructions)
+- [Database Configuration / Required Columns Descriptions](#database-configuration--required-columns-descriptions)
+  - [Workflows Columns](#workflows-columns)
+  - [Models Columns](#models-columns)
+  - [Elements Columns](#elements-columns)
+  - [Attributes Columns](#attributes-columns)
+  - [Mapping Columns](#mapping-columns)
+- [Contributing](#contributing)
+- [Architectural Decision Records](#architectural-decision-records)
+- [FAQ](#faq)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 ## Introduction
 ### The Challenge
@@ -244,26 +252,26 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 #### Workflows Columns
 
 - **WorkflowID (str, int)**: A unique identifier for the workflow.
-- **WorkflowName* (str)**: The name of the workflow in the specified language, e.g., `WorkflowNameEN` for English.
-- **WorkflowSubheader* (str)**: A subheader for the workflow, providing additional context or categorization, e.g., `WorkflowSubheaderEN` for English.
-- **WorkflowDescription* (text)**: A detailed description of the workflow in the specified language, e.g., `WorkflowDescriptionEN` for English.
+- **WorkflowName\* (str)**: The name of the workflow in the specified language, e.g., `WorkflowNameEN` for English.
+- **WorkflowSubheader\* (str)**: A subheader for the workflow, providing additional context or categorization, e.g., `WorkflowSubheaderEN` for English.
+- **WorkflowDescription\* (text)**: A detailed description of the workflow in the specified language, e.g., `WorkflowDescriptionEN` for English.
 - **Status (str)**: Indicates the current status of the workflow, such as `Active`, `Inactive`, or `Pending`.
 
 #### Models Columns
 
 - **ModelID (str, int)**: A unique identifier for the model. e.g. ARC-Model
-- **ModelName* (str)**: The name of the model in the specified language, e.g., `ModelNameEN` for English.
-- **ModelDescription* (text)**: A detailed description of the model in the specified language, e.g., `ModelDescriptionEN` for English.
-- **FileName* (str)**: The name of the file associated with the model in the specified language, e.g., `FileNameEN` for English.
+- **ModelName\* (str)**: The name of the model in the specified language, e.g., `ModelNameEN` for English.
+- **ModelDescription\* (text)**: A detailed description of the model in the specified language, e.g., `ModelDescriptionEN` for English.
+- **FileName\* (str)**: The name of the file associated with the model in the specified language, e.g., `FileNameEN` for English.
 - **SortModels (int, float)**: A numerical value used to sort or order the models.
 
 #### Elements Columns
 
 - **ElementID (str)**: A unique identifier for the element e.g., `123` or a pattern like `{ElementName}_{ModelName}`, e.g., `Space_ARC-Model`.
-- **ElementName* (str)**: The name of the element in the specified language, e.g., `ElementNameEN` for English.
+- **ElementName\* (str)**: The name of the element in the specified language, e.g., `ElementNameEN` for English.
 - **SortElement (int, float)**: A numerical value used to sort or order the elements.
 - **IfcEntityIfc4.0Name (str)**: The name of the IFC (Industry Foundation Classes) entity associated with the element, compliant with IFC 4.0 standards.
-- **ElementDescription* (text)**: A detailed description of the element in the specified language, e.g., `ElementDescriptionEN` for English.
+- **ElementDescription\* (text)**: A detailed description of the element in the specified language, e.g., `ElementDescriptionEN` for English.
 
 #### Attributes Columns
 
@@ -272,8 +280,8 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 - **SortAttribute (int, float)**: A numerical value used to sort or order the attributes.
 - **AttributeDescription* (text)**: A description of the attribute in the specified language, e.g., `AttributeDescription` for English.
 - **Pset (str)**: The property set to which the attribute belongs.
-- **AllowedValues* (str)**: Comma-separated list of allowed values in the specified language, e.g., `AllowedValuesEN` for English.
-- **RegexCheck* (str)**: Regular expression used to validate the attribute in the specified language, e.g., `RegexCheckEN` for English.
+- **AllowedValues\* (str)**: Comma-separated list of allowed values in the specified language, e.g., `AllowedValuesEN` for English.
+- **RegexCheck\* (str)**: Regular expression used to validate the attribute in the specified language, e.g., `RegexCheckEN` for English.
 - **DataTyp (IfcDatatyp)**: The data type of the attribute’s value, e.g., `IfcLabel`.
 - **Unit (str)**: Unit of measurement for the attribute, if applicable, e.g., `sqm`.
 - **IFC2x3 (bool)**: Indicates if the attribute is compliant with IFC 2x3 standards.
@@ -319,8 +327,8 @@ ToDo: Add FAQ
 
 ## Roadmap
 1. MVP version ... work in Progress
-2. Admin page for non tec
-3. IDS creation
+2. Admin page for non tec ... work in Progress
+3. IDS creation ... work in Progress
 
 
 ## License
@@ -333,7 +341,7 @@ What This Means for Users:
 - Integration with Proprietary Software: Unlike the full GNU General Public License (GPL), the LGPL allows you to link this library with proprietary software without requiring that the proprietary software itself be open-sourced.
 - Contribution Back: If you improve or modify the library, we encourage (but do not require) you to contribute your changes back to the community, so everyone can benefit from your enhancements.
 
-For full details, please see the LICENSE.txt file included in the repository.
+For full details, please see the LICENSE.txt file included in the repository (https://github.com/simondilhas/Pragmatic_BIM_Requirements_Manager).
 
 ## Acknowledgements
 I would like to extend my heartfelt appreciation to everyone who contributed to the success of this project:
