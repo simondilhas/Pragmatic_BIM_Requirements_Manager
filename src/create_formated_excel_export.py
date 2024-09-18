@@ -178,7 +178,7 @@ def export_with_custom_widths(df, column_widths, language, VERSION):
                 for col_num, col_name in enumerate(filtered_df.columns):
                     width = column_widths[col_num] if col_num < len(column_widths) else default_column_width
                     
-                    if 11 <= col_num <= 22 or col_name == 'Sort':
+                    if 11 <= col_num <= 23 or col_name == 'Sort':
                         worksheet.set_column(col_num, col_num, width, centered_format)
                     else:
                         worksheet.set_column(col_num, col_num, width, default_format)

@@ -1,9 +1,3 @@
-#import hashlib
-#pw = hashlib.sha256("Password123".encode()).hexdigest()
-#
-#print(pw)
-
-
 import os
 import hashlib
 import base64

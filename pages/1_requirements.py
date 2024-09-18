@@ -36,8 +36,8 @@ def load_translations(json_path: Path) -> Dict:
         return json.load(file)
 
 def get_versions(data_folder: Path) -> List[str]:
-    return [f.name for f in data_folder.iterdir() 
-            if f.is_dir() and f.name != '__pycache__']
+    return sorted([f.name for f in data_folder.iterdir() 
+                   if f.is_dir() and f.name != '__pycache__'], reverse=True)
 
 def filter_columns_by_language(df: pd.DataFrame, language_suffix: str) -> pd.DataFrame:
     common_columns = [

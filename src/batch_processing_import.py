@@ -1,9 +1,16 @@
 import os
 import sys
 from pathlib import Path
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.import_csv import import_csv
 from src.create_formated_excel_export import create_formated_excel_export
 from src.create_libal_import_file import create_libal_import_file
+
+
+
+VERSION = 'test1'
 
 
 def execute_scripts(version):
@@ -30,5 +37,4 @@ def execute_scripts(version):
     print("All scripts executed successfully.")
 
 if __name__ == "__main__":
-    VERSION = 'abstractBIM_V1'
     execute_scripts(VERSION)

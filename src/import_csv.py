@@ -2,6 +2,9 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List
 import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.check_imports_data_structure import (
     required_workflows_columns,
@@ -10,6 +13,8 @@ from src.check_imports_data_structure import (
     required_attributes_columns,
     check_required_columns,
 )
+
+
 
 def get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
