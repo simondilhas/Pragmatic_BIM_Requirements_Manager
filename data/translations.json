@@ -24,6 +24,12 @@
         "FR": "Filtrer par phase de projet",
         "IT": "Filtra per fase di progetto"
       },
+      "language_select": {
+        "DE": "Sprache Wählen",
+        "EN": "Select Language",
+        "FR": "Filtrer par phase de projet",
+        "IT": "Filtra per fase di progetto"
+      },
       "responsible": {
         "DE": "Filter nach Verantwortlicher",
         "EN": "Filter by Responsible",
@@ -48,6 +54,41 @@
         "FR": "Télécharger IDS",
         "IT": "Scarica IDS"
       }
+    },
+    "sidebar_nav":{
+        "home": {
+            "DE": "Start",
+            "EN": "Home",
+            "FR": "Accueil",
+            "IT": "Home"
+        },
+        "requirements": {
+            "DE": "Anforderungen",
+            "EN": "Requirements",
+            "FR": "Exigences",
+            "IT": "Requisiti"
+        },
+        "admin": {
+            "DE": "Administrator",
+            "EN": "Admin",
+            "FR": "Administrateur",
+            "IT": "Amministratore"
+        },
+        "help": {
+            "DE": "Hilfe",
+            "EN": "Help",
+            "FR": "Aide",
+            "IT": "Aiuto"
+        }
+    },
+    "error": {
+        "no version": {
+            "DE": "Keine Version vorhanden",
+            "EN": "No version",
+            "FR": "Aucune version",
+            "IT": "Nessuna versione"    
+        }
+
     },
       "column_names": {
           "WorkflowID": {

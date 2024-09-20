@@ -4,6 +4,7 @@ enableCORS = false
 enableXsrfProtection = false
 port = 8501
 
+
 [theme]
 primaryColor = "#4A90E2"
 backgroundColor = "#FFFFFF"
@@ -15,4 +16,4 @@ font = "sans serif"
 gatherUsageStats = true
 
 [client]
-showSidebarNavigation = true
+showSidebarNavigation = false

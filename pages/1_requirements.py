@@ -4,12 +4,22 @@ import os
 from pathlib import Path
 from typing import List, Dict, Tuple
 import json
+from dotenv import load_dotenv
 
 from src.sort import sort_dataframe
+from src.load_data import load_file, get_versions
+from src.utils import load_config
+from src.ui_elements import custom_sidebar  
 
 # Type aliases
 DataFrame = pd.DataFrame
 PathLike = Path | str
+
+from src.utils import load_config
+
+config = load_config()
+MAIN_LANGUAGE = config.get('MAIN_LANGUAGE', False)
+FRONTEND_LANGUAGES = config.get('FRONTEND_LANGUAGES', MAIN_LANGUAGE)
 
 # Constants
 DATA_FOLDER = 'data'
@@ -24,18 +34,16 @@ def get_project_path(folder_name: str) -> Path:
         return Path(__file__).parent.parent / folder_name
 
 @st.cache_data
-def load_data(version_path: Path, version: str) -> pd.DataFrame:
-    file_path = version_path / EXCEL_FILE_PATTERN.format(version=version)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    return pd.read_excel(file_path)
+def load_data(version: str) -> pd.DataFrame:
+    return load_file(version, f"Elementplan_{version}_raw_data.xlsx")
+
 
 @st.cache_data
 def load_translations(json_path: Path) -> Dict:
     with open(json_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
-def get_versions(data_folder: Path) -> List[str]:
+def x_get_versions(data_folder: Path) -> List[str]:
     return sorted([f.name for f in data_folder.iterdir() 
                    if f.is_dir() and f.name != '__pycache__'], reverse=True)
 
@@ -52,7 +60,7 @@ def filter_columns_by_language(df: pd.DataFrame, language_suffix: str) -> pd.Dat
 def filter_by_project_phase(data: pd.DataFrame, language_suffix: str, translations: Dict) -> pd.DataFrame:
     project_phase_column = f'ProjectPhase{language_suffix}'
     if project_phase_column not in data.columns:
-        st.warning(f"Project phase information not available for {language_suffix}")
+        st.warning(f"No Data available for: {language_suffix}")
         return data
 
     all_phases = set()
@@ -95,7 +103,8 @@ def display_download_button(version: str, language: str, data_folder: PathLike, 
                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
     else:
-        st.sidebar.write(f"No file available for {language} in version {version}")
+        return
+        #st.sidebar.write(f"No file available for {language} in version {version}")
 
 def custom_text(text: str, font_size: str = "0.7rem") -> str:
     def to_rem(size: str) -> str:
@@ -243,36 +252,72 @@ def get_language_options(data):
 
     return language_options, language_display_names
 
-def select_language(data):
-    language_options, language_display_names = get_language_options(data)
+def sidebar_select_frontend_language():
+    language_names = {
+        'EN': 'English',
+        'DE': 'Deutsch',
+        'FR': 'Français',
+        'IT': 'Italiano',
+    }
 
+
+
+def x_sidebar_select_language(available_version, language_suffix, language_options, language_display_names, translations):
+    #Problem circular relationsship
     selected_language_name = st.sidebar.selectbox(
-        "Select Language",
+        translations['sidebar_filters']['language'][language_suffix],
         language_display_names,
         index=language_options.index('') if '' in language_options else 0
     )
 
     language_suffix = language_options[language_display_names.index(selected_language_name)]
-
     return language_suffix
 
-def main():
-    data_folder = get_project_path(DATA_FOLDER)
-    versions = get_versions(data_folder)
-    
-    if not versions:
-        st.error("No version folders found in the data directory.")
-        return
-
-    translations = load_translations(data_folder / TRANSLATIONS_FILE)
-
+def sidebar_select_version(available_version, language_suffix, translations):
     selected_version = st.sidebar.selectbox(
-        translations['version_select']['EN'],
-        versions
+        translations['version_select'][language_suffix], 
+        available_version
     )
 
+    return selected_version
+
+def sidebar_select_language(translations, current_language_suffix):
+    """
+    Displays the language selector in the sidebar and returns the selected language.
+    """
+    # Create a dropdown to select the language
+    selected_language = st.sidebar.selectbox(
+        #translations['sidebar_filters']['language_select'][current_language_suffix],
+        "",
+        list(FRONTEND_LANGUAGES.keys()),  # Dropdown for language codes (EN, DE, etc.)
+        index=list(FRONTEND_LANGUAGES.keys()).index(current_language_suffix)  # Set current language as default
+    )
+    st.sidebar.divider()
+    
+    return selected_language
+
+def main():
+    custom_sidebar(MAIN_LANGUAGE)
+    data_folder = get_project_path(DATA_FOLDER)
+    available_version = get_versions(data_folder)
+    translations = load_translations(data_folder / TRANSLATIONS_FILE)
+
+    if 'language_suffix' not in st.session_state:
+        st.session_state['language_suffix'] = MAIN_LANGUAGE
+    
+    st.session_state['language_suffix'] = sidebar_select_language(translations, st.session_state['language_suffix'])
+    language_suffix = st.session_state['language_suffix']
+
     try:
-        data = load_data(data_folder / selected_version, selected_version)
+        selected_version = sidebar_select_version(available_version, language_suffix, translations)
+    except:
+        if not available_version:
+            st.error(translations['error'][language_suffix])
+            return
+
+    # Load data for the selected version
+    try:
+        data = load_data(selected_version)
     except FileNotFoundError as e:
         st.error(str(e))
         return
@@ -282,41 +327,44 @@ def main():
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
         return
-    
-    language_suffix = select_language(data)
 
-    data_filtered = filter_columns_by_language(data, language_suffix)
-    data_filtered = filter_by_project_phase(data_filtered, language_suffix, translations)
-
-    display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
-    display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
-    
-    if data_filtered.empty:
-        st.info("No data to display based on the current filter settings.")
+    # Filter data by the selected language and handle missing data early
+    try:
+        data_filtered = filter_columns_by_language(data, language_suffix)
+    except KeyError:
+        st.warning(f"No data available for the selected language: {language_suffix}")
         return
 
-    st.info(translations['choice'][language_suffix])
+    # If no data for the language, show warning and stop further execution
+    if data_filtered.empty:
+        st.warning(f"No data for the selected language: {language_suffix}")
+        return
 
-    # Assuming sort_dataframe function is defined elsewhere
-    model_data_sorted = sort_dataframe(data_filtered)
+    # Proceed only if data is available
+    try:
+        data_filtered = filter_by_project_phase(data_filtered, language_suffix, translations)
+        display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
+        display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
+        
+        model_data_sorted = sort_dataframe(data_filtered)
+        tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
+        tabs = st.tabs(tab_labels)
+        for tab, file_name in zip(tabs, tab_labels):
+            with tab:
+                model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
+                header_content = model_df[f'ModelName{language_suffix}'].unique()
+                if len(header_content) == 1:
+                    st.header(header_content[0])
+                else:
+                    st.header(', '.join(header_content))
+                
+                for element_name in model_df[f'ElementName{language_suffix}'].unique():
+                    with st.container():
+                        element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
+                        display_element_data(element_data, language_suffix, translations)
 
-    tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
-    tabs = st.tabs(tab_labels)
-
-    for tab, file_name in zip(tabs, tab_labels):
-        with tab:
-            model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
-
-            header_content = model_df[f'ModelName{language_suffix}'].unique()
-            if len(header_content) == 1:
-                st.header(header_content[0])
-            else:
-                st.header(', '.join(header_content))
-            
-            for element_name in model_df[f'ElementName{language_suffix}'].unique():
-                with st.container():
-                    element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
-                    display_element_data(element_data, language_suffix, translations)
-
+    except Exception as e:
+        #st.error(f"No data available for the selected project phase: {str(e)}")
+        return
 
 main()

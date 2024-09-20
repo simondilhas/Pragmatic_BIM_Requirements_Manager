@@ -1,8 +1,40 @@
+"""
+create_libal_import_file.py
+
+This module prepares the Element Plan data for seamless project setup in Libal, 
+a CDE (Common Data Environment) specialist for data handover to clients (www.libal-tech.de).
+
+Input:
+------
+- `Elementplan_{version}_raw_data.xlsx`: The raw Element Plan data generated from the import process.
+
+Output:
+-------
+- A formatted Excel configuration file tailored for easy import into Libal's platform.
+
+Key Features:
+-------------
+- Processes and formats the raw Element Plan data into a structure required by Libal for project initialization.
+- Ensures compatibility with Libal's system for smooth data handover.
+- Generates a ready-to-use Excel configuration file that meets Libal's project setup requirements.
+
+Example usage:
+--------------
+```bash
+python create_libal_import_file.py
+
+
+"""
+
 import pandas as pd
 from pathlib import Path
 import os
-
+import io
+from dotenv import load_dotenv
 from src.sort import sort_dataframe
+
+from src.load_data import load_file, store_file
+
 
 #VERSION = 'V16.6'
 #VERSION = 'SampleV.01'
@@ -72,22 +104,6 @@ def extract_phase_definitions(df, column):
     all_phases = sorted(all_phases)
     return all_phases
 
-def x_explode_phases_to_matrix(df, column, lang):
-    
-    all_phases = extract_phase_definitions(df, lang)
-    
-    for phase in all_phases:
-        df[f'Phase_{phase}'] = ''
-
-    # Fill the new columns with 'X' where appropriate
-    for index, row in df.iterrows():
-        phases = row[column].split(',') if isinstance(row[column], str) else []
-        for phase in phases:
-            phase = phase.strip()
-            if phase in all_phases:
-                df.at[index, f'Phase_{phase}'] = 'X'
-    return df
-
 def extract_phase_definitions(df, column):
     all_phases = set()
     for phases in df[column].str.split(','):
@@ -113,13 +129,11 @@ def explode_phases_to_matrix(df, column, lang):
     return df
 
 
-def libal_config_export(df, column_widths, language, export_file_type_name, VERSION):
-    data_path = get_data_path(VERSION)
-    
-    # Construct the file path using get_data_path()
-    output_file_path = data_path / f'{export_file_type_name}_{language}_{VERSION}.xlsx'
 
-    with pd.ExcelWriter(output_file_path, engine='xlsxwriter') as writer:
+def libal_config_export(df, column_widths, language, export_file_type_name, VERSION):
+    excel_buffer = io.BytesIO()
+
+    with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
         workbook = writer.book
 
         default_format = workbook.add_format({
@@ -199,7 +213,12 @@ def libal_config_export(df, column_widths, language, export_file_type_name, VERS
                 'format': grey_text_format
             })
 
-    return output_file_path
+    excel_buffer.seek(0)  # Reset the buffer pointer to the beginning
+
+    # Use store_file to save the file either in Azure Blob or locally
+    file_name = f'{export_file_type_name}_{language}_{VERSION}.xlsx'
+    store_file(excel_buffer.getvalue(), VERSION, file_name)  # Save to Azure or locally
+    print(f"Excel file exported to: {file_name}")
 
 def create_filtered_df(df, language):
     filtered_columns = [
@@ -208,24 +227,16 @@ def create_filtered_df(df, language):
     return df[filtered_columns]
 
 def create_libal_import_file():
-    VERSION = os.environ.get('VERSION')
-    if not VERSION:
+    version = os.environ.get('VERSION')
+    if not version:
         raise ValueError("VERSION environment variable is not set")
-    
-    
-    data_dir = get_data_path(VERSION)
-    
-    excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
 
-    df = pd.read_excel(excel_file_path)
+    df = load_file(version, f'Elementplan_{version}_raw_data.xlsx')
 
     languages = get_available_languages(df)
     first_lang = languages[0]
 
     column_lang = f'ProjectPhase{first_lang}'
-
-    
-    
     df = explode_phases_to_matrix(df, column_lang, first_lang)
     df_sorted = sort_dataframe(df)
     df = rename_phase_columns(df_sorted)
@@ -235,5 +246,5 @@ def create_libal_import_file():
 
     for language in languages:
         filtered_df = create_filtered_df(df, language)
-        output_file_path = libal_config_export(filtered_df, column_widths, language, export_file_type_name, VERSION)
+        output_file_path = libal_config_export(filtered_df, column_widths, language, export_file_type_name, version)
         print(output_file_path)

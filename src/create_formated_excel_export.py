@@ -1,3 +1,34 @@
+"""
+create_formated_excel_export.py
+
+This module transforms the raw Element Plan data into a structured and formatted Excel report
+designed for clear communication of requirements in contracts.
+
+Input:
+------
+- `Elementplan_{version}_raw_data.xlsx`: The raw Element Plan data, generated from the import process.
+- The columns, column order and width is defined in `config.yaml`
+
+Output:
+-------
+- A well-formatted Excel file, with one sheet per model, containing all necessary information to describe deliverables.
+- The Excel file is tailored for use in contract discussions and to clearly present project requirements.
+
+Key Features:
+-------------
+- Processes raw data and formats it into a human-readable, structured Excel report.
+- Automatically creates separate sheets for each model.
+- Populates each sheet with relevant details about deliverables, including models, elements, attributes and values.
+- Includes formatting for better readability and presentation.
+
+Example usage:
+--------------
+```bash
+python create_formated_excel_export.py
+
+"""
+
+
 import pandas as pd
 from pathlib import Path
 import os
@@ -5,39 +36,24 @@ import sys
 from src.sort import sort_dataframe
 import json
 import re
+import io
 
-column_order = [
-    'FileName*',
-    'ModelName*',
-    'ElementName*',
-    'ElementDescription*',
-    'IfcEntityIfc4.0Name',
-    'Pset',
-    'AttributeDescription*',
-    'AttributeName',
-    'Unit',
-    'DataTyp',
-    'AllowedValues*',
-    'ContainedIn*',
-    '11', #Change if the Phases are named differently 
-    '21', #TODO #8 find better logic that works for all cases
-    '22',
-    '31',
-    '32',
-    '33',
-    '41',
-    '51',
-    '52',
-    '53',
-    '61',
-    '62'
-]
+from src.load_data import load_file, store_file
+from src.utils import load_config
 
-def get_available_languages(df):
+# Define the columns/
+
+config = load_config()
+column_dict = config['contract_excel_columns']
+column_order = list(column_dict.keys())
+column_widths = list(column_dict.values())
+
+
+def _get_available_languages(df):
         language_columns = [col for col in df.columns if col.startswith('ElementName')]
         return [col.replace('ElementName', '') for col in language_columns]
 
-def rename_phase_columns(df):
+def _rename_phase_columns(df):
     phase_dict = {}
     
     for col in df.columns:
@@ -55,7 +71,7 @@ def rename_phase_columns(df):
     return df
 
 
-def get_data_path(folder_name: str) -> Path:
+def _get_data_path(folder_name: str) -> Path:
     if os.getenv('STREAMLIT_CLOUD'):
         # Use a path relative to the root of the repository
         return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
@@ -64,7 +80,7 @@ def get_data_path(folder_name: str) -> Path:
         return Path(__file__).parent.parent / 'data' / folder_name
 
 
-def extract_phase_definitions(df, column):
+def _extract_phase_definitions(df, column):
     all_phases = set()
     for phases in df[column].str.split(','):
         all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
@@ -73,7 +89,7 @@ def extract_phase_definitions(df, column):
     return all_phases
 
 
-def extract_phase_definitions(df, column):
+def _extract_phase_definitions(df, column):
     all_phases = set()
     for phases in df[column].str.split(','):
         all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
@@ -81,9 +97,9 @@ def extract_phase_definitions(df, column):
     all_phases = sorted(all_phases)
     return all_phases
 
-def explode_phases_to_matrix(df, column, lang):
+def _explode_phases_to_matrix(df, column, lang):
     
-    all_phases = extract_phase_definitions(df, column)
+    all_phases = _extract_phase_definitions(df, column)
     
     for phase in all_phases:
         df[f'Phase_{phase}'] = ''
@@ -97,10 +113,10 @@ def explode_phases_to_matrix(df, column, lang):
                 df.at[index, f'Phase_{phase}'] = 'X'
     return df
 
-def translate_column_names(df, language):
+def _translate_column_names(df, language):
     print("Start Translating")
     # Load the translations
-    data_path = get_data_path('translations.json')
+    data_path = _get_data_path('translations.json')
     with open(data_path, 'r', encoding='utf-8') as f:
         translations = json.load(f)
     
@@ -130,17 +146,21 @@ def translate_column_names(df, language):
     
     return df
 
+def _create_filtered_df(df, language):
+    filtered_columns = [
+        col.replace('*', language) if '*' in col else col for col in column_order
+    ]
+    return df[filtered_columns]
 
-def export_with_custom_widths(df, column_widths, language, VERSION):
-    data_path = get_data_path(VERSION)
-    
+def _export_with_custom_widths(df, column_widths, language, VERSION):
+
     if f'FileName{language}' in df.columns:
         unique_filenames = df[f'FileName{language}'].dropna().unique()
 
-        # Construct the file path using get_data_path()
-        output_file_path = data_path / f'Elementplan_{language}_{VERSION}.xlsx'
+        output_file_name = f'Elementplan_{language}_{VERSION}.xlsx'
+        excel_buffer = io.BytesIO()
 
-        with pd.ExcelWriter(output_file_path, engine='xlsxwriter') as writer:
+        with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
             workbook = writer.book
 
             default_format = workbook.add_format({
@@ -168,7 +188,7 @@ def export_with_custom_widths(df, column_widths, language, VERSION):
                 filtered_df = df[df[f'FileName{language}'] == filename]
                 filtered_df['Sort'] = range(1, len(filtered_df) + 1)
                 
-                filtered_df = translate_column_names(filtered_df, language)
+                filtered_df = _translate_column_names(filtered_df, language)
 
 
                 filtered_df.to_excel(writer, sheet_name=filename[:31], index=False, startrow=0)  # Start writing data from row 1
@@ -224,47 +244,29 @@ def export_with_custom_widths(df, column_widths, language, VERSION):
                         'format': grey_text_format
                     })
 
-        return output_file_path
-    else:
-        return "FileName column not found in the DataFrame"
-
-def create_filtered_df(df, language):
-    filtered_columns = [
-        col.replace('*', language) if '*' in col else col for col in column_order
-    ]
-    return df[filtered_columns]
-
+        excel_buffer.seek(0)
+        
+        store_file(excel_buffer.getvalue(), VERSION, output_file_name)
+        print(f"Excel file exported to: {output_file_name}")    
 
 def create_formated_excel_export():
-    VERSION = os.environ.get('VERSION')
-    if not VERSION:
+    version = os.environ.get('VERSION')
+    if not version:
         raise ValueError("VERSION environment variable is not set")
 
-    data_dir = get_data_path(VERSION)
-    excel_file_path = data_dir / f'Elementplan_{VERSION}_raw_data.xlsx'
-    df = pd.read_excel(excel_file_path)
+    df = load_file(version, f'Elementplan_{version}_raw_data.xlsx')
 
-    languages = get_available_languages(df)
-    print('YYY')
-    print(languages)
+    languages = _get_available_languages(df)
     first_lang = languages[0]
-    print('XXX')
-    print(first_lang)
     column_lang = f'ProjectPhase{first_lang}'
-    print('AAA')
-    print(column_lang)
-    
-    
-    df = explode_phases_to_matrix(df, column_lang, first_lang)
-    df_sorted = sort_dataframe(df)
-    df = rename_phase_columns(df_sorted)  # Assumes this function exists
-    column_widths = [15, 20, 20, 55, 20, 35, 45, 20, 15, 20, 45, 25, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
 
-    
+    df = _explode_phases_to_matrix(df, column_lang, first_lang)
+    df_sorted = sort_dataframe(df)
+    df = _rename_phase_columns(df_sorted)  # Assumes this function exists
+    column_widths = list(column_dict.values())
 
     for language in languages:
-        filtered_df = create_filtered_df(df, language)
-        #filtered_df = translate_column_names(filtered_df, language)
-        output_file_path = export_with_custom_widths(filtered_df, column_widths, language, VERSION) #test
+        filtered_df = _create_filtered_df(df, language)
+        output_file_path = _export_with_custom_widths(filtered_df, column_widths, language, version)
         print(output_file_path)
 

@@ -7,6 +7,12 @@ Streamlining BIM Data Management
   - [Our Solution](#our-solution)
   - [Use Cases: How This Tool Empowers Client Organizations](#use-cases-how-this-tool-empowers-client-organizations)
 - [Project Overview](#project-overview)
+- [Usage Instructions](#usage-instructions)
+  - [Set up the database in the tool of your choice](#set-up-the-database-in-the-tool-of-your-choice)
+  - [Populate the database with a Master Version](#populate-the-database-with-a-master-version)
+  - [Create a New Master Version](#create-a-new-master-version)
+  - [Manage different versions](#manage-different-versions)
+  - [Create Project Versions from the Master Version Template](#create-project-versions-from-the-master-version-template)
 - [Installation and Setup](#installation-and-setup)
   1. [Fork the Repository](#1-fork-the-repository)
   2. [Clone and Run Locally](#2-clone-and-run-locally)
@@ -111,6 +117,53 @@ This structured approach is reflected in the database design with core tables fo
 To get started, create your own database in the tool of your choice—whether it's Excel, Airtable, or another solution.
 *Mapping is not necessary for the definition process
 
+## Usage Instructions
+
+### Set up the database in the tool of your choice.
+Options include:
+   - Airtable (recommended)
+   - Excel
+   - Other database management systems
+
+### Populate the database with a Master Version
+A Master Version is the template to create project specific versions with more or less data.
+Recommended Naming Schema: 
+   - Master Template Version e.g. `V0.9` 
+   - Project Versions e.g. `V0.9-{YOUR PROJECT NUMBER}` e.g. `V0.9-14414`
+
+   1. Define the workflow: Outline the purpose and intended use of your data
+   2. Create the container - the file - the IFC Model you expect your data in
+   3. Add necessray logical elements(e.g., walls, floors, rooms). Keep in mind that the Ifc Entity is not equal to an element. Think along the lines, of what you have to define in a modeling guidline.
+   4. Define necessary attributes: List required attributes for each logical element (at least one per element, otherwiese the code won't process them at the moment)
+   5. Connect tables: Link all tables bottom-up, starting from the attribute level
+   6. Specify data usage (if needed): Detail how to use the data in the mapping table
+
+### Create a New Master Version
+
+   - **Option 1: quick and dirty in the code:**
+      - Export the following CSV files from your database, ensuring that all necessary columns are included (Refer to the "Attribute Table" section for details on the required column.):
+         - `Attributes-ExportAll.csv`
+         - `Elements-ExportAll.csv`
+         - `Models-ExportAll.csv`
+         - `Workflows-ExportAll.csv`  
+      
+      - In the `data\` directory, create a new folder named after the version you're working on (e.g., `data\V2.05`).
+      - Move the exported CSV files into the newly created version folder.
+      - Execute the script located at `src/batch_processing_import.py`. This will generate a merged Excel file containing all the data aswell as different output formats.
+
+   - **Option 2: With a blob storage and upload through the frontend**
+      - A more scaleable solution is to use the `admin`page to upload new versions to a blob storage 
+
+### Manage different versions
+We recommend the following workflow to manage different versions:
+   1. Create the first version.
+   2. Deploy the data first on a staging area, to see how it will look.
+   3. Once satisfied, deploy on the productive system.
+   4. Freeze the version and copy it.
+   5. Continue working on the new version.
+
+### Create Project Versions from the Master Version Template
+TODO
 
 ## Installation and Setup
 To create a new version of the project, follow these steps:
@@ -188,7 +241,10 @@ For production environments, consider implementing:
 
 ### 5. Deployment Options
  - Quick: Use Streamlit Share (https://streamlit.io/sharing) for easy cloud deployment
- - Scalable: Deploy on cloud platforms like Azure, AWS, or GCP
+ - Scalable: Deploy on cloud platforms like Azure, AWS, or GCP. On Azure we recommend:
+   - Webapp or Docker app
+   - Blob storage for the versions.
+   - Active Directory to manage logins
  - Managed: Contact Abstract Ltd. for hosted solutions
 
 ### 6. Stay Updated
@@ -211,39 +267,11 @@ git config --global alias.sync '!git checkout main && git fetch upstream && git 
 git sync
 ```
 
-## Usage Instructions
+### 7. Configure the projects
 
-1. Set up the database in the tool of your choice. Options include:
-   - Airtable (recommended)
-   - Excel
-   - Other database management systems
+- use the `.env` file to setup your keys, the `.env.template` file gives the structure
+- use the `config.yaml`for general setup options
 
-2. Populate the database:
-   1. Define the workflow: Outline the purpose and intended use of your data
-   2. Create the container - the file - the IFC Model you expect your data in
-   3. Add necessray logical elements(e.g., walls, floors, rooms)
-   4. Define necessary attributes: List required attributes for each logical element (at least one per element, otherwiese the code won't process them at the moment)
-   5. Connect tables: Link all tables bottom-up, starting from the attribute level
-   6. Specify data usage (if needed): Detail how to use the data in the mapping table
-
-3. **Export Required CSV Files**:  
-   Export the following CSV files from your database, ensuring that all necessary columns are included:
-   - `Attributes-ExportAll.csv`
-   - `Elements-ExportAll.csv`
-   - `Models-ExportAll.csv`
-   - `Workflows-ExportAll.csv`  
-   (Refer to the "Attribute Table" section for details on the required columns.)
-
-4. **Create a New Version Folder**:  
-   In the `data\` directory, create a new folder named after the version you're working on (e.g., `data\V2.05`).
-
-5. **Place the CSV Files**:  
-   Move the exported CSV files into the newly created version folder.
-
-6. **Run the Batch Processing Script to process the csv files**:  
-   Execute the script located at `src/batch_processing_import.py`. This will generate a merged Excel file containing all the data aswell as different output formats.
-
-ToDO: create a admin page to ease this workflow
 
 ## Database Configuration / Required Columns Descriptions
 

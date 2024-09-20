@@ -1,8 +1,11 @@
 import streamlit as st
-from streamlit.runtime.scriptrunner import RerunData, RerunException
+from streamlit.runtime.scriptrunner import RerunData, RerunException, get_script_run_ctx
 from streamlit.source_util import get_pages
 import logging
 import time
+import yaml
+import json
+import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -193,3 +196,35 @@ def progress_bar(progress_text):
   for percent_complete in range(100):
       time.sleep(0.1)
       my_bar.progress(percent_complete + 1, text=progress_text)
+
+def _load_yaml(file_path):
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
+
+def _load_json(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+def _get_translation(translations, key, lang):
+    if key in translations and lang in translations[key]:
+        return translations[key][lang]
+    return key.capitalize()  # Fa[llback to capitalized key if translation not found
+
+def custom_sidebar(current_language):
+
+    config = _load_yaml('config.yaml')
+    
+    translations = _load_json('data/translations.json')
+       
+    # Use the created pages dictionary to build the sidebar with bold, black text links
+    for page_key, page_file in config['pages'].items():
+            translated_name = _get_translation(translations['sidebar_nav'], page_key, current_language)
+            if page_key == 'home':
+                st.sidebar.page_link(page_file, label=translated_name)
+            else:
+                st.sidebar.page_link(f"pages/{page_file}", label=translated_name)
+    st.sidebar.divider()
+
+# Usage in your main.py and other page files:
+# from custom_sidebar import custom_sidebar
+# custom_sidebar()

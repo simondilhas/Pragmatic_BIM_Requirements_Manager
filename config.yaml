@@ -1,0 +1,49 @@
+# This configuration file defines general app settings
+
+APP_NAME: Pragmatic BIM Requirements Manager
+
+# Set to "true" if using Azure Blob for storage and "false" for local storage
+USE_AZURE_STORAGE: True
+
+MAIN_LANGUAGE: "EN"
+
+# Manuly set the pages, so that they can be translated aswell
+pages:
+  home: home.py
+  requirements: 1_requirements.py
+  admin: 2_admin.py
+  help: 9_help.py
+
+# Available languages for the frontend, with their codes and names
+FRONTEND_LANGUAGES:
+  EN: "English"
+  DE: "Deutsch"
+  FR: "Français"
+  IT: "Italiano"
+
+# Configuration for columns and their corresponding widths for the formated excel export
+contract_excel_columns:
+  'FileName*': 15
+  'ModelName*': 20
+  'ElementName*': 20
+  'ElementDescription*': 55
+  'IfcEntityIfc4.0Name': 20
+  'Pset': 35
+  'AttributeDescription*': 45
+  'AttributeName': 20
+  'Unit': 15
+  'DataTyp': 20
+  'AllowedValues*': 45
+  'ContainedIn*': 25
+  '11': 8  # Change if the Phases are named differently
+  '21': 8  # TODO #8 find better logic that works for all cases
+  '22': 8
+  '31': 8
+  '32': 8
+  '33': 8
+  '41': 8
+  '51': 8
+  '52': 8
+  '53': 8
+  '61': 8
+  '62': 8

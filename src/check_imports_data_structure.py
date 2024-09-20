@@ -61,3 +61,4 @@ def check_required_columns(df: pd.DataFrame, required_columns: List[str]) -> Non
     if missing_columns:
         #raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
         return (f"Missing required columns: {', '.join(missing_columns)}")
+    

@@ -1,12 +1,21 @@
 import streamlit as st
 from src.ui_elements import padding, footer
+from src.ui_elements import custom_sidebar
+from src.utils import load_config
+
+config = load_config()
+MAIN_LANGUAGE = config.get('MAIN_LANGUAGE', False)
+APP_NAME =config.get('APP_NAME', False)
 
 st.set_page_config(
-    page_title="Pragmatic BIM Requirements Manager",
+    page_title=APP_NAME,
     layout="wide"
 )
 
 def main():
+    #TODO seesion state for language
+    custom_sidebar(MAIN_LANGUAGE)
+
     #Replace this text with your companies landing page
     st.header("Pragmatic BIM Requirements Manager")
     
