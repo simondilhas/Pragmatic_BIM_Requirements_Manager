@@ -386,14 +386,14 @@ def tab_upload_new_version():
                 st.session_state.project_state[key] = value
 
     # Always show option to reset
-    if st.sidebar.button('Reset Master Creation Process'):
-        st.session_state.project_state = {
-            'folder_created': False,
-            'folder_name': None,
-            'master_created': False,
-            'version_online': False,
-        }
-        st.rerun()
+    #if st.sidebar.button('Reset Master Creation Process'):
+    #    st.session_state.project_state = {
+    #        'folder_created': False,
+    #        'folder_name': None,
+    #        'master_created': False,
+    #        'version_online': False,
+    #    }
+    #    st.rerun()
 
     # Folder creation section
     if not st.session_state.project_state.get('folder_created', False):
@@ -460,6 +460,7 @@ def tab_upload_new_version():
                     batch_processing_import(st.session_state.project_state['folder_name'], "M")
                     st.success(f"New Version {st.session_state.project_state['folder_name']} is now online")
                     st.session_state.project_state['version_online'] = True
+                    
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error processing files: {str(e)}")
@@ -484,27 +485,25 @@ def tab_create_project():
     # Initialize session state variables
     if 'project_state' not in st.session_state:
         st.session_state.project_state = {
-            'created': False,
-            'version': None,
+            'version': "",
             'language': None,
             'name': None,
-            'updated': False
+            'create_project_step': 1
         }
     else:
         # Ensure all keys exist
         default_state = {
-            'created': False,
-            'version': None,
+            'version': "",
             'language': None,
             'name': None,
-            'updated': False
+            'create_project_step': 1
         }
         for key, value in default_state.items():
             if key not in st.session_state.project_state:
                 st.session_state.project_state[key] = value
 
     # Display current state (for debugging, can be removed in production)
-    st.write(st.session_state.project_state)
+    #st.write(st.session_state.project_state)
 
     DATA_FOLDER = 'data'
     data_folder = get_project_path(DATA_FOLDER)
@@ -516,7 +515,7 @@ def tab_create_project():
     
     else:
         # Step 1: Create Project Version
-        if not st.session_state.project_state.get('created', False):
+        if st.session_state.project_state['create_project_step'] == 1:
             col1, col2, col3 = st.columns(3)
             with col1:
                 selected_master_template = st.selectbox("Select the Master Template Version:", available_versions)
@@ -531,21 +530,24 @@ def tab_create_project():
                 if st.button("Create Project Version"):
                     copy_base_files(selected_master_template, project_version)
                     st.session_state.project_state.update({
-                        'created': True,
                         'version': project_version,
-                        'name': project_name
+                        'name': project_name,
+                        'create_project_step': 2
                     })
                     st.success(f"Project {project_version} created successfully")
                     st.rerun()
 
+
         # Step 2: Select Workflows
-        if st.session_state.project_state.get('created', False):
+        if st.session_state.project_state['create_project_step'] == 2:
             st.write("### Select the project relevant Workflows/Usecases")
 
             col1, col2, _ = st.columns([3,3,3])
 
+            project_version = st.session_state.project_state['version']
+
             with col1:
-                data = load_file(st.session_state.project_state['version'], "M_Attributes.csv")
+                data = load_file(project_version, "M_Attributes.csv")
                 language_options = get_language_options(data)
                 project_language = st.selectbox("Select the Project Language:", language_options['ShortName'])
                 st.session_state.project_state['language'] = project_language
@@ -570,20 +572,22 @@ def tab_create_project():
                     replace_project_details_string(selected_project, project_name)
                     batch_processing_import(selected_project, "P")
                     st.session_state.project_state.update({
-                        'updated': True
+                        'language': project_language,
+                        'create_project_step': 3
                     })
-                    st.success(f"Project {selected_project} configuration updated successfully")
+                    st.rerun()
                 except Exception as e:
                     st.error(f"Error when updating Project: {selected_project}. Error: {str(e)}")
 
-        if st.session_state.project_state.get('updated', False):
+        
+        if st.session_state.project_state['create_project_step']  == 3:
+            st.success(f"Project configuration updated successfully")
             if st.button("Create a new project"):
                 st.session_state.project_state = {
-                    'created': False,
-                    'version': None,
+                    'version': "",
                     'language': None,
                     'name': None,
-                    'updated': False
+                    'create_project_step': 1
                 }
                 st.rerun()
 
