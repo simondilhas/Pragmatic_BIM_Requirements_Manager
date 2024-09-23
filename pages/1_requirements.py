@@ -266,7 +266,7 @@ def sidebar_select_language(translations, current_language_suffix):
     return selected_language
 
 def main():
-    custom_sidebar(MAIN_LANGUAGE)
+    
     data_folder = get_project_path(DATA_FOLDER) #Better logic?
     available_version = get_versions(data_folder)
     translations = load_translations(data_folder / TRANSLATIONS_FILE)
@@ -274,8 +274,9 @@ def main():
     if 'language_suffix' not in st.session_state:
         st.session_state['language_suffix'] = MAIN_LANGUAGE
     
-    st.session_state['language_suffix'] = sidebar_select_language(translations, st.session_state['language_suffix'])
     language_suffix = st.session_state['language_suffix']
+
+    custom_sidebar(language_suffix)
 
     try:
         selected_version = sidebar_select_version(available_version, language_suffix, translations)

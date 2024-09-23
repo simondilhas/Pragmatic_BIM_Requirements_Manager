@@ -1,4 +1,8 @@
 import yaml
+import json
+from pathlib import Path
+from typing import List, Dict
+import streamlit as st
 
 def load_config(file_path='config.yaml'):
     """
@@ -20,3 +24,8 @@ def load_config(file_path='config.yaml'):
     except yaml.YAMLError as e:
         print(f"Error parsing YAML file: {e}")
         return {}
+    
+@st.cache_data
+def load_translations(json_path: Path) -> Dict:
+    with open(json_path, 'r', encoding='utf-8') as file:
+        return json.load(file)

@@ -11,7 +11,12 @@ def load_readme():
     return content
 
 def main():
-    custom_sidebar(MAIN_LANGUAGE)  
+    if 'language_suffix' not in st.session_state:
+        st.session_state['language_suffix'] = MAIN_LANGUAGE
+    
+    language_suffix = st.session_state['language_suffix']
+
+    custom_sidebar(language_suffix) 
    
     # Load and display the README content
     readme_content = load_readme()

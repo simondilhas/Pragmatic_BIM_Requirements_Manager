@@ -17,3 +17,6 @@ gatherUsageStats = true
 
 [client]
 showSidebarNavigation = false
+
+[layout]
+layout = "wide"

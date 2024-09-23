@@ -110,38 +110,6 @@ def only_project_versions(projects: List) -> List:
     # Filter projects containing '-P-'. Ensure projects is always a list.
     return [project for project in (projects or []) if '-P-' in project]
 
-def x_clear_session_state(session_states: List):
-    for state in session_states:
-        st.session_state[state]= None
-
-import streamlit as st
-from typing import List, Optional
-
-def x_clear_session_state(keys_to_clear: Optional[List[str]] = None):
-    """
-    Clear specified keys from session state, or all if none specified.
-    Also clear all input widgets.
-    """
-    if keys_to_clear is None:
-        # Clear all session state
-        st.session_state.clear()
-    else:
-        # Clear specified keys
-        for key in keys_to_clear:
-            if key in st.session_state:
-                del st.session_state[key]
-    
-    # Reset all input widgets
-    for key in st.session_state:
-        if isinstance(st.session_state[key], (str, int, float)):
-            st.session_state[key] = ""
-        elif isinstance(st.session_state[key], bool):
-            st.session_state[key] = False
-        elif isinstance(st.session_state[key], list):
-            st.session_state[key] = []
-
-    # Rerun the app
-    st.rerun()
 
 def clear_session_state():
     """
@@ -275,94 +243,6 @@ def display_workflow_with_checkboxes(df, selection_option, language):
 def checkbox_change_callback():
     st.session_state.widget_callback_called = True
 
-
-def x_tab_upload_new_version():
-    if 'project_state' not in st.session_state:
-        st.session_state.project_state = {
-            'folder_created': False,
-            'folder_name': None,
-            'master_created': False,
-        }
-    else:
-        # Ensure all keys exist
-        default_state = {
-            'folder_created': False,
-            'folder_name': None,
-            'master_created': False
-        }
-        for key, value in default_state.items():
-            if key not in st.session_state.project_state:
-                st.session_state.project_state[key] = value
-
-    # Always show option to reset
-    if st.sidebar.button('Reset Master Creation Process'):
-        st.session_state.project_state = {
-            'folder_created': False,
-            'folder_name': None,
-            'master_created': False
-        }
-        st.rerun()
-
-    # Folder creation section
-    if not st.session_state.project_state.get('folder_created', False):
-        folder_name = st.text_input("Enter the Master Template Version name/Number e.g. V2.1 :")
-        if st.button("Create Master Template"):
-            if folder_name:
-                # Assume create_folder uses the appropriate storage
-                if create_storage_folder(folder_name):
-                    st.success(f"Master Template Version '{folder_name}' created successfully.")
-                    st.session_state.project_state['folder_created'] = True
-                    st.session_state.project_state['folder_name'] = folder_name
-                    st.rerun()  # Rerun to update the UI
-                else:
-                    st.error(f"Failed to create Master Template Version '{folder_name}'.")
-            else:
-                st.warning("Please enter a folder name.")
-    
-    # File upload section
-    if st.session_state.project_state.get('folder_created', False):
-        col1, col2, col3, col4 = st.columns(4)
-        check1 = check2 = check3 = check4 = False
-
-        with col1:
-            file_name1 = upload_field('Upload Attributes CSV', 'M_Attributes.csv')
-            if file_name1 is not None:
-                check1 = check_files(st.session_state.folder_name, file_name1, required_attributes_columns)
-
-        with col2:
-            file_name2 = upload_field('Upload Elements CSV', 'M_Elements.csv')
-            if file_name2 is not None:
-                check2 = check_files(st.session_state.folder_name, file_name2, required_elements_columns)
-
-        with col3:
-            file_name3 = upload_field('Upload Models CSV', 'M_Models.csv')
-            if file_name3 is not None:
-                check3 = check_files(st.session_state.folder_name, file_name3, required_models_columns)
-
-        with col4:
-            file_name4 = upload_field('Upload Workflows CSV', 'M_Workflows.csv')
-            if file_name4 is not None:
-                check4 = check_files(st.session_state.folder_name, file_name4, required_workflows_columns)
-
-        # Check if all files are uploaded and valid
-        all_files_valid = check1 and check2 and check3 and check4
-
-        # Display the button only if all files are valid
-        if all_files_valid:
-            if st.button("Process files and create version"):
-                batch_processing_import(st.session_state.folder_name, "M")
-                st.success(f"New Version {st.session_state.folder_name} is now online")
-                #st.session_state.master_created = True
-
-                
-
-                #st.session_state.project_state = {
-                #    'folder_created': False,
-                #    'folder_name': None,
-                #}
-                
-        else:
-            st.warning("Please upload and validate all required files before proceeding.")
 
 
 def tab_upload_new_version():
@@ -593,7 +473,14 @@ def tab_create_project():
 
 
 def main():
-    custom_sidebar(MAIN_LANGUAGE)
+
+    if 'language_suffix' not in st.session_state:
+        st.session_state['language_suffix'] = MAIN_LANGUAGE
+    
+    language_suffix = st.session_state['language_suffix']
+
+    custom_sidebar(language_suffix)
+    
     if check_password():
         logout_button()
         

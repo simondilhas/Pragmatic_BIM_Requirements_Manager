@@ -27,8 +27,8 @@
       "language_select": {
         "DE": "Sprache Wählen",
         "EN": "Select Language",
-        "FR": "Filtrer par phase de projet",
-        "IT": "Filtra per fase di progetto"
+        "FR": "Choisir la langue",
+        "IT": "Seleziona la lingua"
       },
       "responsible": {
         "DE": "Filter nach Verantwortlicher",
