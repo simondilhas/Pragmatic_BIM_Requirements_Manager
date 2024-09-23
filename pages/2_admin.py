@@ -89,21 +89,23 @@ def x_replace_project_details_string(project_number, project_name):
 
 def replace_project_details_string(project_number, project_name):
     """Replace the strings defined in config with the actual project number and name"""
+
     df = load_file(project_number, "M_Attributes.csv")
     
-    # Create a dictionary for replacements
+    project_number_var = config["VARIABLES"]["PROJECT_NUMBER"]
+    project_name_var = config["VARIABLES"]["PROJECT_NAME"]
+    
     replacements = {
-        VAR_PROJECT_NUMBER: project_number,
-        VAR_PROJECT_NAME: project_name
+        project_number_var: project_number,
+        project_name_var: project_name
     }
     
-    print(replacements)
-
-    # Apply replacements to all string columns
     for column in df.select_dtypes(include=['object']):
-        df[column] = df[column].replace(replacements, regex=True)
+        for old_value, new_value in replacements.items():
+            df[column] = df[column].astype(str).str.replace(old_value, new_value, regex=False)
     
-    store_file(df, project_number, "M_Attributes.csv")
+    store_file(df.to_csv(index=False), project_number, "M_Attributes.csv")
+    return df
 
 
 def only_project_versions(projects: List) -> List:
@@ -449,7 +451,7 @@ def tab_create_project():
                 try:
                     filtered_df = workflows_sel[workflows_sel['Selected'] == True]
                     store_file(filtered_df.to_csv(index=False), selected_project, "M_Workflows.csv")
-                    replace_project_details_string(selected_project, project_name)
+                    df_test = replace_project_details_string(selected_project, project_name)
                     batch_processing_import(selected_project, "P")
                     st.session_state.project_state.update({
                         'language': project_language,
@@ -480,7 +482,7 @@ def main():
     language_suffix = st.session_state['language_suffix']
 
     custom_sidebar(language_suffix)
-    
+
     if check_password():
         logout_button()
         

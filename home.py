@@ -13,9 +13,6 @@ FRONTEND_LANGUAGES = config.get('FRONTEND_LANGUAGES')
 APP_NAME =config.get('APP_NAME', False)
 TRANSLATIONS_FILE = 'translations.json'
 
-
-
-
 st.set_page_config(
     page_title=APP_NAME,
     layout="wide"

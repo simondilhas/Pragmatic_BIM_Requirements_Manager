@@ -48,7 +48,7 @@ contract_excel_columns:
   '61': 8
   '62': 8
 
-#Variables to replace values in the csv programatically
+#Variables to replace values in the csv programatically. Use this to set projcet specific values
 VARIABLES:
   PROJECT_NUMBER : "{Projektnummer}"
-  PROJECT_NAME : "{Project Name}"
+  PROJECT_NAME : "{Projektname}"
