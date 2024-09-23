@@ -43,14 +43,20 @@ from src.check_imports_data_structure import (
     check_required_columns,
 )
 
-
+def _filter_to_selected_workflows(df):
+    #Experimental!
+    result_df =  df[df['Selected'] == True]
+    result_df['ID'] = result_df['AttributeID'] + result_df['ModelID']
+    result_df = result_df.drop_duplicates(subset=['ID']).reset_index(drop=True)
+    return result_df
 
 def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribute']
     check_required_columns(df, required_columns)
 
-    columns_to_explode = ['ElementID', 'ModelID']
-    #columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
+    #columns_to_explode = ['ElementID', 'ModelID']
+    #---Test comment out for a working solution
+    columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
     
     df_exploded = df.copy()
     for column in columns_to_explode:
@@ -108,30 +114,57 @@ def import_csv(version:str, master_or_project:str):
         elements_df = load_file(version, file_elements)
         attributes_df = load_file(version, file_attributes) 
 
-        file_workflows = store_file(workflows_df.to_csv(index=False),version,f"P_Workflows.csv")
-        file_models = store_file(models_df.to_csv(index=False),version,f"P_Models.csv")
-        file_elements = store_file(elements_df.to_csv(index=False),version,f"P_Elements.csv")
-        file_attributes = store_file(attributes_df.to_csv(index=False),version,f"P_Attributes.csv")
-
-        #Implement the logic for languages (keep all Languages)
+        #store_file(workflows_df.to_csv(index=False),version,f"P_Workflows.csv")
+        #store_file(models_df.to_csv(index=False),version,f"P_Models.csv")
+        #store_file(elements_df.to_csv(index=False),version,f"P_Elements.csv")
+        #store_file(attributes_df.to_csv(index=False),version,f"P_Attributes.csv")
+#
+    #    #Implement the logic for languages (keep all Languages)
         #languages =
 
-    elif master_or_project == 'U':
-        #st.write(f"Executing Update: {version}")
-        #filename_raw_data= f"{master_or_project}_RawData"
-
-        file_workflows = f"U_Workflows.csv" #The only file that gets updated 
-        file_models = f"M_Models.csv"
-        file_elements = f"M_Elements.csv"
-        file_attributes = f"M_Attributes.csv"
-
-        #workflows_df = load_file(version, file_workflows)
-
-        workflows_df = store_file(workflows_df.to_csv(index=False),version,f"U{datetime.now()}_Workflows.csv")
-        models_df = load_file(version, file_models)
-        elements_df = load_file(version, file_elements)
-        attributes_df = load_file(version, file_attributes)
-
+    #elif master_or_project == 'P':
+    #    #st.write(f"Executing Project Version: {version}")
+    #    #filename_raw_data= f"{master_or_project}_RawData"
+#
+    #    #Load the original files to save a project version
+    #    file_workflows = f"M_Workflows.csv"
+    #    file_models = f"M_Models.csv"
+    #    file_elements = f"M_Elements.csv"
+    #    file_attributes = f"M_Attributes.csv"
+#
+    #    workflows_df = load_file(version, file_workflows)
+    #    models_df = load_file(version, file_models)
+    #    elements_df = load_file(version, file_elements)
+    #    attributes_df = load_file(version, file_attributes) 
+#
+    #    store_file(workflows_df.to_csv(index=False),version,f"P_Workflows.csv")
+    #    store_file(models_df.to_csv(index=False),version,f"P_Models.csv")
+    #    store_file(elements_df.to_csv(index=False),version,f"P_Elements.csv")
+    #    store_file(attributes_df.to_csv(index=False),version,f"P_Attributes.csv")
+#
+    #    #Implement the logic for languages (keep all Languages)
+    #    #languages =
+#
+    #elif master_or_project == 'U':
+    #    #st.write(f"Executing Update: {version}")
+    #    #filename_raw_data= f"{master_or_project}_RawData"
+#
+    #    file_workflows = f"U_Workflows.csv" #The only file that gets updated. It's saved in 2_admin and later saved to document the changes
+    #    workflows_df = load_file(version, file_workflows)
+    #    store_file(workflows_df.to_csv(index=False),version,f"U{datetime.now()}_Workflows.csv")
+#
+    #    file_models = f"P_Models.csv"
+    #    file_elements = f"P_Elements.csv"
+    #    file_attributes = f"P_Attributes.csv"
+#
+    #    
+#
+    #    models_df = load_file(version, file_models)
+    #    elements_df = load_file(version, file_elements)
+    #    attributes_df = load_file(version, file_attributes)
+#
+    #    store_file(workflows_df.to_csv(index=False),version,f"U{datetime.now()}_Workflows.csv")
+#
         #Implement the logic for languages (delete the columns of the unnecesssary languages)
         #languages =
 
@@ -141,7 +174,9 @@ def import_csv(version:str, master_or_project:str):
                                  .merge(models_df, on='ModelID', how='left') \
                                  .merge(workflows_df, on='WorkflowID', how='left')
     
-    #result_df =  merged_df[merged_df['Selected'] == True]
+    #---test comment out for a working solutiom
+    #merged_df =  merged_df[merged_df['Selected'] == True]
+    merged_df = _filter_to_selected_workflows(merged_df)
 
     columns_to_check = ['SortModels', 'SortElements', 'SortAttributes']
     available_columns = [col for col in columns_to_check if col in merged_df.columns]

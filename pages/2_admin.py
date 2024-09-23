@@ -92,10 +92,9 @@ def only_project_versions(projects: List) -> List:
     # Filter projects containing '-P-'. Ensure projects is always a list.
     return [project for project in (projects or []) if '-P-' in project]
 
-def clear_file_uploader():
-    time.sleep(5)
-    st.session_state.folder_created = None
-    st.session_state.folder_name = None
+def clear_session_state(session_states: List):
+    for state in session_states:
+        st.session_state[state]= None
 
 
 def tab_upload_new_version():
@@ -104,6 +103,7 @@ def tab_upload_new_version():
         st.session_state.folder_created = False
     if 'folder_name' not in st.session_state:
         st.session_state.folder_name = ""
+    
 
     # Folder creation section
     if not st.session_state.folder_name:
@@ -151,49 +151,104 @@ def tab_upload_new_version():
             if st.button("Process files and create version"):
                 batch_processing_import(st.session_state.folder_name, "M")
                 st.success(f"New Version {st.session_state.folder_name} is now online")
-                if st.button("Create new Master Template"):
-                    clear_file_uploader()
-                    st.rerun()
+                # TODO After Uploading a Master Template, click a button to create a new one (It's not enough to clear the session states. The upload fields must be cleared aswell)
+                #if st.button("Create new Master Template"):
+                clear_session_state(['folder_name', 'folder_created'])
+                st.rerun()
         else:
             st.warning("Please upload and validate all required files before proceeding.")
 
 
 def tab_create_project():
+
+    if 'project_created' not in st.session_state:
+        st.session_state.project_created = False
+    if 'project_version' not in st.session_state:
+        st.session_state.project_version = None
+    if 'project_language' not in st.session_state:
+        st.session_state.project_language = None
+
     DATA_FOLDER = 'data'
     data_folder = get_project_path(DATA_FOLDER)
     available_version = get_versions(data_folder) or []
+
+
     if len(available_version) == 0:
             st.write("Create a Master Template Version first")
-    
-    else:
-
-        col1, col2, col3= st.columns(3)
-
-        with col1:
             
-            selected_master_template = st.selectbox("Select the Master Template Version:",available_version)
+    else:
+        # Step 1: Create Project Version
+        if not st.session_state.project_created:
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                selected_master_template = st.selectbox("Select the Master Template Version:", available_version)
+            with col2:
+                project_number = st.text_input("Define the Project Number for this version: e.g. 007:")
+            with col3:
+                project_name = st.text_input("Define the Project Name for this version: e.g. Campus XY:")
 
-        with col2:
-            project_number = st.text_input("Define the Project Number for this version: e.g. 007:")
-            #Make sure the projectnumber replaces in the csv {Project Number}
-
-        with col3:
-            project_name = st.text_input("Define the Project Name for this version: e.g. Campus XY:")
             project_version = f"{selected_master_template}-P-{project_number}"
-            st.write(project_version)
-    
-        if selected_master_template and project_number and project_name:
-            if st.button("Create Project Version"):
-                
-                st.write(project_version)
 
-                copy_base_files(selected_master_template,project_version)
-                #replace_project_details_string(project_version, project_number,project_name)
-                batch_processing_import(project_version, "P")
-                st.info(f"Project {project_version} created succesfully")
+            if selected_master_template and project_number and project_name:
+                if st.button("Create Project Version"):
+                    copy_base_files(selected_master_template, project_version)
+                    st.session_state.project_created = True
+                    st.session_state.project_version = project_version
+                    st.success(f"Project {project_version} created successfully")
+                    st.rerun()
+        else:
+            st.success(f"Project {st.session_state.project_version} created successfully")
+
+            # Step 2: Select Workflows
+            st.write("### Select the project relevant Workflows/Usecases")
+            if st.session_state.project_created:
+
+                col1, col2, col3 = st.columns([3,3,3])
+
+                with col1:
+                    data = load_file(st.session_state.project_version, "M_Attributes.csv")
+                    language_options = get_language_options(data)
+                    project_language = st.selectbox("Select the Project Language:", language_options['ShortName'])
+                    st.session_state.project_language = project_language
+
+                with col2:
+                    selection_option = st.selectbox(
+                        "Bulk Selection",
+                        options=["No Change", "Select All", "Deselect All"],
+                        index=0
+                    )
+                with col3:
+                    pass
+
+
+                workflows_df = load_file(st.session_state.project_version, f"M_Workflows.csv")
+                
+                #if len(st.session_state.workflow_selections) == 0:
+                #    st.session_state.workflow_selections = {row['WorkflowID']: row['Selected'] for _, row in workflows_df.iterrows()}
+
+                workflows_sel = display_workflow_with_checkboxes(workflows_df, selection_option, st.session_state.project_language)
+
+                st.info("Please note that projects cannot be edited. To make changes, you'll need to create a new version.")
+
+                if st.button('Update Project Configuration'):
+                    #try:
+                    filtered_df = workflows_sel[workflows_sel['Selected'] == True]
+                    st.write(filtered_df)
+                    store_file(filtered_df.to_csv(index=False), st.session_state.project_version, f"M_Workflows.csv")
+                    batch_processing_import(st.session_state.project_version, "P")
+                    st.success(f"Project {st.session_state.project_version} configuration updated successfully")
+                    st.session_state.project_created = False
+                    st.session_state.project_version = None
+                    #st.session_state.workflow_selections = {}
+                    #st.rerun()
+                    #except:
+                    #    st.error(f"Error when updating Project: {st.session_state.project_version}")
 
 
 def aagrid_display_workflow_with_checkboxes(df):
+
+
+
     st.write("### Select the project relevant Workflows/Usecases")
 
     # Function to update all rows
@@ -251,16 +306,15 @@ def check_dropdown():
         index=0
     )
 
+
 def display_workflow_with_checkboxes(df, selection_option, language):
-    st.write("### Select the project relevant Workflows/Usecases")
+    #st.write("### Select the project relevant Workflows/Usecases")
 
     # Function to update all rows
     def update_all(df, value):
         df['Selected'] = value
         return df
     
-    
-
     if selection_option == "Select All":
         df = update_all(df, True)
     elif selection_option == "Deselect All":
@@ -293,45 +347,7 @@ def checkbox_change_callback():
     st.session_state.widget_callback_called = True
 
 
-def tab_config_project():
-    DATA_FOLDER = 'data'
-    data_folder = get_project_path(DATA_FOLDER)
-    available_version = get_versions(data_folder) or []
-    only_projects = only_project_versions(available_version)
-        
-    if len(only_projects) == 0:
-        st.write("Create a copy from the Master Template first")
-
-    else:
-
-        col1, col2, col3 = st.columns([2,2,2])
-
-        with col1:       
-            empty_str = "-"
-            selected_project = st.selectbox("Select the Project Version:", [empty_str] + only_projects)
-        if selected_project == empty_str:
-            return
-        else:
-            with col2:
-                data = load_file(selected_project, "M_Attributes.csv")
-                language_option= get_language_options(data)
-                project_language = st.selectbox("Select the Project Language:",language_option['ShortName'])
-            with col3:
-                selection_option = st.selectbox(
-                "Bulk Selection",
-                options=["No Change", "Select All", "Deselect All"],
-                index=0
-                )
-                    
-            workflows_df = load_file(selected_project, f"M_Workflows.csv")
-            workflows_sel = display_workflow_with_checkboxes(workflows_df, selection_option, project_language)
-
-            if st.button('Update'):
-                filtered_df = workflows_sel[workflows_sel['Selected'] == True]
-                st.write(filtered_df)
-                store_file(filtered_df.to_csv(index=False),selected_project,f"U_Workflows.csv")
-                batch_processing_import(selected_project, "U")
-                
+            
         
 
 
@@ -341,7 +357,7 @@ def main():
         logout_button()
         
         st.title("Admin Area")
-        tab1, tab2, tab3, tab4= st.tabs(['New Masters Template', 'Create Project Version', 'Configure Project Version','Project & Version Management' ])
+        tab1, tab2, tab3= st.tabs(['New Masters Template', 'Create Project Version', '...' ])
 
         with tab1:
             st.subheader("New Masters Template")
@@ -350,13 +366,11 @@ def main():
         with tab2:
             st.subheader("Create Project Version")
             tab_create_project()
+            
 
         with tab3:
-            st.subheader("Configure Project Version")
-            tab_config_project()
-
-        with tab4:
-            st.subheader("Project & Version Management")
+            st.subheader("...")
+    
 
 
 
