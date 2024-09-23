@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 from io import StringIO
 
 # Import the functions to test
-from utils.import_csv import (
+from src.import_csv import (
     get_data_path,
     load_dataframes,
     check_required_columns,
@@ -29,7 +29,7 @@ class TestDataProcessing(unittest.TestCase):
 
     def test_load_dataframes(self):
         # Create sample CSV files
-        for file_name in ['Attributes-ExportAll.csv', 'Elements-ExportAll.csv', 'Models-ExportAll.csv', 'Workflows-ExportAll.csv']:
+        for file_name in ['M_Attributes.csv', 'M_Elements.csv', 'M_Models.csv', 'M_Workflows.csv']:
             with open(self.data_dir / file_name, 'w') as f:
                 f.write('Column1,Column2\nValue1,Value2\n')
 

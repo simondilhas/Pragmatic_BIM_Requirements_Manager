@@ -28,6 +28,9 @@ import os
 import sys
 from dotenv import load_dotenv
 import io
+from io import StringIO
+from datetime import datetime
+import streamlit as st
  
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -39,6 +42,8 @@ from src.check_imports_data_structure import (
     required_attributes_columns,
     check_required_columns,
 )
+
+
 
 def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribute']
@@ -58,39 +63,107 @@ def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     df_exploded['SortAttribute'] = pd.to_numeric(df_exploded['SortAttribute'], errors='coerce')
     return df_exploded.sort_values('SortAttribute', na_position='last').reset_index(drop=True)
 
-def import_csv():
+def load_file_and_add_colums(version:str, file_name:str,  column:str) -> pd.DataFrame:
+    df = load_file(version, file_name)
+    df[column] = True
+    store_file(df.to_csv(index=False), version, file_name)
+    print(f"Workflows: ------------ {df}")
+    return df
 
-    VERSION = os.environ.get('VERSION')
-    if not VERSION:
-        raise ValueError("VERSION environment variable is not set")
-    
-       
-    workflows_df = load_file(VERSION, 'Workflows-ExportAll.csv')
-    models_df = load_file(VERSION, 'Models-ExportAll.csv')
-    elements_df = load_file(VERSION, 'Elements-ExportAll.csv')
-    attributes_df = load_file(VERSION, 'Attributes-ExportAll.csv')
+def import_csv(version:str, master_or_project:str):
+    """
+    creates either the Master or the Project Data: Switch is "P", "M"
+    """
 
+    #Switches depending on the Flow
+    if master_or_project == 'M':
+        #st.write(f"Executing Master Template: {version}")
+
+        #filename_raw_data= f"{master_or_project}_RawData"
+        file_workflows = f"{master_or_project}_Workflows.csv"
+        file_models = f"{master_or_project}_Models.csv"
+        file_elements = f"{master_or_project}_Elements.csv"
+        file_attributes = f"{master_or_project}_Attributes.csv"
+        
+        workflows_df = load_file_and_add_colums(version, file_workflows, 'Selected') #First Import every row is selected
+        models_df = load_file(version, file_models)
+        elements_df = load_file(version, file_elements)
+        attributes_df = load_file(version, file_attributes)
+
+        #Implement the logic for languages (keep all Languages)
+        #languages =
+   
+    elif master_or_project == 'P':
+        #st.write(f"Executing Project Version: {version}")
+        #filename_raw_data= f"{master_or_project}_RawData"
+
+        #Load the original files to save a project version
+        file_workflows = f"M_Workflows.csv"
+        file_models = f"M_Models.csv"
+        file_elements = f"M_Elements.csv"
+        file_attributes = f"M_Attributes.csv"
+
+        workflows_df = load_file(version, file_workflows)
+        models_df = load_file(version, file_models)
+        elements_df = load_file(version, file_elements)
+        attributes_df = load_file(version, file_attributes) 
+
+        file_workflows = store_file(workflows_df.to_csv(index=False),version,f"P_Workflows.csv")
+        file_models = store_file(models_df.to_csv(index=False),version,f"P_Models.csv")
+        file_elements = store_file(elements_df.to_csv(index=False),version,f"P_Elements.csv")
+        file_attributes = store_file(attributes_df.to_csv(index=False),version,f"P_Attributes.csv")
+
+        #Implement the logic for languages (keep all Languages)
+        #languages =
+
+    elif master_or_project == 'U':
+        #st.write(f"Executing Update: {version}")
+        #filename_raw_data= f"{master_or_project}_RawData"
+
+        file_workflows = f"U_Workflows.csv" #The only file that gets updated 
+        file_models = f"M_Models.csv"
+        file_elements = f"M_Elements.csv"
+        file_attributes = f"M_Attributes.csv"
+
+        #workflows_df = load_file(version, file_workflows)
+
+        workflows_df = store_file(workflows_df.to_csv(index=False),version,f"U{datetime.now()}_Workflows.csv")
+        models_df = load_file(version, file_models)
+        elements_df = load_file(version, file_elements)
+        attributes_df = load_file(version, file_attributes)
+
+        #Implement the logic for languages (delete the columns of the unnecesssary languages)
+        #languages =
+
+    #Execution logic
     attributes_df = _process_attributes_df(attributes_df)
-
-    result_df = attributes_df.merge(elements_df, on='ElementID', how='left') \
+    merged_df = attributes_df.merge(elements_df, on='ElementID', how='left') \
                                  .merge(models_df, on='ModelID', how='left') \
                                  .merge(workflows_df, on='WorkflowID', how='left')
+    
+    #result_df =  merged_df[merged_df['Selected'] == True]
 
     columns_to_check = ['SortModels', 'SortElements', 'SortAttributes']
-    available_columns = [col for col in columns_to_check if col in result_df.columns]
+    available_columns = [col for col in columns_to_check if col in merged_df.columns]
 
-    if available_columns:
-        result_df = result_df.sort_values(by=available_columns, ascending=True)
+    #if available_columns:
+    #    result_df = result_df.sort_values(by=available_columns, ascending=True)
 
-    sorted_df = result_df.drop_duplicates().reset_index(drop=True)
+    sorted_df = merged_df.sort_values(by=available_columns, ascending=[True] * len(available_columns))
+    #sorted_df = sorted_df.drop_duplicates().reset_index(drop=True)
+
+    #result_df = sorted_df.drop_duplicates().reset_index(drop=True)
 
     try:
         excel_buffer = io.BytesIO()
         with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+            #result_df.to_excel(writer, index=False)
             sorted_df.to_excel(writer, index=False)
         excel_buffer.seek(0)
 
-        store_file(excel_buffer.getvalue(), VERSION, f"Elementplan_{VERSION}_raw_data.xlsx")
+        filename = f"RawData_{version}.xlsx"
+
+        store_file(excel_buffer.getvalue(), version, filename)
 
     except Exception as e:
         raise ValueError(f"Error exporting DataFrame to Excel: {e}")

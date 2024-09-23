@@ -142,16 +142,16 @@ Recommended Naming Schema:
 
    - **Option 1: quick and dirty in the code:**
       - Export the following CSV files from your database, ensuring that all necessary columns are included (Refer to the "Attribute Table" section for details on the required column.):
-         - `Attributes-ExportAll.csv`
-         - `Elements-ExportAll.csv`
-         - `Models-ExportAll.csv`
-         - `Workflows-ExportAll.csv`  
+         - `M_Attributes.csv`
+         - `M_Elements.csv`
+         - `M_Models.csv`
+         - `M_Workflows.csv`  
       
       - In the `data\` directory, create a new folder named after the version you're working on (e.g., `data\V2.05`).
       - Move the exported CSV files into the newly created version folder.
       - Execute the script located at `src/batch_processing_import.py`. This will generate a merged Excel file containing all the data aswell as different output formats.
 
-   - **Option 2: With a blob storage and upload through the frontend**
+   - **Option 2: Upload through the frontend**
       - A more scaleable solution is to use the `admin`page to upload new versions to a blob storage 
 
 ### Manage different versions

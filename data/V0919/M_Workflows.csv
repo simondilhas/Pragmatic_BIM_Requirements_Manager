@@ -1,0 +1,24 @@
+WorkflowID,SorrWorkflow,WorkflowNameDE,WorkflowSubheaderEN,WorkflowSubheaderDE,WorkflowDescriptionDE,Status,Selected
+Datenübergabe in Bewirtschaftung BBL,1.0,,,,,,True
+Wartung / Inspektion (OM),2.0,,,,,,True
+Projektstart mit BIM,3.0,,,,,,True
+Berechnen von Flächenkennwerten gemäss DIN 277-SIA 0165,4.0,,,,,,True
+Berechnen von SIA416 Volumenkennwerten,5.0,,,,,,True
+Visualisieren & Verwalten von Lastenanforderungen,6.0,,,,,,True
+Abgleich von Soll-Raumprogramm zu Ist-Raumprogramm,7.0,,,,,,True
+Inventar,8.0,,,,,,True
+Beschaffung (PM/OM),9.0,,,,,,True
+Reinigung / Umgebungspflege,10.0,,,,,,True
+Zählen von Parkplätzen,11.0,,,,,,True
+Berechnen der Energiebezugsfläche,12.0,,,,,,True
+Visualisieren von Nutzungseinheiten / Kostenteileiler,13.0,,,,,,True
+Visualisieren der Schutzzonen,14.0,,,,,,True
+Visualisieren von Gebäudezonen,15.0,,,,,,True
+Visualisieren von Evakuationsbereichen,16.0,,,,,,True
+Visualisieren der eBKP-h Zuordnung von Bauteilen für Plausibilisierungen,17.0,,,,,,True
+Identifizieren von verbauten Produkten,18.0,,,,,,True
+"Visualisieren von Abbruchs, und Neubauarbeiten für die Qualitätssicherung",19.0,,,,,,True
+Visualisieren des Tragwerkes,20.0,,,,,,True
+Visualisieren der Brandschutzabschnitte,21.0,,,,,,True
+Visualisieren der Sicherheitszonen,22.0,,,,,,True
+Visualisieren von Reinigungskategorien,23.0,,,,,,True

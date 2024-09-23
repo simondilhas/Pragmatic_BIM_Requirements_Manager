@@ -3,7 +3,7 @@
 APP_NAME: Pragmatic BIM Requirements Manager
 
 # Set to "true" if using Azure Blob for storage and "false" for local storage
-USE_AZURE_STORAGE: True
+USE_AZURE_STORAGE: False
 
 MAIN_LANGUAGE: "EN"
 
@@ -47,3 +47,8 @@ contract_excel_columns:
   '53': 8
   '61': 8
   '62': 8
+
+#Variables to replace values in the csv programatically
+VARIABLES:
+  PROJECT_NUMBER : "[Projektnummer]"
+  PROJECT_NAME : "{Project Name}"

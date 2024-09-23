@@ -226,12 +226,8 @@ def create_filtered_df(df, language):
     ]
     return df[filtered_columns]
 
-def create_libal_import_file():
-    version = os.environ.get('VERSION')
-    if not version:
-        raise ValueError("VERSION environment variable is not set")
-
-    df = load_file(version, f'Elementplan_{version}_raw_data.xlsx')
+def create_libal_import_file(version, master_or_project):
+    df = load_file(version, f'RawData_{version}.xlsx')
 
     languages = get_available_languages(df)
     first_lang = languages[0]

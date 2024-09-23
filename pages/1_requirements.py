@@ -7,7 +7,7 @@ import json
 from dotenv import load_dotenv
 
 from src.sort import sort_dataframe
-from src.load_data import load_file, get_versions
+from src.load_data import load_file, get_versions, get_project_path
 from src.utils import load_config
 from src.ui_elements import custom_sidebar  
 
@@ -22,20 +22,17 @@ MAIN_LANGUAGE = config.get('MAIN_LANGUAGE', False)
 FRONTEND_LANGUAGES = config.get('FRONTEND_LANGUAGES', MAIN_LANGUAGE)
 
 # Constants
-DATA_FOLDER = 'data'
+DATA_FOLDER = 'data' #better logic?
 TRANSLATIONS_FILE = 'translations.json'
-EXCEL_FILE_PATTERN = "Elementplan_{version}_raw_data.xlsx"
+#EXCEL_FILE_PATTERN = "Elementplan_{version}_raw_data.xlsx"
 
-@st.cache_data
-def get_project_path(folder_name: str) -> Path:
-    if os.getenv('STREAMLIT_CLOUD'):
-        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
-    else:
-        return Path(__file__).parent.parent / folder_name
 
 @st.cache_data
 def load_data(version: str) -> pd.DataFrame:
-    return load_file(version, f"Elementplan_{version}_raw_data.xlsx")
+    df = load_file(version, 'data_for_web.csv')
+    #Potential for Performance increase?
+    #df = df.drop_duplicates(subset='AttributeID')
+    return df
 
 
 @st.cache_data
@@ -232,46 +229,18 @@ def display_element_data(element_data: pd.DataFrame, language_suffix: str, trans
         
         display_streamlit_columns(attribute_data, translations, language_suffix)
 
-def get_available_languages(df: pd.DataFrame) -> List[str]:
-    language_columns = [col for col in df.columns if col.startswith('ElementName')]
-    return [col.replace('ElementName', '') for col in language_columns]
-
-def get_language_options(data):
-    # Language code to full name mapping
-    language_names = {
-        'EN': 'English',
-        'DE': 'Deutsch',
-        'FR': 'Français',
-        'IT': 'Italiano',
-        # Add more languages as needed
-    }
-
-    available_languages = get_available_languages(data)
-    language_options = [lang for lang in available_languages if lang in language_names]
-    language_display_names = [language_names.get(lang, lang) for lang in language_options]
-
-    return language_options, language_display_names
-
-def sidebar_select_frontend_language():
-    language_names = {
-        'EN': 'English',
-        'DE': 'Deutsch',
-        'FR': 'Français',
-        'IT': 'Italiano',
-    }
 
 
-
-def x_sidebar_select_language(available_version, language_suffix, language_options, language_display_names, translations):
-    #Problem circular relationsship
-    selected_language_name = st.sidebar.selectbox(
-        translations['sidebar_filters']['language'][language_suffix],
-        language_display_names,
-        index=language_options.index('') if '' in language_options else 0
-    )
-
-    language_suffix = language_options[language_display_names.index(selected_language_name)]
-    return language_suffix
+#def sidebar_select_language(available_version, language_suffix, language_options, language_display_names, translations):
+#    #This only shows theavailable languages
+#    selected_language_name = st.sidebar.selectbox(
+#        translations['sidebar_filters']['language'][language_suffix],
+#        language_display_names,
+#        index=language_options.index('') if '' in language_options else 0
+#    )
+#
+#    language_suffix = language_options[language_display_names.index(selected_language_name)]
+#    return language_suffix
 
 def sidebar_select_version(available_version, language_suffix, translations):
     selected_version = st.sidebar.selectbox(
@@ -298,7 +267,7 @@ def sidebar_select_language(translations, current_language_suffix):
 
 def main():
     custom_sidebar(MAIN_LANGUAGE)
-    data_folder = get_project_path(DATA_FOLDER)
+    data_folder = get_project_path(DATA_FOLDER) #Better logic?
     available_version = get_versions(data_folder)
     translations = load_translations(data_folder / TRANSLATIONS_FILE)
 
@@ -319,34 +288,34 @@ def main():
     try:
         data = load_data(selected_version)
     except FileNotFoundError as e:
-        st.error(str(e))
+        st.error(f"The data for version {selected_version} is missing.")
         return
     except pd.errors.EmptyDataError:
         st.error(f"The file for version {selected_version} is empty.")
         return
     except Exception as e:
-        st.error(f"Error loading data: {str(e)}")
+        st.error(f"Error loading data for for version {selected_version}")
         return
 
     # Filter data by the selected language and handle missing data early
     try:
-        data_filtered = filter_columns_by_language(data, language_suffix)
+        data_filtered_by_language = filter_columns_by_language(data, language_suffix)
     except KeyError:
         st.warning(f"No data available for the selected language: {language_suffix}")
         return
 
     # If no data for the language, show warning and stop further execution
-    if data_filtered.empty:
+    if data_filtered_by_language.empty:
         st.warning(f"No data for the selected language: {language_suffix}")
         return
 
     # Proceed only if data is available
     try:
-        data_filtered = filter_by_project_phase(data_filtered, language_suffix, translations)
+        data_filtered_by_phase = filter_by_project_phase(data_filtered_by_language, language_suffix, translations)
         display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
         display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
         
-        model_data_sorted = sort_dataframe(data_filtered)
+        model_data_sorted = sort_dataframe(data_filtered_by_phase)
         tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
         tabs = st.tabs(tab_labels)
         for tab, file_name in zip(tabs, tab_labels):

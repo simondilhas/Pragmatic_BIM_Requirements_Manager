@@ -249,12 +249,8 @@ def _export_with_custom_widths(df, column_widths, language, VERSION):
         store_file(excel_buffer.getvalue(), VERSION, output_file_name)
         print(f"Excel file exported to: {output_file_name}")    
 
-def create_formated_excel_export():
-    version = os.environ.get('VERSION')
-    if not version:
-        raise ValueError("VERSION environment variable is not set")
-
-    df = load_file(version, f'Elementplan_{version}_raw_data.xlsx')
+def create_formated_excel_export(version, master_or_project):
+    df = load_file(version, f'RawData_{version}.xlsx')
 
     languages = _get_available_languages(df)
     first_lang = languages[0]

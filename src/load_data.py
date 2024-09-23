@@ -10,7 +10,7 @@ and potentially other cloud services / Databases.
 import pandas as pd
 import logging
 from azure.storage.blob import BlobServiceClient
-from azure.core.exceptions import AzureError
+from azure.core.exceptions import AzureError, ResourceExistsError
 from pathlib import Path
 import os
 import io
@@ -102,6 +102,79 @@ def get_versions(data_folder: Path) -> List[str]:
         # Fetch versions from the local file system
         return sorted([f.name for f in data_folder.iterdir() 
                        if f.is_dir() and f.name != '__pycache__'], reverse=True)
+
+def get_project_path(folder_name: str) -> Path:
+    """Get the appropriate project path based on the environment (local or Streamlit Cloud)."""
+    if os.getenv('STREAMLIT_CLOUD'):
+        return Path('/mount/src/pragmatic_bim_requirements_manager') / folder_name
+    else:
+        return Path(__file__).parent.parent / folder_name
+    
+
+import os
+from pathlib import Path
+
+
+def copy_base_files(selected_master_template: str, project_version: str):
+    """Copy all CSV files from the selected master template to the project version folder."""
+
+    # Create the target directory in Azure or locally
+    create_storage_folder(project_version)
+
+    # Fetch files from master template folder
+    if USE_AZURE_STORAGE:
+        _copy_files_azure(selected_master_template, project_version)
+    else:
+        _copy_files_local(selected_master_template, project_version)
+
+def _copy_files_local(selected_master_template: str, project_version: str):
+    """Copy CSV files locally."""
+    try:
+        base_dir = Path(__file__).parent.parent / "data" / selected_master_template
+        target_dir = Path(__file__).parent.parent / "data" / project_version
+        
+        # Ensure target directory exists
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        for file in base_dir.glob("*.csv"):
+            target_file = target_dir / file.name
+            target_file.write_text(file.read_text())
+            logger.info(f"Copied {file.name} to {target_dir}")
+
+    except Exception as e:
+        logger.error(f"Failed to copy files locally: {str(e)}")
+        raise
+
+def _copy_files_azure(selected_master_template: str, project_version: str):
+    """Copy CSV files in Azure Blob Storage."""
+    try:
+        blob_service_client = _azure_blob_service_client()
+        container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+
+        blobs = container_client.list_blobs(name_starts_with=f"{selected_master_template}/")
+
+        for blob in blobs:
+            if blob.name.endswith('.csv'):
+                # Copy each CSV file to the target directory
+                source_blob = blob.name
+                target_blob = f"{project_version}/{blob.name.split('/')[-1]}"
+                blob_client = container_client.get_blob_client(target_blob)
+
+                # Download the source blob
+                download_stream = container_client.get_blob_client(source_blob).download_blob().readall()
+
+                # Upload to the target location
+                blob_client.upload_blob(download_stream, overwrite=True)
+                logger.info(f"Copied {blob.name} to {target_blob}")
+
+    except AzureError as e:
+        logger.error(f"Azure error while copying files: {str(e)}")
+        raise
+    except ResourceExistsError as e:
+        logger.warning(f"File already exists: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error during file copy in Azure: {str(e)}")
+        raise
 
     
 def _azure_blob_service_client():
