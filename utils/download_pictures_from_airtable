@@ -1,0 +1,95 @@
+import os
+import requests
+import json
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
+# Your Airtable credentials and table details
+AIRTABLE_API_KEY = os.getenv('AIRTABLE_KEY')
+BASE_ID = os.getenv('AIRTABLE_BASE')  # Replace with your actual Airtable base ID
+TABLE_ID= os.getenv('AIRTABLE_TABLE_ID')
+TABLE_NAME = 'Images'  # Replace with the actual table name
+FIELD_NAME = 'Image'  # Replace with the name of the field containing the image URLs
+
+# Airtable API URL
+url = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE_ID}"
+
+
+# Headers with your Airtable API Key
+headers = {
+    'Authorization': f'Bearer {AIRTABLE_API_KEY}'
+}
+
+# Create the directory 'img' if it doesn't exist
+output_folder = 'img'
+os.makedirs(output_folder, exist_ok=True)
+
+# Function to fetch data from Airtable
+def fetch_airtable_data(url):
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Failed to retrieve data: {response.status_code}")
+        print(f"Response content: {response.text}")
+        return None
+
+def download_images(records):
+    for record in records:
+        fields = record.get('fields', {})
+        if FIELD_NAME in fields:
+            attachments = fields[FIELD_NAME]
+            if isinstance(attachments, list):
+                for attachment in attachments:
+                    if isinstance(attachment, dict):
+                        image_url = attachment.get('url')
+                        image_name = attachment.get('filename')
+                        if image_url and image_name:
+                            download_image(image_url, image_name)
+                    else:
+                        print(f"Unexpected attachment format: {attachment}")
+            else:
+                print(f"Unexpected field data format: {attachments}")
+
+def download_image(image_url, image_name):
+    try:
+        response = requests.get(image_url, headers=headers)  # Use the same headers as for the Airtable API
+        if response.status_code == 200:
+            image_path = os.path.join(output_folder, image_name)
+            with open(image_path, 'wb') as img_file:
+                img_file.write(response.content)
+            print(f"Downloaded {image_name}")
+        else:
+            print(f"Failed to download {image_name}: {response.status_code}")
+    except Exception as e:
+        print(f"Error downloading {image_name}: {e}")
+
+# Main execution
+print(f"Attempting to access: {url}")
+data = fetch_airtable_data(url)
+
+if data:
+    records = data.get('records', [])
+    if records:
+        print(f"Found {len(records)} records")
+        download_images(records)
+    else:
+        print("No records found in the response")
+    
+    # Handle pagination if there are more records
+    while 'offset' in data:
+        offset = data['offset']
+        paginated_url = f"{url}?offset={offset}"
+        print(f"Fetching next page: {paginated_url}")
+        data = fetch_airtable_data(paginated_url)
+        if data:
+            records = data.get('records', [])
+            if records:
+                print(f"Found {len(records)} records in this page")
+                download_images(records)
+            else:
+                print("No records found in this page")
+else:
+    print("Failed to retrieve initial data")

@@ -91,13 +91,19 @@ def _extract_phase_definitions(df, column):
 
 def _extract_phase_definitions(df, column):
     all_phases = set()
-    for phases in df[column].str.split(','):
-        all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
+    for phases in df[column]:
+        # Check if the value is a string before splitting
+        if isinstance(phases, str):
+            split_phases = phases.split(',')
+            # Update the set with cleaned up phases
+            all_phases.update([phase.strip() for phase in split_phases])
     
     all_phases = sorted(all_phases)
     return all_phases
 
 def _explode_phases_to_matrix(df, column, lang):
+    print(df)
+    print(column)
     
     all_phases = _extract_phase_definitions(df, column)
     
@@ -146,16 +152,20 @@ def _translate_column_names(df, language):
     
     return df
 
+
 def _create_filtered_df(df, language):
     filtered_columns = [
         col.replace('*', language) if '*' in col else col for col in column_order
     ]
+    # Filter only columns that exist in the DataFrame
+    filtered_columns = [col for col in filtered_columns if col in df.columns]
     return df[filtered_columns]
+
 
 def _export_with_custom_widths(df, column_widths, language, VERSION):
 
-    if f'FileName{language}' in df.columns:
-        unique_filenames = df[f'FileName{language}'].dropna().unique()
+    if f'ModelID{language}' in df.columns:
+        unique_filenames = df[f'ModelID{language}'].dropna().unique()
 
         output_file_name = f'Elementplan_{language}_{VERSION}.xlsx'
         excel_buffer = io.BytesIO()

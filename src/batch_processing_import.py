@@ -11,7 +11,7 @@ from src.create_libal_import_file import create_libal_import_file
 from src.create_data_for_web import create_data_for_web
 
 
-VERSION = 'abstractBIM_V1'
+VERSION = 'test'
 master_or_project = 'M' #Master = 'M', Project Version = 'P', Update from Project = "U"
 
 

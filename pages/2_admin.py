@@ -20,7 +20,7 @@ from src.check_imports_data_structure import (
 from src.batch_processing_import import batch_processing_import
 from src.password_utils import check_password, logout_button
 from src.ui_elements import custom_sidebar  
-from src.utils import load_config
+from src.utils import load_config, extract_zip
 from src.load_data import load_file, get_versions, get_project_path, copy_base_files
 
 
@@ -245,7 +245,10 @@ def display_workflow_with_checkboxes(df, selection_option, language):
 def checkbox_change_callback():
     st.session_state.widget_callback_called = True
 
-
+def upload_zipped_pictures():
+    import zipfile
+import tempfile
+from io import BytesIO
 
 def tab_upload_new_version():
     if 'project_state' not in st.session_state:
@@ -295,7 +298,7 @@ def tab_upload_new_version():
     
     # File upload section
     if st.session_state.project_state.get('folder_created', False) and not st.session_state.project_state.get('version_online', False):
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         check1 = check2 = check3 = check4 = False
 
         folder_name = st.session_state.project_state['folder_name']
@@ -331,6 +334,10 @@ def tab_upload_new_version():
                     check4 = check_files(folder_name, file_name4, required_workflows_columns)
                 except Exception as e:
                     st.error(f"Error checking Workflows file: {str(e)}")
+
+        with col5:
+            pass
+
 
         # Check if all files are uploaded and valid
         all_files_valid = check1 and check2 and check3 and check4

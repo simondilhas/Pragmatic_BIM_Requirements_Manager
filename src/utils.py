@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 from typing import List, Dict
 import streamlit as st
+import zipfile
+
 
 def load_config(file_path='config.yaml'):
     """
@@ -29,3 +31,7 @@ def load_config(file_path='config.yaml'):
 def load_translations(json_path: Path) -> Dict:
     with open(json_path, 'r', encoding='utf-8') as file:
         return json.load(file)
+    
+def extract_zip(zip_file, extract_to):
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)

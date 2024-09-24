@@ -17,6 +17,20 @@
       "FR": "Sélectionnez la version définie dans votre contrat :",
       "IT": "Seleziona la versione definita nel tuo contratto:"
     },
+     "plan": {
+        "file_name": {
+        "DE": "Dateiname",
+        "EN": "File Name",
+        "FR": "Nom du fichier",
+        "IT": "Nome del file"
+        },
+        "relation": {
+        "DE": "Beziehung zu",
+        "EN": "Relation to",
+        "FR": "Relation à",
+        "IT": "Relazione con"
+        }
+    },
     "sidebar_filters": {
       "project_phase": {
         "DE": "Filter nach Projektphase",

@@ -2,51 +2,17 @@ import os
 import sys
 import pandas as pd
 from typing import Dict, List
+import yaml
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-required_workflows_columns = [
-    "WorkflowID",
-    "WorkflowName*",
-    "WorkflowSubheader*",
-    "WorkflowDescription*",
-    "Status",
-]
+with open("config.yaml", "r") as file:
+    config_data = yaml.safe_load(file)
 
-required_models_columns = [
-    "ModelID",
-    "ModelName*",
-    "ModelDescription*",
-    "FileName*",
-    "SortModels",
-]
-
-required_elements_columns = [
-    "ElementID",
-    "ElementName*",
-    "SortElement",
-    "IfcEntityIfc4.0Name",
-    "ElementDescription*",
-]
-
-required_attributes_columns = [
-    "AttributeID",
-    "AttributeName",
-    "SortAttribute",
-    "AttributeDescription*",
-    "Pset",
-    "AllowedValues*",
-    "RegexCheck*",
-    "DataTyp",
-    "Unit",
-    "IFC2x3",
-    "IFC4",
-    "IFC4.3",
-    "Applicability",
-    "ElementID",
-    "ModelID",
-    "WorkflowID"
-]
+required_workflows_columns = config_data["required_workflows_columns"]
+required_models_columns = config_data["required_models_columns"]
+required_elements_columns = config_data["required_elements_columns"]
+required_attributes_columns = config_data["required_attributes_columns"]
 
 def check_required_columns(df: pd.DataFrame, required_columns: List[str]) -> None:
     missing_columns = []

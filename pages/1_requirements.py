@@ -4,16 +4,13 @@ import os
 from pathlib import Path
 from typing import List, Dict, Tuple
 import json
+import asyncio
 from dotenv import load_dotenv
 
 from src.sort import sort_dataframe
 from src.load_data import load_file, get_versions, get_project_path
 from src.utils import load_config
 from src.ui_elements import custom_sidebar  
-
-# Type aliases
-DataFrame = pd.DataFrame
-PathLike = Path | str
 
 from src.utils import load_config
 
@@ -86,7 +83,7 @@ def filter_by_project_phase(data: pd.DataFrame, language_suffix: str, translatio
     
     return filtered_data
 
-def display_download_button(version: str, language: str, data_folder: PathLike, file_type_name: str):
+def display_download_button(version: str, language: str, data_folder: str, file_type_name: str):
    
     file_name = f"{file_type_name}_{language}_{version}.xlsx" 
     file_path = Path(data_folder) / version / file_name
@@ -191,8 +188,8 @@ def display_streamlit_columns(data: pd.DataFrame, translations: Dict, language_s
                     col.markdown(custom_text(str(row[df_key])), unsafe_allow_html=True)
             else:
                 st.write(f"Column {df_key} not found in DataFrame")
-
-def display_element_data(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
+def display_element_data_html(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
+    """ Option to display the Element data as HTML."""
     if element_data.empty:
         st.warning("No data available for this element.")
         return
@@ -205,8 +202,12 @@ def display_element_data(element_data: pd.DataFrame, language_suffix: str, trans
         header_text += f" ({ifc_entity})"
     st.header(header_text)
 
+    #contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+
     contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
-    st.write(f"IfcRel: {contained_in}")
+
+    if contained_in != "N/A" and pd.notna(contained_in):
+        st.write(f"IfcRel: {contained_in}")
 
     element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
     if not pd.isna(element_description) and element_description != '':
@@ -229,6 +230,126 @@ def display_element_data(element_data: pd.DataFrame, language_suffix: str, trans
         
         display_streamlit_columns(attribute_data, translations, language_suffix)
 
+async def load_image(url: str):
+    """Simulate asynchronous image loading."""
+    await asyncio.sleep(0.5)  # Reduced sleep time for faster loading
+    return url
+
+def display_element_data_html_columns(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
+    """ Option to display the Element data as HTML."""
+    if element_data.empty:
+        st.warning("No data available for this element.")
+        return
+
+    element_name = element_data[f'ElementName{language_suffix}'].iloc[0] if not element_data[f'ElementName{language_suffix}'].empty else "Unknown Element"
+    ifc_entity = element_data['IfcEntityIfc4.0Name'].iloc[0] if not element_data['IfcEntityIfc4.0Name'].empty else ""
+
+    header_text = element_name
+    if ifc_entity:
+        header_text += f" ({ifc_entity})"
+    st.subheader(header_text)
+
+    #contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+
+    contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+
+    if contained_in != "N/A" and pd.notna(contained_in):
+        st.write(f"{translations['plan']['relation'][language_suffix]}: {contained_in}")
+
+    col1, col2 = st.columns([3,2])
+
+    with col1:
+        element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
+        if not pd.isna(element_description) and element_description != '':
+            st.write(element_description)
+        st.write("")
+
+    with col2:
+        right_column = st.empty()
+        right_column.image = st.image('https://assets.softr-files.com/applications/ecce81bb-64ce-48ab-8ff4-2e035c4e057c/assets/42e4d3fd-508b-4b92-a442-4eeb371523fc.png')
+    
+    valid_attributes = element_data[element_data['AttributeName'].notna() & (element_data['AttributeName'] != '')]
+    
+    if valid_attributes.empty:
+        st.write("No attributes found for this element.")
+    else:
+        attribute_data = pd.DataFrame({
+            'AttributeName': valid_attributes['AttributeName'],
+            f'AttributeDescription{language_suffix}': valid_attributes[f'AttributeDescription{language_suffix}'],
+            'Pset': valid_attributes['Pset'],
+            'DataTyp': valid_attributes['DataTyp'],
+            'Unit': valid_attributes['Unit'],
+            f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+        })
+        
+        display_streamlit_columns(attribute_data, translations, language_suffix)
+
+def truncate_string(input_string, max_length=66):
+    if len(input_string) <= max_length:
+        return input_string, ""
+    else:
+        # Find the last space within the max_length
+        last_space = input_string[:max_length].rfind(' ')
+        
+        # If no space is found, split at max_length
+        if last_space == -1:
+            split_point = max_length
+        else:
+            split_point = last_space
+
+        return input_string[:split_point], input_string[split_point:].strip()
+
+def display_element_data_expander(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
+    """ Option to display the Element data inside a expander for a cleaner interface and faster loading"""
+    if element_data.empty:
+        st.warning("No data available for this element.")
+        return
+
+    element_name = element_data[f'ElementName{language_suffix}'].iloc[0] if not element_data[f'ElementName{language_suffix}'].empty else "Unknown Element"
+    ifc_entity = element_data['IfcEntityIfc4.0Name'].iloc[0] if not element_data['IfcEntityIfc4.0Name'].empty else ""
+
+    header_text = element_name
+    if ifc_entity:
+        header_text += f" ({ifc_entity})"
+    st.header(header_text)
+
+    #contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+
+    contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
+
+    element_description = element_data[f'ElementDescription{language_suffix}'].iloc[0]
+    if not pd.isna(element_description) and element_description != '':
+        desc_start, desc_end = truncate_string(element_description)
+    
+
+    with st.expander(desc_start):
+
+        col1, col2 = st.columns((2))
+
+        with col1:
+            if not pd.isna(element_description) and element_description != '':
+                st.write(desc_end)
+            st.write("")
+
+        with col2:
+            if contained_in != "N/A" and pd.notna(contained_in):
+                st.write(f"IfcRel: {contained_in}")
+        
+        valid_attributes = element_data[element_data['AttributeName'].notna() & (element_data['AttributeName'] != '')]
+        
+        if valid_attributes.empty:
+            st.write("No attributes found for this element.")
+        else:
+            attribute_data = pd.DataFrame({
+                'AttributeName': valid_attributes['AttributeName'],
+                f'AttributeDescription{language_suffix}': valid_attributes[f'AttributeDescription{language_suffix}'],
+                'Pset': valid_attributes['Pset'],
+                'DataTyp': valid_attributes['DataTyp'],
+                'Unit': valid_attributes['Unit'],
+                f'AllowedValues{language_suffix}': valid_attributes[f'AllowedValues{language_suffix}']
+            })
+            
+            display_streamlit_columns(attribute_data, translations, language_suffix)
 
 
 #def sidebar_select_language(available_version, language_suffix, language_options, language_display_names, translations):
@@ -264,6 +385,7 @@ def sidebar_select_language(translations, current_language_suffix):
     st.sidebar.divider()
     
     return selected_language
+
 
 def main():
     
@@ -309,6 +431,8 @@ def main():
     if data_filtered_by_language.empty:
         st.warning(f"No data for the selected language: {language_suffix}")
         return
+    
+    
 
     # Proceed only if data is available
     try:
@@ -317,21 +441,34 @@ def main():
         display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
         
         model_data_sorted = sort_dataframe(data_filtered_by_phase)
-        tab_labels = model_data_sorted[f'FileName{language_suffix}'].unique().tolist()
+        tab_labels = model_data_sorted[f'ModelName{language_suffix}'].unique().tolist()
         tabs = st.tabs(tab_labels)
         for tab, file_name in zip(tabs, tab_labels):
             with tab:
-                model_df = model_data_sorted[model_data_sorted[f'FileName{language_suffix}'] == file_name]
+                model_df = model_data_sorted[model_data_sorted[f'ModelName{language_suffix}'] == file_name]
                 header_content = model_df[f'ModelName{language_suffix}'].unique()
+                
                 if len(header_content) == 1:
                     st.header(header_content[0])
                 else:
                     st.header(', '.join(header_content))
                 
+                file_name = ', '.join(model_df[f'FileName{language_suffix}'].unique().astype(str))               
+                file_string= f"{translations['plan']['file_name'][language_suffix]}: {file_name}"
+                st.text(file_string)
+
+                model_description = model_df[f'ModelDescription{language_suffix}'].iloc[0] if not model_df[f'ModelDescription{language_suffix}'].empty else "N/A"
+                if model_description != "N/A" and pd.notna(model_description):
+                    st.markdown(model_description)
+                
                 for element_name in model_df[f'ElementName{language_suffix}'].unique():
                     with st.container():
                         element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
-                        display_element_data(element_data, language_suffix, translations)
+                        #Different Options
+                        #display_element_data_expander(element_data, language_suffix, translations)
+                        display_element_data_html_columns(element_data, language_suffix, translations)
+                        #display_element_data_html(element_data, language_suffix, translations)
+
 
     except Exception as e:
         #st.error(f"No data available for the selected project phase: {str(e)}")

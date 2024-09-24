@@ -3,7 +3,7 @@
 APP_NAME: Pragmatic BIM Requirements Manager
 
 # Set to "true" if using Azure Blob for storage and "false" for local storage
-USE_AZURE_STORAGE: False
+USE_AZURE_STORAGE: false
 
 MAIN_LANGUAGE: "DE"
 
@@ -52,3 +52,45 @@ contract_excel_columns:
 VARIABLES:
   PROJECT_NUMBER : "{Projektnummer}"
   PROJECT_NAME : "{Projektname}"
+
+#Necessary columns in the import data
+required_workflows_columns:
+  - WorkflowID
+  - WorkflowName*
+  - WorkflowSubheader*
+  - WorkflowDescription*
+  - Status
+
+required_models_columns:
+  - ModelID
+  - ModelName*
+  - ModelDescription*
+  - FileName*
+  - SortModels
+
+required_elements_columns:
+  - ElementID
+  - ElementName*
+  - SortElement
+  - IfcEntityIfc4.0Name
+  - ElementDescription*
+  - ImageName
+
+required_attributes_columns:
+  - AttributeID
+  - AttributeName
+  - SortAttribute
+  - AttributeDescription*
+  - Pset
+  - AllowedValues*
+  - RegexCheck*
+  - DataTyp
+  - Unit
+  - IFC2x3
+  - IFC4
+  - IFC4.3
+  - Applicability
+  - ElementID
+  - ModelID
+  - WorkflowID
+

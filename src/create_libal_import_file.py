@@ -96,21 +96,19 @@ def get_data_path(folder_name: str) -> Path:
         return Path(__file__).parent.parent / 'data' / folder_name
 
 
+
 def extract_phase_definitions(df, column):
     all_phases = set()
-    for phases in df[column].str.split(','):
-        all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
+    for phases in df[column]:
+        # Check if the value is a string before splitting
+        if isinstance(phases, str):
+            split_phases = phases.split(',')
+            # Update the set with cleaned up phases
+            all_phases.update([phase.strip() for phase in split_phases])
     
     all_phases = sorted(all_phases)
     return all_phases
 
-def extract_phase_definitions(df, column):
-    all_phases = set()
-    for phases in df[column].str.split(','):
-        all_phases.update([phase.strip() for phase in phases if isinstance(phases, list)])
-    
-    all_phases = sorted(all_phases)
-    return all_phases
 
 def explode_phases_to_matrix(df, column, lang):
     
@@ -224,6 +222,8 @@ def create_filtered_df(df, language):
     filtered_columns = [
         col.replace('*', language) if '*' in col else col for col in column_order
     ]
+    # Filter only columns that exist in the DataFrame
+    filtered_columns = [col for col in filtered_columns if col in df.columns]
     return df[filtered_columns]
 
 def create_libal_import_file(version, master_or_project):
