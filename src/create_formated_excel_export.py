@@ -164,8 +164,8 @@ def _create_filtered_df(df, language):
 
 def _export_with_custom_widths(df, column_widths, language, VERSION):
 
-    if f'ModelID{language}' in df.columns:
-        unique_filenames = df[f'ModelID{language}'].dropna().unique()
+    if f'ModelName{language}' in df.columns:
+        unique_models = df[f'ModelName{language}'].dropna().unique()
 
         output_file_name = f'Elementplan_{language}_{VERSION}.xlsx'
         excel_buffer = io.BytesIO()
@@ -194,16 +194,16 @@ def _export_with_custom_widths(df, column_widths, language, VERSION):
                 'align': 'center',
             })
 
-            for filename in unique_filenames:
-                filtered_df = df[df[f'FileName{language}'] == filename]
+            for model in unique_models:
+                filtered_df = df[df[f'ModelName{language}'] == model]
                 filtered_df['Sort'] = range(1, len(filtered_df) + 1)
                 
                 filtered_df = _translate_column_names(filtered_df, language)
 
 
-                filtered_df.to_excel(writer, sheet_name=filename[:31], index=False, startrow=0)  # Start writing data from row 1
+                filtered_df.to_excel(writer, sheet_name=model[:31], index=False, startrow=0)  # Start writing data from row 1
                 
-                worksheet = writer.sheets[filename[:31]]
+                worksheet = writer.sheets[model[:31]]
 
                 for col_num, col_name in enumerate(filtered_df.columns):
                     width = column_widths[col_num] if col_num < len(column_widths) else default_column_width
@@ -275,4 +275,3 @@ def create_formated_excel_export(version, master_or_project):
         filtered_df = _create_filtered_df(df, language)
         output_file_path = _export_with_custom_widths(filtered_df, column_widths, language, version)
         print(output_file_path)
-

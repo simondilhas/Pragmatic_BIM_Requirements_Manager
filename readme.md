@@ -135,6 +135,20 @@ Recommended Naming Schema:
    2. Create the container - the file - the IFC Model you expect your data in
    3. Add necessray logical elements(e.g., walls, floors, rooms). Keep in mind that the Ifc Entity is not equal to an element. Think along the lines, of what you have to define in a modeling guidline.
    4. Define necessary attributes: List required attributes for each logical element (at least one per element, otherwiese the code won't process them at the moment)
+
+      **IMPORTANT**
+      When defining the Attributes it's not allowed to assign one Attribute to several Elements and Models. This will lead to unpredictable behavior.
+
+      These patterns are fine:
+
+         1. One Attribute - One Element - One Model
+         2. One Attribute - One Element - Many Models
+         3. One Attribute - Many Elements - One Model
+      
+      This Pattern is NOT:
+         - One Attribute - Many Elements - Many Models (Leads to all Elements asigned to all Models)
+
+
    5. Connect tables: Link all tables bottom-up, starting from the attribute level
    6. Specify data usage (if needed): Detail how to use the data in the mapping table
 

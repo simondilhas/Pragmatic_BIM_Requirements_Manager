@@ -28,3 +28,10 @@ def check_required_columns(df: pd.DataFrame, required_columns: List[str]) -> Non
         #raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
         return (f"Missing required columns: {', '.join(missing_columns)}")
     
+def check_for_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """ Check for rows with no ID"""
+    pass
+
+
+def check_for_missing_values_in_column(df:pd.DataFrame, column_name: str) -> dict:
+    pass
