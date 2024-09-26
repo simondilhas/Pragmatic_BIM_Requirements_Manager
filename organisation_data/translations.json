@@ -1,12 +1,23 @@
 {
-    "header": {
-      "DE": "Pragmatischer Elementplan & Modellierungsdefinitionen",
-        "EN": "Pragmatic Element Plan & Modeling Definitions",
-        "FR": "Plan d'éléments pragmatique & définitions de modélisation",
-        "IT": "Piano degli elementi pragmatico & definizioni di modellazione"
+    "home":{
+        "titel": {
+            "DE": "Pragmatischer Elementplan & Modellierungsdefinitionen",
+            "EN": "Pragmatic Element Plan & Modeling Definitions",
+            "FR": "Plan d'éléments pragmatique & définitions de modélisation",
+            "IT": "Piano degli elementi pragmatico & definizioni di modellazione"
+        },
+        "intro":{
+                "DE": "Building Information Modeling (BIM) ist entscheidend in modernen Planungs- und Bauprozessen, doch das Management von BIM-Anforderungen und die Nutzung von BIM-Daten bleibt komplex. Die meisten BIM-Anforderungen sind derzeit über schlecht strukturierte Dateien verstreut, was es schwierig macht, sie zu pflegen, konsistent zu halten und zu verfolgen oder zu überprüfen. Unsere leichtgewichtige, Open Source Webanwendung ist darauf ausgelegt, BIM-Anforderungen effizient und pragmatisch zu verwalten und bietet einen strukturierten, zugänglichen und zweckorientierten Ansatz zur Definition von geometrischen Modellierungs- und Attributionsrichtlinien.",
+                
+                "EN": "Building Information Modeling (BIM) is crucial in modern design and construction, yet managing BIM requirements and benefiting from BIM Data remains complex. Most BIM requirements are currently scattered across poorly structured files, making them difficult to maintain, inconsistent, and challenging to follow or verify. Our lightweight, open-source web application is designed for efficient and pragmatic BIM requirements management, offering a structured, accessible, and purpose-driven approach to defining geometric modeling and attribution guidelines.",
+                
+                "FR": "Le Building Information Modeling (BIM) est essentiel dans la conception et la construction modernes, mais la gestion des exigences BIM et l'utilisation des données BIM restent complexes. La plupart des exigences BIM sont actuellement dispersées dans des fichiers mal structurés, ce qui les rend difficiles à maintenir, incohérentes et difficiles à suivre ou à vérifier. Notre application web légère et open-source est conçue pour une gestion efficace et pragmatique des exigences BIM, offrant une approche structurée, accessible et orientée vers l'objectif pour définir les directives de modélisation géométrique et d'attribution.",
+                
+                "IT": "Il Building Information Modeling (BIM) è cruciale nel design e nella costruzione moderni, tuttavia la gestione dei requisiti BIM e il beneficio derivato dai dati BIM rimangono complessi. La maggior parte dei requisiti BIM è attualmente sparsa tra file strutturati in modo inefficace, rendendo difficile la loro manutenzione, mantenendo la coerenza e rendendoli difficili da seguire o verificare. La nostra applicazione web open-source e leggera è progettata per una gestione efficiente e pragmatica dei requisiti BIM, offrendo un approccio strutturato, accessibile e orientato allo scopo per definire linee guida di modellazione geometrica e attribuzione."
+              }
     },
     "choice": {
-      "DE": "Modellauswahl: (Nach rechts scrollen, um alle Einträge anzuzeigen) ",
+        "DE": "Modellauswahl: (Nach rechts scrollen, um alle Einträge anzuzeigen) ",
         "EN": "Model selection: (Scroll right to view all entries)",
         "FR": "Sélection du modèle : (Faites défiler vers la droite pour voir toutes les entrées)",
         "IT": "Selezione del modello: (Scorrere a destra per visualizzare tutte le voci)"

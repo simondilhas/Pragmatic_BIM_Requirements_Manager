@@ -325,9 +325,11 @@ def sidebar_select_language(translations, current_language_suffix):
 
 def main():
     
-    data_folder = get_project_path(DATA_FOLDER) #Better logic?
+    data_folder = get_project_path(DATA_FOLDER)
     available_version = get_versions(data_folder)
-    translations = load_translations(data_folder / TRANSLATIONS_FILE)
+
+    organisation_folder = get_project_path('organisation_data')
+    translations = load_translations(organisation_folder / TRANSLATIONS_FILE)
 
     if 'language_suffix' not in st.session_state:
         st.session_state['language_suffix'] = MAIN_LANGUAGE

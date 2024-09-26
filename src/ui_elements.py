@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit.runtime.scriptrunner import RerunData, RerunException, get_script_run_ctx
 from streamlit.source_util import get_pages
+from src.utils import load_config
 import logging
 import time
 import yaml
@@ -9,6 +10,9 @@ import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+config = load_config()
+
 
 def switch_page(page_name: str):
     def standardize_name(name: str) -> str:
@@ -214,7 +218,7 @@ def custom_sidebar(current_language):
 
     config = _load_yaml('config.yaml')
     
-    translations = _load_json('data/translations.json')
+    translations = _load_json(f"organisation_data/translations.json")
        
     # Use the created pages dictionary to build the sidebar with bold, black text links
     for page_key, page_file in config['pages'].items():
@@ -225,7 +229,4 @@ def custom_sidebar(current_language):
                 st.sidebar.page_link(f"pages/{page_file}", label=translated_name)
     st.sidebar.divider()
 
-# Usage in your main.py and other page files:
-# from custom_sidebar import custom_sidebar
-# custom_sidebar()
 
