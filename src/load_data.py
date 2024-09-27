@@ -127,7 +127,95 @@ def copy_base_files(selected_master_template: str, project_version: str):
     else:
         _copy_files_local(selected_master_template, project_version)
 
-def _copy_files_local(selected_master_template: str, project_version: str):
+def get_download_link(version: str, file_name: str, data_folder: str) -> str:
+    """
+    Generates a file path to serve the file.
+
+    Parameters:
+    ----------
+    version_name : str
+        The name of the version or folder where the file is located.
+    file_name : str
+        The name of the file to be downloaded.
+    data_folder : str
+        The base folder where the local files are stored.
+
+    Returns:
+    -------
+    str
+        Either the local file path or the Azure Link
+
+    """
+
+    print("debug start get_download_link")
+
+    if USE_AZURE_STORAGE:
+            # Generate Azure download link
+            download_url = _get_azure_download_link(version, file_name)
+            print(download_url)
+    else:
+        # Generate local download link
+        download_url = _get_local_download_link(version, file_name, data_folder)
+        print(download_url)
+
+    return download_url
+
+def _get_azure_download_link(version_name: str, file_name: str) -> str:
+    """
+    Generates a publicly accessible download link for a file in Azure Blob Storage.
+
+    Parameters:
+    ----------
+    version_name : str
+        The name of the version or folder where the file is located.
+    file_name : str
+        The name of the file to be downloaded.
+
+    Returns:
+    -------
+    str
+        The publicly accessible download URL for the file in Azure Blob Storage.
+    """
+
+    print("get file from azur")
+    # Construct the connection string
+    connection_string = f"DefaultEndpointsProtocol=https;AccountName={AZURE_ACCOUNT_NAME};AccountKey={AZURE_ACCOUNT_KEY};EndpointSuffix=core.windows.net"
+    
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+    blob_client = container_client.get_blob_client(f"{version_name}/{file_name}")
+
+    # Return the public URL of the blob (assuming the blob has public access enabled)
+    return blob_client.url
+
+def _get_local_download_link(version_name: str, file_name: str, data_folder: str) -> str:
+    """
+    Generates a local file path to serve the file.
+
+    Parameters:
+    ----------
+    version_name : str
+        The name of the version or folder where the file is located.
+    file_name : str
+        The name of the file to be downloaded.
+    data_folder : str
+        The base folder where the local files are stored.
+
+    Returns:
+    -------
+    str
+        The local file path.
+
+    """
+
+    print("get file LOcally")
+    file_path = Path( data_folder) / version_name / file_name
+    if not file_path.exists():
+        raise FileNotFoundError(f"The file {file_name} does not exist locally.")
+    
+    return str(file_path)
+
+def x_copy_files_local(selected_master_template: str, project_version: str):
     """Copy CSV files locally."""
     try:
         base_dir = Path(__file__).parent.parent / "data" / selected_master_template
@@ -145,8 +233,30 @@ def _copy_files_local(selected_master_template: str, project_version: str):
         logger.error(f"Failed to copy files locally: {str(e)}")
         raise
 
+def _copy_files_local(selected_master_template: str, project_version: str):
+    """Copy CSV, JPG, and PNG files locally."""
+    try:
+        base_dir = Path(__file__).parent.parent / "data" / selected_master_template
+        target_dir = Path(__file__).parent.parent / "data" / project_version
+        
+        # Ensure target directory exists
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        # Glob for CSV, JPG, and PNG files
+        for file in base_dir.glob("*.*"):
+            if file.suffix in ['.csv', '.jpg', '.png']:
+                target_file = target_dir / file.name
+                target_file.write_bytes(file.read_bytes())  # Use read_bytes for binary files (images)
+                logger.info(f"Copied {file.name} to {target_dir}")
+
+    except Exception as e:
+        logger.error(f"Failed to copy files locally: {str(e)}")
+        raise
+
+
+
 def _copy_files_azure(selected_master_template: str, project_version: str):
-    """Copy CSV files in Azure Blob Storage."""
+    """Copy CSV, JPG and PNG files in Azure Blob Storage."""
     try:
         blob_service_client = _azure_blob_service_client()
         container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
@@ -154,7 +264,7 @@ def _copy_files_azure(selected_master_template: str, project_version: str):
         blobs = container_client.list_blobs(name_starts_with=f"{selected_master_template}/")
 
         for blob in blobs:
-            if blob.name.endswith('.csv'):
+            if blob.name.endswith(('.csv', '.jpg', '.png')):
                 # Copy each CSV file to the target directory
                 source_blob = blob.name
                 target_blob = f"{project_version}/{blob.name.split('/')[-1]}"

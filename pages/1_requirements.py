@@ -8,7 +8,7 @@ import asyncio
 from dotenv import load_dotenv
 
 from src.sort import sort_dataframe
-from src.load_data import load_file, get_versions, get_project_path
+from src.load_data import load_file, get_versions, get_project_path, get_download_link
 from src.utils import load_config
 from src.ui_elements import custom_sidebar  
 
@@ -45,7 +45,7 @@ def filter_columns_by_language(df: pd.DataFrame, language_suffix: str) -> pd.Dat
     common_columns = [
         'AttributeID', 'AttributeName', 'SortAttribute', 'Pset', 'DataTyp', 'Unit',
         'IFC2x3', 'IFC4', 'IFC4.3', 'Applicability', 'ElementID', 'ModelID',
-        'WorkflowID', 'SortElement', 'IfcEntityIfc4.0Name', 'SortModels', 'Status'
+        'WorkflowID', 'SortElement', 'IfcEntityIfc4.0Name', 'SortModels', 'Status', 'ImageName'
     ]
     language_specific_columns = [col for col in df.columns if col.endswith(language_suffix)]
     columns_to_keep = common_columns + language_specific_columns
@@ -83,10 +83,12 @@ def filter_by_project_phase(data: pd.DataFrame, language_suffix: str, translatio
     
     return filtered_data
 
-def display_download_button(version: str, language: str, data_folder: str, file_type_name: str):
+def x_display_download_button(version: str, language: str, data_folder: str, file_type_name: str):
    
     file_name = f"{file_type_name}_{language}_{version}.xlsx" 
     file_path = Path(data_folder) / version / file_name
+
+    load_file()
 
     if file_path.exists():
         with open(file_path, "rb") as file:
@@ -99,6 +101,30 @@ def display_download_button(version: str, language: str, data_folder: str, file_
     else:
         return
         #st.sidebar.write(f"No file available for {language} in version {version}")
+
+def display_download_button(filepath, label="Download File"):
+    """
+    This function displays a download button in the sidebar for an existing file.
+    
+    Args:
+    filepath (str): The full path of the file to be downloaded.
+    label (str): The label for the download button. Defaults to 'Download File'.
+    """
+    # Check if the file exists
+    if os.path.exists(filepath):
+        file_name = os.path.basename(filepath)
+        with open(filepath, 'rb') as f:
+            file_data = f.read()
+
+        st.sidebar.download_button(
+            label=label,
+            data=file_data,
+            file_name=file_name,
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    else:
+        st.sidebar.warning(f"File {os.path.basename(filepath)} not found!")
+
 
 def custom_text(text: str, font_size: str = "0.7rem") -> str:
     def to_rem(size: str) -> str:
@@ -239,7 +265,7 @@ async def load_image(url: str):
     await asyncio.sleep(0.5)  # Reduced sleep time for faster loading
     return url
 
-def display_element_data_html_columns(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
+def display_element_data_html_columns(element_data: pd.DataFrame, language_suffix: str, translations: Dict, version: str):
     """ Option to display the Element data as HTML."""
     if element_data.empty:
         st.text("")
@@ -272,8 +298,16 @@ def display_element_data_html_columns(element_data: pd.DataFrame, language_suffi
 
     with col2:
         right_column = st.empty()
-        right_column.image = st.image('https://assets.softr-files.com/applications/ecce81bb-64ce-48ab-8ff4-2e035c4e057c/assets/42e4d3fd-508b-4b92-a442-4eeb371523fc.png')
-    
+
+        picture_name = element_data['ImageName'].iloc[0]
+
+        try:
+            if not pd.isna(picture_name) and isinstance(picture_name, str) and picture_name.strip():
+                img_url = get_download_link(version=version, file_name=picture_name, data_folder='data')
+                st.image(img_url, use_column_width=True)
+        except:
+            print("Problem with Picture")
+
     valid_attributes = element_data[element_data['AttributeName'].notna() & (element_data['AttributeName'] != '')]
     
     if valid_attributes.empty:
@@ -376,12 +410,18 @@ def main():
         return
     
     
+    
+    #st.sidebar.markdown(f"[Elementplan]({download_url_elementplan})")
+
 
     # Proceed only if data is available
     try:
         data_filtered_by_phase = filter_by_project_phase(data_filtered_by_language, language_suffix, translations)
-        display_download_button(selected_version, language_suffix, data_folder, 'Elementplan')  
-        display_download_button(selected_version, language_suffix, data_folder, 'Libal_Config')   
+        
+        st.sidebar.markdown("---")
+        download_url_elementplan = get_download_link(version=selected_version,file_name=f'Elementplan_{language_suffix}_{selected_version}.xlsx', data_folder='data' )
+        button_text_plan = translations['home']['download_elementplan_button'][language_suffix]
+        display_download_button(download_url_elementplan, button_text_plan)
         
         model_data_sorted = sort_dataframe(data_filtered_by_phase)
         
@@ -411,7 +451,7 @@ def main():
                         element_data = model_df[model_df[f'ElementName{language_suffix}'] == element_name]
                         #Different Options
                         #display_element_data_expander(element_data, language_suffix, translations)
-                        display_element_data_html_columns(element_data, language_suffix, translations)
+                        display_element_data_html_columns(element_data, language_suffix, translations, selected_version)
                         #display_element_data_html(element_data, language_suffix, translations)
 
 
