@@ -1,7 +1,6 @@
 # This configuration file defines general app settings
 
 APP_NAME: Pragmatic BIM Requirements Manager
-ORGANISATION_NAME: Template_Organisation #change this to access the organisation specific content like translation files. Same name as folder in ´organisation_data\´
 
 # Set to "true" if using Azure Blob for storage and "false" for local storage
 USE_AZURE_STORAGE: false
@@ -54,12 +53,13 @@ VARIABLES:
   PROJECT_NUMBER : "{Projektnummer}"
   PROJECT_NAME : "{Projektname}"
 
-#Necessary columns in the import data
+#Necessary columns in the import data. Mark columns with different language options with a *
 required_workflows_columns:
   - WorkflowID
+  - WorkflowCode
   - WorkflowName*
   - WorkflowDescription*
-  - Status
+  - ModelForWorkflow
 
 required_models_columns:
   - ModelID

@@ -188,6 +188,7 @@ def display_streamlit_columns(data: pd.DataFrame, translations: Dict, language_s
                     col.markdown(custom_text(str(row[df_key])), unsafe_allow_html=True)
             else:
                 st.write(f"Column {df_key} not found in DataFrame")
+                st.write("")
 
 def display_element_data_html(element_data: pd.DataFrame, language_suffix: str, translations: Dict):
     """ Option to display the Element data as HTML."""
@@ -198,6 +199,8 @@ def display_element_data_html(element_data: pd.DataFrame, language_suffix: str, 
     element_name = element_data[f'ElementName{language_suffix}'].iloc[0] if not element_data[f'ElementName{language_suffix}'].empty else "Unknown Element"
     ifc_entity = element_data['IfcEntityIfc4.0Name'].iloc[0] if not element_data['IfcEntityIfc4.0Name'].empty else ""
 
+    st.write("")
+    
     header_text = element_name
     if ifc_entity:
         header_text += f" ({ifc_entity})"
@@ -248,6 +251,8 @@ def display_element_data_html_columns(element_data: pd.DataFrame, language_suffi
     header_text = element_name
     if ifc_entity:
         header_text += f" ({ifc_entity})"
+    st.write("")
+    st.write("")
     st.subheader(header_text)
 
     #contained_in = element_data[f'ContainedIn{language_suffix}'].iloc[0] if not element_data[f'ContainedIn{language_suffix}'].empty else "N/A"
@@ -398,7 +403,8 @@ def main():
                 st.text(file_string)
                 model_description = model_df[f'ModelDescription{language_suffix}'].iloc[0] if not model_df[f'ModelDescription{language_suffix}'].empty else "N/A"
                 if model_description != "N/A" and pd.notna(model_description):
-                    st.markdown(model_description)
+                    st.write(model_description)
+                    st.markdown("---")
                 
                 for element_name in model_df[f'ElementName{language_suffix}'].unique():
                     with st.container():

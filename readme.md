@@ -131,7 +131,7 @@ Recommended Naming Schema:
    - Master Template Version e.g. `V0.9` 
    - Project Versions e.g. `V0.9-{YOUR PROJECT NUMBER}` e.g. `V0.9-14414`
 
-   1. Define the workflow: Outline the purpose and intended use of your data
+   1. Define the workflow: Outline the purpose and intended use of your data. And define which files are necessary for these workflows (Step 2)
    2. Create the container - the file - the IFC Model you expect your data in
    3. Add necessray logical elements(e.g., walls, floors, rooms). Keep in mind that the Ifc Entity is not equal to an element. Think along the lines, of what you have to define in a modeling guidline.
    4. Define necessary attributes: List required attributes for each logical element (at least one per element, otherwiese the code won't process them at the moment)
@@ -294,10 +294,10 @@ You can use any database tool of your choice (e.g., Excel, Airtable, etc.), but 
 #### Workflows Columns
 
 - **WorkflowID (str, int)**: A unique identifier for the workflow.
+- **WorkflowCode (str, int)**: A Code to identify the Workflow/Usecase
 - **WorkflowName\* (str)**: The name of the workflow in the specified language, e.g., `WorkflowNameEN` for English.
-- **WorkflowSubheader\* (str)**: A subheader for the workflow, providing additional context or categorization, e.g., `WorkflowSubheaderEN` for English.
 - **WorkflowDescription\* (text)**: A detailed description of the workflow in the specified language, e.g., `WorkflowDescriptionEN` for English.
-- **Status (str)**: Indicates the current status of the workflow, such as `Active`, `Inactive`, or `Pending`.
+- **ModelForWorkflow\* (str)**: Defines on a high level which models (files) are necessary for a workflow.
 
 #### Models Columns
 

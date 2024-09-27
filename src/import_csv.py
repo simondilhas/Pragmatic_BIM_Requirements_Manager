@@ -31,6 +31,7 @@ import io
 from io import StringIO
 from datetime import datetime
 import streamlit as st
+
  
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -43,10 +44,24 @@ from src.check_imports_data_structure import (
     check_required_columns,
 )
 
-def _filter_to_selected_workflows(df):
+def _get_models_for_workflows(df):
+    result_list = df['ModelForWorkflow'].str.split(',').explode().str.strip().tolist()
+    result_list = [item for item in result_list if item]
+    return result_list
+
+def _filter_to_models_for_workflows():
+    pass
+
+
+def _filter_to_selected_workflows(df, ):
     #Experimental!
+
     result_df =  df[df['Selected'] == True]
-    result_df['ID'] = result_df['AttributeID'] + result_df['ModelID']
+    list_needed_models =_get_models_for_workflows(result_df)
+    result_df = result_df[result_df['ModelID'].isin(list_needed_models)]
+    result_df['ID'] =  result_df['ModelID'] + result_df['ElementID'] + result_df['AttributeID']
+
+    #Is this realy necessary, or can I adjust the logic
     result_df = result_df.drop_duplicates(subset=['ID']).reset_index(drop=True)
     return result_df
 
@@ -66,8 +81,9 @@ def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
             df_exploded = df_exploded.assign(**{column: df_exploded[column].str.split(',')}).explode(column)
         df_exploded[column] = df_exploded[column].str.strip()
     
-    df_exploded['SortAttribute'] = pd.to_numeric(df_exploded['SortAttribute'], errors='coerce')
-    return df_exploded.sort_values('SortAttribute', na_position='last').reset_index(drop=True)
+    #df_exploded['SortAttribute'] = pd.to_numeric(df_exploded['SortAttribute'], errors='coerce')
+    #return df_exploded.sort_values('SortAttribute', na_position='last').reset_index(drop=True)
+    return df_exploded
 
 def load_file_and_add_colums(version:str, file_name:str,  column:str) -> pd.DataFrame:
     df = load_file(version, file_name)
@@ -177,23 +193,20 @@ def import_csv(version:str, master_or_project:str):
     #---test comment out for a working solutiom
     #merged_df =  merged_df[merged_df['Selected'] == True]
     merged_df = _filter_to_selected_workflows(merged_df)
+    
 
-    columns_to_check = ['SortModels', 'SortElements', 'SortAttributes']
-    available_columns = [col for col in columns_to_check if col in merged_df.columns]
+    #Sort not working
 
-    #if available_columns:
-    #    result_df = result_df.sort_values(by=available_columns, ascending=True)
+    #columns_to_check = ['SortModel', 'SortElement', 'SortAttribute']
+    #available_columns = [col for col in columns_to_check if col in merged_df.columns]
+    #sorted_df = merged_df.sort_values(by=available_columns, ascending=[True] * len(available_columns))
 
-    sorted_df = merged_df.sort_values(by=available_columns, ascending=[True] * len(available_columns))
-    #sorted_df = sorted_df.drop_duplicates().reset_index(drop=True)
-
-    #result_df = sorted_df.drop_duplicates().reset_index(drop=True)
 
     try:
         excel_buffer = io.BytesIO()
         with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
             #result_df.to_excel(writer, index=False)
-            sorted_df.to_excel(writer, index=False)
+            merged_df.to_excel(writer, index=False)
         excel_buffer.seek(0)
 
         filename = f"RawData_{version}.xlsx"

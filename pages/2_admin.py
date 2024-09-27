@@ -177,7 +177,7 @@ def aagrid_display_workflow_with_checkboxes(df):
                         cellEditor='agCheckboxCellEditor',
                         editable=True,
                         width=100)
-    gb.configure_column("WorkflowID", header_name="Workflow ID")
+    gb.configure_column("WorkflowCode", header_name="Code")
     gb.configure_column("WorkflowNameDE", header_name="Workflow Name")
     gb.configure_column("WorkflowDescriptionDE", header_name="Description")
     
@@ -229,12 +229,12 @@ def display_workflow_with_checkboxes(df, selection_option, language):
             df.at[index, 'Selected'] = checked
         
         with col2:
-            st.markdown(f"{row['WorkflowID']}")
+            st.markdown(f"{row['WorkflowCode']}")
 
         with col3:
             st.markdown(f"{row[f'WorkflowName{language}']}")
 
-        with col3:
+        with col4:
             st.markdown(row[f'WorkflowDescription{language}'])
         #st.markdown("---")
 
@@ -452,6 +452,8 @@ def tab_create_project():
             project_name = st.session_state.project_state['name']
 
             workflows_df = load_file(selected_project, "M_Workflows.csv")
+            workflows_df = workflows_df.sort_values(by='SortWorkflow', ascending=True)
+            
             workflows_sel = display_workflow_with_checkboxes(workflows_df, selection_option, project_language)
             
             if st.button('Update Project Configuration'):

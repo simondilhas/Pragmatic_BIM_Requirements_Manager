@@ -10,7 +10,6 @@ from organisation_data.content_home import content_home
 config = load_config()
 MAIN_LANGUAGE = config.get('MAIN_LANGUAGE', False)
 FRONTEND_LANGUAGES = config.get('FRONTEND_LANGUAGES')
-ORGANISATION_NAME = config.get('ORGANISATION_NAME')
 
 APP_NAME =config.get('APP_NAME', False)
 TRANSLATIONS_FILE = 'translations.json'

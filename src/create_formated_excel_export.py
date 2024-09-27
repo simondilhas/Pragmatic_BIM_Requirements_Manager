@@ -38,8 +38,11 @@ import json
 import re
 import io
 
-from src.load_data import load_file, store_file
-from src.utils import load_config
+from src.load_data import load_file, store_file, get_project_path
+from src.utils import load_config, load_translations
+
+TRANSLATIONS_FILE = 'translations.json'
+
 
 # Define the columns/
 
@@ -121,10 +124,10 @@ def _explode_phases_to_matrix(df, column, lang):
 
 def _translate_column_names(df, language):
     print("Start Translating")
-    # Load the translations
-    data_path = _get_data_path('translations.json')
-    with open(data_path, 'r', encoding='utf-8') as f:
-        translations = json.load(f)
+
+    data_folder = get_project_path('organisation_data')
+    translations = load_translations(data_folder / TRANSLATIONS_FILE)
+
     
     # Get the column translations for the specified language
     column_translations = translations['column_names']
