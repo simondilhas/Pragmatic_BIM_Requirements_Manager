@@ -148,57 +148,6 @@ def clear_session_state():
     # Force a rerun of the app
     st.rerun()
 
-def aagrid_display_workflow_with_checkboxes(df):
-
-    st.write("### Select the project relevant Workflows/Usecases")
-
-    # Function to update all rows
-    def update_all(df, value):
-        df['Selected'] = value
-        return df
-
-    # Dropdown for bulk selection
-    selection_option = st.selectbox(
-        "Bulk Selection",
-        options=["No Change", "Select All", "Deselect All"],
-        index=0
-    )
-
-    if selection_option == "Select All":
-        df = update_all(df, True)
-    elif selection_option == "Deselect All":
-        df = update_all(df, False)
-
-    gb = GridOptionsBuilder.from_dataframe(df)
-    
-    gb.configure_column("Selected", 
-                        header_name="Selected", 
-                        cellRenderer='agCheckboxCellRenderer',
-                        cellEditor='agCheckboxCellEditor',
-                        editable=True,
-                        width=100)
-    gb.configure_column("WorkflowCode", header_name="Code")
-    gb.configure_column("WorkflowNameDE", header_name="Workflow Name")
-    gb.configure_column("WorkflowDescriptionDE", header_name="Description")
-    
-    gb.configure_grid_options(suppressRowClickSelection=True)
-    gridOptions = gb.build()
-
-    grid_response = AgGrid(
-        df,
-        gridOptions=gridOptions,
-        data_return_mode='AS_INPUT', 
-        update_mode=GridUpdateMode.VALUE_CHANGED,
-        fit_columns_on_grid_load=True,
-        theme='streamlit'
-    )
-
-    updated_df = grid_response['data']
-    
-    # Ensure 'Selected' column contains boolean values
-    updated_df['Selected'] = updated_df['Selected'].astype(bool)
-
-    return updated_df
 
 def check_dropdown():
     selection_option = st.selectbox(
@@ -206,6 +155,27 @@ def check_dropdown():
         options=["No Change", "Select All", "Deselect All"],
         index=0
     )
+
+def create_new_version_for_every_workflow(selected_master_template):
+
+    workflows_df = load_file(selected_master_template, "M_Workflows.csv")
+
+    for index, row in workflows_df.iterrows():
+        # Extract workflow details
+        workflow_code = row['WorkflowCode']
+        project_version = f"{selected_master_template}-P-{workflow_code}"
+        copy_base_files(selected_master_template, project_version)
+
+        df = load_file(project_version, "M_Workflows.csv")
+        df['Selected'] = False
+        df.at[index, 'Selected'] = True
+        if not pd.isna(row['ModelForWorkflow']):
+            filtered_df = df[df['Selected'] == True]
+            st.info(f"Project created for: {workflow_code}")
+            store_file(filtered_df.to_csv(index=False), project_version, "M_Workflows.csv")
+            batch_processing_import(project_version, "P")
+        else:
+            st.warning(f"Skipping workflow {workflow_code} as no model is assigned to the workflow/usecase.")
 
 
 def display_workflow_with_checkboxes(df, selection_option, language):
@@ -460,7 +430,7 @@ def tab_create_project():
                 try:
                     filtered_df = workflows_sel[workflows_sel['Selected'] == True]
                     store_file(filtered_df.to_csv(index=False), selected_project, "M_Workflows.csv")
-                    df_test = replace_project_details_string(selected_project, project_name)
+                    replace_project_details_string(selected_project, project_name)
                     batch_processing_import(selected_project, "P")
                     st.session_state.project_state.update({
                         'language': project_language,
@@ -482,6 +452,49 @@ def tab_create_project():
                 }
                 st.rerun()
 
+def tab_create_project_for_every_workflow():
+    # Initialize session state variables
+    if 'project_state' not in st.session_state:
+        st.session_state.project_state = {
+            'version': "",
+            'language': None,
+            'name': None,
+            'create_project_step': 1
+        }
+    else:
+        # Ensure all keys exist
+        default_state = {
+            'version': "",
+            'language': None,
+            'name': None,
+            'create_project_step': 1
+        }
+        for key, value in default_state.items():
+            if key not in st.session_state.project_state:
+                st.session_state.project_state[key] = value
+
+    # Display current state (for debugging, can be removed in production)
+    #st.write(st.session_state.project_state)
+
+    DATA_FOLDER = 'data'
+    data_folder = get_project_path(DATA_FOLDER)
+    available_versions = get_versions(data_folder) or []
+
+    if not available_versions:
+        st.write("Create a Master Template Version first")
+        return
+    
+    else:
+        # Step 1: Create Project Version
+        if st.session_state.project_state['create_project_step'] == 1:
+
+
+            selected_master_template = st.selectbox("Select Master Template to Check Workflows:", available_versions)
+            if selected_master_template:
+                if st.button("Create Project a new project for every Workflow"):
+                    create_new_version_for_every_workflow(selected_master_template)
+                    st.success("New Projects for workflows/usecases created")
+
 
 def main():
 
@@ -496,7 +509,7 @@ def main():
         logout_button()
         
         st.title("Admin Area")
-        tab1, tab2, tab3= st.tabs(['New Masters Template', 'Create Project Version', '...' ])
+        tab1, tab2, tab3, tab4= st.tabs(['New Masters Template', 'Create Project Version', 'Create Project for every Workflow', '...' ])
 
         with tab1:
             st.subheader("New Masters Template")
@@ -505,9 +518,13 @@ def main():
         with tab2:
             st.subheader("Create Project Version")
             tab_create_project()
-            
 
         with tab3:
+            st.subheader("Create Project for every Workflow")
+            st.warning("Please be carefull and only use this in the staging area!")
+            tab_create_project_for_every_workflow()
+            
+        with tab4:
             st.subheader("...")
     
 
