@@ -28,7 +28,6 @@ TRANSLATIONS_FILE = 'translations.json'
 def load_data(version: str) -> pd.DataFrame:
     df = load_file(version, 'data_for_web.csv')
     #Potential for Performance increase?
-    #df = df.drop_duplicates(subset='AttributeID')
     return df
 
 

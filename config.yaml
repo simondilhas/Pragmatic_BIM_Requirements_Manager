@@ -90,7 +90,7 @@ required_attributes_columns:
   - IFC4
   - IFC4.3
   - Applicability
-  - ElementID
-  - ModelID
-  - WorkflowID
+  - ElementLink
+  - ModelLink
+  - WorkflowLink
 

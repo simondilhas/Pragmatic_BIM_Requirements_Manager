@@ -31,6 +31,7 @@ import io
 from io import StringIO
 from datetime import datetime
 import streamlit as st
+import csv
 
  
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,9 +45,17 @@ from src.check_imports_data_structure import (
     check_required_columns,
 )
 
-def _get_models_for_workflows(df):
+def x_get_models_for_workflows(df):
     result_list = df['ModelForWorkflow'].str.split(',').explode().str.strip().tolist()
     result_list = [item for item in result_list if item]
+    return result_list
+
+def _get_models_for_workflows(df):
+    result_list = df['ModelForWorkflow'].fillna('').apply(
+        lambda x: x.split(',') if isinstance(x, str) and ',' in x else [x]  # Split only if x is a string and contains a comma
+    ).explode().str.strip().tolist()
+    
+    result_list = [item for item in result_list if item]  # Filter out empty values
     return result_list
 
 def _filter_to_models_for_workflows():
@@ -65,13 +74,15 @@ def _filter_to_selected_workflows(df, ):
     result_df = result_df.drop_duplicates(subset=['ID']).reset_index(drop=True)
     return result_df
 
-def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
+
+
+def x_process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = ['ElementID', 'ModelID', 'WorkflowID', 'SortAttribute']
     check_required_columns(df, required_columns)
 
     #columns_to_explode = ['ElementID', 'ModelID']
     #---Test comment out for a working solution
-    columns_to_explode = ['ElementID', 'ModelID', 'WorkflowID']
+    columns_to_explode = ['ElementLink', 'ModelLink', 'WorkflowLink']
     
     df_exploded = df.copy()
     for column in columns_to_explode:
@@ -83,6 +94,31 @@ def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
     
     #df_exploded['SortAttribute'] = pd.to_numeric(df_exploded['SortAttribute'], errors='coerce')
     #return df_exploded.sort_values('SortAttribute', na_position='last').reset_index(drop=True)
+    return df_exploded
+
+def parse_csv_string(value):
+    # Use csv.reader to parse the string while handling commas inside quotes
+    reader = csv.reader([value], skipinitialspace=True)
+    return next(reader)
+
+def _process_attributes_df(df: pd.DataFrame) -> pd.DataFrame:
+    columns_to_explode = ['ElementLink', 'ModelLink', 'WorkflowLink']
+    df_exploded = df.copy()
+
+    for column in columns_to_explode:
+        # Replace NaN with empty string and ensure only strings are processed
+        df_exploded[column] = df_exploded[column].fillna('').astype(str)
+
+        # Apply CSV parser only if commas are present
+        if df_exploded[column].str.contains(',', na=False).any():
+            df_exploded[column] = df_exploded[column].apply(parse_csv_string)
+
+        # Explode the column into multiple rows
+        df_exploded = df_exploded.explode(column)
+        df_exploded[column] = df_exploded[column].str.strip()
+
+    return df_exploded
+    
     return df_exploded
 
 def load_file_and_add_colums(version:str, file_name:str,  column:str) -> pd.DataFrame:
@@ -186,16 +222,23 @@ def import_csv(version:str, master_or_project:str):
 
     #Execution logic
     attributes_df = _process_attributes_df(attributes_df)
-    merged_df = attributes_df.merge(elements_df, on='ElementID', how='left') \
-                                 .merge(models_df, on='ModelID', how='left') \
-                                 .merge(workflows_df, on='WorkflowID', how='left')
+    merged_df_step1 = attributes_df.merge(elements_df, left_on='ElementLink', right_on='ElementID', how='left')
+    merged_df_step2 = merged_df_step1.merge(models_df, left_on='ModelLink', right_on='ModelID', how='left')
+    merged_df_step3 = merged_df_step2.merge(workflows_df, left_on='WorkflowLink', right_on='WorkflowID', how='left')
+
+    merged_df = merged_df_step3
     
-    #---test comment out for a working solutiom
-    #merged_df =  merged_df[merged_df['Selected'] == True]
-    merged_df = _filter_to_selected_workflows(merged_df)
+    #debug 
+    merged_df = _filter_to_selected_workflows(merged_df_step3)
+
+
     
 
     #Sort not working
+
+    #---test comment out for a working solutiom
+    #merged_df =  merged_df[merged_df['Selected'] == True]
+
 
     #columns_to_check = ['SortModel', 'SortElement', 'SortAttribute']
     #available_columns = [col for col in columns_to_check if col in merged_df.columns]
