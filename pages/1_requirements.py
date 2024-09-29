@@ -82,48 +82,47 @@ def filter_by_project_phase(data: pd.DataFrame, language_suffix: str, translatio
     
     return filtered_data
 
-def x_display_download_button(version: str, language: str, data_folder: str, file_type_name: str):
-   
-    file_name = f"{file_type_name}_{language}_{version}.xlsx" 
-    file_path = Path(data_folder) / version / file_name
 
-    load_file()
-
-    if file_path.exists():
-        with open(file_path, "rb") as file:
-            st.sidebar.download_button(
-                label=f"Download {file_name}",
-                data=file,
-                file_name=file_name,
-                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-    else:
-        return
-        #st.sidebar.write(f"No file available for {language} in version {version}")
-
-def display_download_button(filepath, label="Download File"):
+def x_display_download_button(version: str, file_name: str):
     """
     This function displays a download button in the sidebar for an existing file.
     
     Args:
-    filepath (str): The full path of the file to be downloaded.
-    label (str): The label for the download button. Defaults to 'Download File'.
+    version (str): The version of the current elementplan
+    file_name (str): The full path of the file to be downloaded.
     """
-    # Check if the file exists
-    if os.path.exists(filepath):
-        file_name = os.path.basename(filepath)
-        with open(filepath, 'rb') as f:
-            file_data = f.read()
+
+    filepath = get_download_link(version, file_name, data_folder='data')
+    st.sidebar.markdown(f"[{file_name}]({filepath})")
+
+
+def display_download_button(version: str, file_name: str):
+    """
+    This function displays a download button in the sidebar for an existing file.
+    
+    Args:
+    version (str): The version of the current elementplan
+    file_name (str): The full path of the file to be downloaded.
+    """
+
+    filepath = get_download_link(version, file_name, data_folder='data')
+
+    if filepath.startswith("https://"):  # Case for Azure-hosted files
+        # Display a direct link for Azure-hosted files
+        st.sidebar.markdown(f"[{file_name}]({filepath})")
+
+    else:  # Case for local files
+
+        # Display a download button for local files
+        with open(filepath, "rb") as file:
+            file_data = file.read()
 
         st.sidebar.download_button(
-            label=label,
+            label=file_name,
             data=file_data,
-            file_name=file_name,
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            file_name=file_name,  # Name of the file when downloaded
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-    else:
-        st.sidebar.warning(f"File {os.path.basename(filepath)} not found!")
-
 
 def custom_text(text: str, font_size: str = "0.7rem") -> str:
     def to_rem(size: str) -> str:
@@ -420,9 +419,11 @@ def main():
         data_filtered_by_phase = filter_by_project_phase(data_filtered_by_language, language_suffix, translations)
         
         st.sidebar.markdown("---")
-        download_url_elementplan = get_download_link(version=selected_version,file_name=f'Elementplan_{language_suffix}_{selected_version}.xlsx', data_folder='data' )
+        #download_url_elementplan = get_download_link(version=selected_version,file_name=f'Elementplan_{language_suffix}_{selected_version}.xlsx', data_folder='data' )
         button_text_plan = translations['home']['download_elementplan_button'][language_suffix]
-        display_download_button(download_url_elementplan, button_text_plan)
+        file_name = f'Elementplan_{language_suffix}_{selected_version}.xlsx'
+
+        display_download_button(selected_version, file_name)
         
         model_data_sorted = sort_dataframe(data_filtered_by_phase)
         
