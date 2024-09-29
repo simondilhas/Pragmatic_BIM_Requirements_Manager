@@ -9,8 +9,9 @@ and potentially other cloud services / Databases.
 
 import pandas as pd
 import logging
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from azure.core.exceptions import AzureError, ResourceExistsError
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import os
 import io
@@ -162,7 +163,7 @@ def get_download_link(version: str, file_name: str, data_folder: str) -> str:
 
 def _get_azure_download_link(version_name: str, file_name: str) -> str:
     """
-    Generates a publicly accessible download link for a file in Azure Blob Storage.
+    Generates a publicly accessible download link for a file in Azure Blob Storage using a SAS token.
 
     Parameters:
     ----------
@@ -174,19 +175,42 @@ def _get_azure_download_link(version_name: str, file_name: str) -> str:
     Returns:
     -------
     str
-        The publicly accessible download URL for the file in Azure Blob Storage.
+        The publicly accessible download URL with SAS token for the file in Azure Blob Storage.
     """
 
-    print("get file from azur")
-    # Construct the connection string
-    connection_string = f"DefaultEndpointsProtocol=https;AccountName={AZURE_ACCOUNT_NAME};AccountKey={AZURE_ACCOUNT_KEY};EndpointSuffix=core.windows.net"
-    
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-    container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
-    blob_client = container_client.get_blob_client(f"{version_name}/{file_name}")
+    print("Generating SAS download link from Azure Blob Storage")
 
-    # Return the public URL of the blob (assuming the blob has public access enabled)
-    return blob_client.url
+    blob_service_client = _azure_blob_service_client()
+    container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+    blob_name = f"{version_name}/{file_name}"
+    blob_client = container_client.get_blob_client(blob_name)
+
+    print(f"Blob client for {version_name}/{file_name} created.")
+
+    # Set expiration for SAS token (e.g., 1 hour from now)
+    sas_token_expiry = datetime.now(timezone.utc) + timedelta(hours=1)
+    print(f"SAS token expiry set to: {sas_token_expiry}")
+
+    # Generate the SAS token for the blob
+    try:
+        sas_token = generate_blob_sas(
+            account_name=AZURE_ACCOUNT_NAME,
+            container_name=AZURE_CONTAINER_NAME,
+            blob_name=f"{version_name}/{file_name}",
+            account_key=AZURE_ACCOUNT_KEY,
+            permission=BlobSasPermissions(read=True),  # Allow read access
+            expiry=sas_token_expiry
+        )
+        print(f"SAS token generated: {sas_token}")
+    except Exception as e:
+        print(f"Error generating SAS token: {e}")
+        return None
+
+    # Combine the blob URL with the generated SAS token
+    sas_url = f"{blob_client.url}?{sas_token}"
+    print(f"Generated SAS URL: {sas_url}")
+
+    return sas_url
 
 def _get_local_download_link(version_name: str, file_name: str, data_folder: str) -> str:
     """

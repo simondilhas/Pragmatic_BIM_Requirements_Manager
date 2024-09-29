@@ -3,7 +3,7 @@
 APP_NAME: Pragmatic BIM Requirements Manager
 
 # Set to "true" if using Azure Blob for storage and "false" for local storage
-USE_AZURE_STORAGE: False
+USE_AZURE_STORAGE: True
 
 MAIN_LANGUAGE: "DE"
 

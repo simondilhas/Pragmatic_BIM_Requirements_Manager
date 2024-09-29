@@ -303,9 +303,11 @@ def display_element_data_html_columns(element_data: pd.DataFrame, language_suffi
         try:
             if not pd.isna(picture_name) and isinstance(picture_name, str) and picture_name.strip():
                 img_url = get_download_link(version=version, file_name=picture_name, data_folder='data')
-                st.image(img_url, use_column_width=True)
-        except:
-            print("Problem with Picture")
+                right_column.image(img_url, use_column_width=True)
+            else:
+                right_column.write("")
+        except Exception as e:
+            right_column.write("Problem with Picture: {}".format(e))
 
     valid_attributes = element_data[element_data['AttributeName'].notna() & (element_data['AttributeName'] != '')]
     
