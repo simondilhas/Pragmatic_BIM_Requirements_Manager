@@ -1,14 +1,24 @@
+"""
+2_admin.py
+
+Admin Area
+
+Here you can:
+- Create new Master Versions as template
+- Create new projects from these templates and configure them by selecting usecases
+- See which projects use which version and have which usecasess/workflows.
+
+"""
+
+
 import streamlit as st
-import os
-import io
 import pandas as pd
-import time
 from typing import List
 from dotenv import load_dotenv
 from st_aggrid import AgGrid, GridOptionsBuilder,GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
-from src.load_data import load_file, store_file, create_storage_folder # Assuming load_file is imported here
+from src.load_data import load_file, store_file, create_storage_folder
 from src.check_imports_data_structure import (
     required_workflows_columns,
     required_models_columns,
@@ -81,12 +91,6 @@ def get_language_options(data):
     return result_dict
 
 
-def x_replace_project_details_string(project_number, project_name):
-    """Replace the strings defined in config with the actual project number and name"""
-    df = load_file(project_number, "M_Attributes.csv")
-    df = df.replace({VAR_PROJECT_NUMBER: project_number, VAR_PROJECT_NAME: project_name}, regex=True)
-    store_file(df, project_number, "M_Attributes.csv")
-
 def replace_project_details_string(project_number, project_name):
     """Replace the strings defined in config with the actual project number and name"""
 
@@ -149,13 +153,6 @@ def clear_session_state():
     st.rerun()
 
 
-def check_dropdown():
-    selection_option = st.selectbox(
-        "Bulk Selection",
-        options=["No Change", "Select All", "Deselect All"],
-        index=0
-    )
-
 def create_new_version_for_every_workflow(selected_master_template):
 
     workflows_df = load_file(selected_master_template, "M_Workflows.csv")
@@ -216,9 +213,8 @@ def checkbox_change_callback():
     st.session_state.widget_callback_called = True
 
 def upload_zipped_pictures():
-    import zipfile
-import tempfile
-from io import BytesIO
+    pass
+
 
 def tab_upload_new_version():
     if 'project_state' not in st.session_state:
@@ -339,6 +335,8 @@ def tab_upload_new_version():
             st.success("Ready to create a new Master Version!")
             st.rerun()
 
+def tab_project_overview():
+    pass
 
 def tab_create_project():
     # Initialize session state variables
@@ -509,23 +507,29 @@ def main():
         logout_button()
         
         st.title("Admin Area")
-        tab1, tab2, tab3, tab4= st.tabs(['New Masters Template', 'Create Project Version', 'Create Project for every Workflow', '...' ])
+        tab1, tab2, tab3, tab4, tab5= st.tabs(['Project Overview','New Masters Template', 'Create Project Version', 'Create Project for every Workflow', '...' ])
 
         with tab1:
+            st.subheader("Project overview")
+            tab_project_overview()
+            
+
+        with tab2:
             st.subheader("New Masters Template")
             tab_upload_new_version()
 
-        with tab2:
+        with tab3:
             st.subheader("Create Project Version")
             tab_create_project()
 
-        with tab3:
+        with tab4:
             st.subheader("Create Project for every Workflow")
             st.warning("Please be carefull and only use this in the staging area!")
             tab_create_project_for_every_workflow()
             
-        with tab4:
+        with tab5:
             st.subheader("...")
+    
     
 
 
