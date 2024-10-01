@@ -94,3 +94,16 @@ required_attributes_columns:
   - ModelLink
   - WorkflowLink
 
+#These are the used keys in the wordtemplate
+word_template_keys:
+  - {Titel}
+  - {Date}
+  - {Version}
+  - {TitelUsecase}
+  - {UsecaseName}
+  - {UsecaseDescription}
+  - {TitelModelGuidline}
+  - {ElementName}
+  - {IfcEntity}
+  - {ElementPicture}
+  - {ElementDescription}

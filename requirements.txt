@@ -78,3 +78,4 @@ urllib3==2.2.3
 watchdog==4.0.2
 wcwidth==0.2.13
 XlsxWriter==3.2.0
+python-docx-1.1.2

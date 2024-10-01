@@ -22,7 +22,14 @@
             "IT": "Scarica il piano degli elementi"
         }
     },
-    
+    "word_report":{
+        "titel": {
+            "DE": "Modellierungsrichtlinie",
+            "EN": "Modelingguidlines",
+            "FR": "",
+            "IT": ""
+        }
+      },
     "choice": {
         "DE": "Modellauswahl: (Nach rechts scrollen, um alle Einträge anzuzeigen) ",
         "EN": "Model selection: (Scroll right to view all entries)",
@@ -309,5 +316,6 @@
           "FR": "Applicabilité",
           "IT": "Applicabilità"
       }
+      
     }
 }

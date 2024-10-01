@@ -234,10 +234,16 @@ def _get_local_download_link(version_name: str, file_name: str, data_folder: str
 
     print("get file LOcally")
     file_path = Path( data_folder) / version_name / file_name
-    if not file_path.exists():
-        raise FileNotFoundError(f"The file {file_name} does not exist locally.")
+    try:
+        if not file_path.exists():
+            raise FileNotFoundError(f"The file {file_name} does not exist locally.")
+        
+        return str(file_path)  # Return the path if the file exists
     
-    return str(file_path)
+    except FileNotFoundError as e:
+        print(e)  # Log or print the error
+        # Return None or a default value to indicate the file wasn't found
+        return None  # Or provide a fallback path if applicab
 
 def x_copy_files_local(selected_master_template: str, project_version: str):
     """Copy CSV files locally."""
